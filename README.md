@@ -1,2 +1,2 @@
-# R
-Small R learning projects
+# EXED-Training
+EXED Training projects
