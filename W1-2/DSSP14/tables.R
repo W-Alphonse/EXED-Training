@@ -1,4 +1,8 @@
 # Ctrl+l : clear /  PIPE   %>%  Ctrl-Shift-M
+
+# https://cran.r-project.org/web/packages/tidyverse/index.html
+# https://tidyverse.tidyverse.org/
+# https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf
 install.packages(tidyverse)
 
 # load the whole "tidyverse" package
@@ -23,8 +27,8 @@ select(tbl_iris, Sepal.Length, Species, everything())
 select_if(tbl_iris, is.numeric)  # permet de seelctionner quel colonne nous interesse d'une manière conditionnelle
 select(tbl_iris, -Species)
 
-tbl_iris[1:10, c(2,5)] # to avoid
-select(tbl_iris, 3:5)  # to avoid
+tbl_iris[1:10, c(2,5)] # to avoid. select column_2_and_5 from rows.1_to_10
+select(tbl_iris, 3:5)  # to avoid. select column_3_to_5  in all dataset
 
 mutate(tbl_iris, Petal.Size = Petal.Length * Petal.Width)  # Rajoute une colonne
 mutate(tbl_iris, Species = str_to_title(Species))  # Modifie une colonne ds le dataset récupérer; Le ds initial reste intacte
@@ -56,10 +60,15 @@ tbl_iris %>%
             N = n_distinct(Sepal.Length))           
 
 # Matrice
+# https://tidyr.tidyverse.org/reference/pivot_longer.html
 WorldPhones %>% 
   as_tibble(rownames = "Year") %>% 
   mutate(Year = as.numeric(Year))%>% 
-  pivot_longer(-Year, names_to = "Region", values_to = "Number") %>% 
+  pivot_longer(-Year, 
+               names_to = "Region", # outcome 'longer format' column name. 
+                                    # Imagine that there are n-columns to be transformed from 'wider format' to 1-column 'longer format'
+               values_to = "Number" # outcome 'values' column name 
+               ) %>% 
   pivot_wider(names_from = Region, values_from = Number)
 
 require(graphics)
