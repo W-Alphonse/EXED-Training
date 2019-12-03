@@ -1,8 +1,20 @@
+
+# https://github.com/rstudio/cheatsheets/blob/master/data-visualization-2.1.pdf
+# https://tutorials.iq.harvard.edu/R/Rgraphics/Rgraphics.html
+# https://www.datanovia.com/en/blog/ggplot-aes-how-to-assign-aesthetics-in-ggplot2/
+
 library(tidyverse)
 theme_set(theme_minimal())
 
 
 # ggplot fonctionne par couche et nuage de point => je definie mes parametres esthetiques et je travaille par couche
+# Lors de l'elaboration d'un graphe, on distingue les elements suivants p.77: 
+# - data : le jeu de données --> 'ggplot'
+# - aesthetics : Les variables à representer + couleur + taille + .... --> 'aes'
+# - geometrics : Le type de représentation graphique --> geom_...
+# - statistics : statistical transformations --> stat_...
+# - scales     : specify your own set of mappings from levels in the data to aesthetic values --> scale_...
+
 ggplot(iris) + 
   aes(x=Sepal.Length, y=Sepal.Width) +
   geom_point()
@@ -15,52 +27,61 @@ ggplot(iris) +
   aes(x=Sepal.Length, y=Sepal.Width, color=Species, shape = Species) +
   geom_point()
 
+
+# list all possible values of ase
+ggplot2:::.all_aesthetics
+
 # Geometrie 'boxplot'
 ggplot(iris) + 
   aes(x=Species, y = Sepal.Length) +
   geom_boxplot()
 
+
+# 'color' related to the color of the object 
 ggplot(iris) + 
-  aes(x=Species, y = Sepal.Length, color=Species,) +
+  aes(x=Species, y = Sepal.Length, color=Species) +
+  geom_boxplot()
+
+# 'fill' related to the color of the filled object
+ggplot(iris) + 
+  aes(x=Species, y = Sepal.Length, fill=Species) +
   geom_boxplot()
 
 ggplot(iris) + 
-  aes(x=Species, y = Sepal.Length, fill=Species,) +
-  geom_boxplot()
-
-ggplot(iris) + 
-  aes(x=Species, y = Sepal.Length, fill=Species,) +
+  aes(x=Species, y = Sepal.Length, fill=Species) +
   geom_boxplot(show.legend = FALSE)  # ceci enlève la legende par type geometrie 
 
 ggplot(iris) + 
-  aes(x=Species, y = Sepal.Length, fill=Species,) +
+  aes(x=Species, y = Sepal.Length, fill=Species) +
   geom_boxplot() +
   theme(legend.position = "none") # ceci enlève tout les legendes du graphe
 
+#
 # x<- 3 rm(x)  ceci enlève la valeur de x de l'environnement
 
 ggplot(iris) + 
-  aes(x=Species, y = Sepal.Length, fill=Species,) +
+  aes(x=Species, y = Sepal.Length, fill=Species) +
   geom_boxplot() +
-  scale_fill_manual(values = c(setosa="blue", versicolor="red", virginica = "green"))
+  scale_fill_manual(values = c(setosa="blue", versicolor="red", virginica = "green")) +
   theme(legend.position = "none") # ceci enlève tout les legendes du graphe
 
-  ggplot(iris) + 
-    aes(x=Species, y = Sepal.Length, fill=Species,) +
-    geom_boxplot() +
-    scale_fill_manual(values = c(setosa="#a45f1c", 
-                                 versicolor="red", 
-                                 virginica = "green"))
+ggplot(iris) + 
+  aes(x=Species, y = Sepal.Length, fill=Species) +
+  geom_boxplot() +
+  scale_fill_manual(values = c(setosa="#a45f1c", 
+                               versicolor="red", 
+                               virginica = "green")) + 
   theme(legend.position = "none") # ceci enlève tout les legendes du graphe
   
+# The viridis scales provide colour maps that are perceptually uniform in both colour and black-and-white. 
 ggplot(iris) + 
-  aes(x=Species, y = Sepal.Length, fill=Species,) +
+  aes(x=Species, y = Sepal.Length, fill=Species) +
   geom_boxplot() +
   scale_fill_viridis_d() +
   theme(legend.position = "none") # ceci enlève tout les legendes du graphe
 
 ggplot(iris) + 
-  aes(x=Species, y = Sepal.Length, fill=Species,) +
+  aes(x=Species, y = Sepal.Length, fill=Species) +
   geom_boxplot(color = "tomato") +
   scale_fill_viridis_d() +
   theme(legend.position = "none") # ceci enlève tout les legendes du graphe

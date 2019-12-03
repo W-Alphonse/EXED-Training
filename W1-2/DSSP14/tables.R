@@ -1,8 +1,21 @@
-# Ctrl+l : clear /  PIPE   %>%  Ctrl-Shift-M
+# Ctrl+l: clear / Ctrl-Shift-M: %>%  / Ctrl-Shift-C: Comment
 
 # https://cran.r-project.org/web/packages/tidyverse/index.html
 # https://tidyverse.tidyverse.org/
 # https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf
+
+# Package 'tidyverse' :
+# ---------------------
+# ggplot2, for data visualisation.
+# dplyr, for data manipulation.
+# tidyr, for data tidying.
+# readr, for data import.
+# purrr, for functional programming.
+# tibble, for tibbles, a modern re-imagining of data frames.
+# stringr, for strings.
+# forcats, for factors.
+
+# Install from CRAN
 install.packages(tidyverse)
 
 # load the whole "tidyverse" package
@@ -70,6 +83,7 @@ WorldPhones %>%
                values_to = "Number" # outcome 'values' column name 
                ) %>% 
   pivot_wider(names_from = Region, values_from = Number)
+
 
 require(graphics)
 matplot(rownames(WorldPhones), WorldPhones, type = "b", log = "y",
