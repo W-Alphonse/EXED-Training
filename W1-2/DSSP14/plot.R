@@ -62,7 +62,7 @@ ggplot(iris) +
 ggplot(iris) + 
   aes(x=Species, y = Sepal.Length, fill=Species) +
   geom_boxplot() +
-  scale_fill_manual(values = c(setosa="blue", versicolor="red", virginica = "green")) +
+  scale_fill_manual(values = c(setosa="blue", versicolor="red", virginica = "green", bb="black")) +
   theme(legend.position = "none") # ceci enlève tout les legendes du graphe
 
 ggplot(iris) + 
@@ -96,31 +96,46 @@ ggplot(iris) +
   geom_histogram(bins = 30)
 
 ggplot(iris) + 
-  aes(x=Sepal.Length) + 
-  geom_density(fill = "blue")
+  # NB: aes() is a quoting function. 
+  # This means that its inputs are quoted to be evaluated in the context of the data. This makes it easy to work with variables from the data frame because you can name those directly.
+  aes(x=Sepal.Length, color = Species) +  
+  geom_density()
 
 ggplot(iris) + 
   aes(x=Sepal.Length, fill = Species) + 
   geom_density()
 
 ggplot(iris) + 
+  aes(x=Sepal.Length, fill = "blue") + # As "blue" is not part of the data, then fill won't be BLUE as expected
+  geom_density()
+
+ggplot(iris) + 
+  aes(x=Sepal.Length) + 
+  geom_density(fill = "blue")
+
+ggplot(iris) + 
   aes(x=Sepal.Length, fill = Species) + 
-  geom_density(alpha = 0.4)  # param de transparence
+  geom_density(alpha = 0.4)  # param d'opacité. alpha==1 => Opaque. alpha==0 => Transparent
 
 ggplot(iris) + 
   aes(x=Sepal.Length, fill = Species, color = Species) + 
-  geom_density(alpha = 0.4)  # param de transparence
+  geom_density(alpha = 0.4)  # param d'opacité
+
+
+# facet http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/ 
+ggplot(iris) + 
+  aes(x=Sepal.Length, fill = Species) + 
+  geom_density(alpha = 0.4)  +
+  facet_grid(. ~ Species)  # a-droite est "." car Il n'ya rien, on met uniquement la valeur à gauche
+# '~' : pour designer une formule. 
+# '~ Species' => Species est la clé de la catégorisation
+# '.' : pour tout dire que c'est tt le reste
+# (row ~ columns )
 
 ggplot(iris) + 
   aes(x=Sepal.Length, fill = Species) + 
   geom_density(alpha = 0.4)  +
-  facet_grid(. ~Species)  # a-droite est "." car Il n'ya rien, on met unquement la avleru à gauche
-# le "." correspond à tout dire que c'est tt le reste
-
-ggplot(iris) + 
-  aes(x=Sepal.Length, fill = Species) + 
-  geom_density(alpha = 0.4)  +
-  facet_grid(Species ~.)  +
+  facet_grid(Species ~ .)  +
   theme(legend.position = "none") 
   # theme(legend.position = c(1.2, 0.2))
 
@@ -161,12 +176,11 @@ ggplot(iris) +
 
 ggplot(iris) + 
   aes(x=Species, y = Sepal.Length, fill = Species) + 
-  geom_violin() + 
+  geom_violin() +
   geom_boxplot(alpha = 0)  +
   geom_point() + 
   theme_minimal()  +
   theme(legend.position = "none")
-
 
 install.packages("ggbeeswarm")
 install.packages("ggforce")
