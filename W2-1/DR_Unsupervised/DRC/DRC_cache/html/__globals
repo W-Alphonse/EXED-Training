@@ -1,0 +1,34 @@
+Decathlon	[<-	data	decathlon	head	library	scale	summary
+SwissRoll	$	::	c	data	library	nrow	order	plot3d
+Clusters	X	Y	aes	coord_fixed	data.frame	geom_point	ggplot	guides	if	is.null	library	nrow	read_delim	sample
+Plot	$	X	Y	aes	c	coord_fixed	data.frame	decathlon	geom_point	geom_text	ggplot	guides	if	is.null	nrow	row.names	scale_x_continuous	scale_y_continuous	swissroll
+PCA	$	Clusters	PCA	PlotClusters	PlotDecathlon	PlotSwissRoll	decathlon	decathlonR	swissroll
+Poison	data	head	poison	summary
+MFA	MFA	c	poison
+ICA	$	Clusters	PlotClusters	PlotDecathlon	PlotSwissRoll	decathlon	decathlonR	fastICA	library	swissroll
+NMF	PlotDecathlon	basis	decathlon	library	nmf
+KPCA	PlotDecathlon	PlotSwissRoll	as.matrix	decathlon	decathlonR	kpca	library	pcv	scale	swissroll
+Keras	
+Keras_PCA	
+keras_pca_plot	
+keras_ae	
+keras_ae_plot	
+MDS	Clusters	PlotClusters	PlotDecathlon	PlotSwissRoll	cmdscale	decathlon	decathlonR	dist	swissroll	unique
+ISOMAP	$	DistDecathlon	DistDecathlonR	DistSwissRoll	PlotDecathlon	PlotSwissRoll	isomap	library
+RandomProj	Clusters	PlotClusters	PlotDecathlon	PlotSwissRoll	RPvectors	as.matrix	decathlon	decathlonR	library	swissroll
+LLE	$	Clusters	PlotClusters	PlotDecathlon	PlotSwissRoll	decathlon	decathlonR	library	lle	swissroll
+TSNE	$	Clusters	PlotDecathlon	PlotSwissRoll	Rtsne	as.matrix	decathlon	decathlonR	library	nrow	swissroll	unique
+unnamed-chunk-1	Clusters	PlotDecathlon	PlotSwissRoll	as.matrix	decathlon	decathlonR	library	nrow	swissroll	umap	unique
+Laplacian	$	DistDecathlon	DistDecathlonR	DistSwissRoll	PlotDecathlon	PlotSwissRoll	as.matrix	embed_laplacian_matrix	exp	graph.adjacency	library
+KMeans	$	Clusters	ClustersTSNE	DecathlonRPCA	DecathlonTSNE	PlotClusters	PlotDecathlon	decathlonR	factor	kmeans	unique
+PAM	$	Clusters	ClustersTSNE	DecathlonRPCA	DecathlonTSNE	K	K2	PlotClusters	PlotDecathlon	decathlonR	factor	kmeans	pam	unique
+GMM	$	@	Clusters	DecathlonPCA	DecathlonRPCA	K	K2	PlotClusters	PlotDecathlon	decathlon	decathlonR	factor	library	mixmodCluster
+LDA	AssociatedPress	LDA	data	library	list	terms
+DBSCAN	$	Clusters	ClustersTSNE	DecathlonPCA	DecathlonRPCA	PlotClusters	PlotDecathlon	dbscan	decathlon	decathlonR	factor	library	unique
+PdfCluster	@	Clusters	PlotClusters	factor	library	pdfCluster
+MeanShift	$	Clusters	PlotClusters	factor	library	ms
+Linkage	Clusters	DistClusters	K2	PlotClusters	cutree	factor	ggdendrogram	hclust	library
+Ward	Clusters	DistClusters	K2	PlotClusters	cutree	factor	ggdendrogram	hclust
+Diana	Clusters	K2	PlotClusters	as.hclust	cutree	diana	factor	ggdendrogram
+AffProp	Clusters	PlotClusters	apcluster	labels	library	negDistMat
+Clara	$	Clusters	ClustersTSNE	K2	PlotClusters	clara	factor	unique

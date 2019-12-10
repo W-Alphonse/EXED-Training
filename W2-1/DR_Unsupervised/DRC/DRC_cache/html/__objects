@@ -1,0 +1,34 @@
+Decathlon	decathlonR	decathlon
+SwissRoll	swissroll
+Clusters	Clusters	PlotClusters
+Plot	PlotDecathlon	PlotSwissRoll
+PCA	ClustersPCA	DecathlonPCA	DecathlonRPCA	SwissRollPCA
+Poison	poison
+MFA	PoisonMFA
+ICA	ClustersICA	DecathlonICA	DecathlonRICA	SwissRollICA
+NMF	DecathlonNMF
+KPCA	DecathlonKPCA	DecathlonRKPCA	SwissRollKPCA
+Keras	
+Keras_PCA	
+keras_pca_plot	
+keras_ae	
+keras_ae_plot	
+MDS	ClustersMDS	DecathlonMDS	DecathlonRMDS	DistClusters	DistDecathlon	DistDecathlonR	DistSwissRoll	DistUClusters	SwissRollMDS
+ISOMAP	DecathlonISOMAP	DecathlonRISOMAP	SwissRollISOMAP
+RandomProj	ClustersRandom	DecathlonRandom	SwissRollRandom
+LLE	ClustersLLE	DecathlonLLE	DecathlonRLLE	SwissRollLLE
+TSNE	ClustersTSNE	DecathlonRTSNE	DecathlonTSNE	SwissRollTSNE
+unnamed-chunk-1	ClustersUMAP	DecathlonRUMAP	DecathlonUMAP	SwissRollUMAP
+Laplacian	DecathlonLap	DecathlonRLap	SwissRollLap
+KMeans	ClustersKmeans	ClustersTSNEKmeans	DecathlonRKmeans	DecathlonRPCAKmeans	DecathlonTSNEKmeans	K	K2
+PAM	ClustersPam	ClustersTSNEPam	DecathlonRPCAPam	DecathlonRPam	DecathlonTSNEPam
+GMM	ClustersGMM	DecathlonGMM	DecathlonRGMM
+LDA	ap_lda	k	AssociatedPress
+DBSCAN	ClustersDBScan	ClustersTSNEDBScan	DecathlonDBScan	DecathlonRDBScan
+PdfCluster	ClustersPdf
+MeanShift	ClustersMS
+Linkage	ClustersAL	ClustersALD	ClustersML	ClustersMLD	ClustersMML	ClustersMMLD
+Ward	ClustersWard	ClustersWardD
+Diana	ClustersDiana	ClustersDianaD
+AffProp	ClustersAF
+Clara	ClustersClara	ClustersSNEClara
