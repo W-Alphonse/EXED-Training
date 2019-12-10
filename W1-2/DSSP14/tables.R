@@ -54,7 +54,7 @@ arrange(tbl_iris, desc(Sepal.Length))
 arrange(tbl_iris, Sepal.Length, Sepal.Width)
 # arrange_if(tbl_iris, is.numeric)
 
-# Operateur PIPE   %>%  Strl-Shift-M
+# Operateur PIPE   %>%  Ctrl-Shift-M
 tbl_iris %>% 
   filter(Sepal.Length > 3, Species == "setosa") %>% 
   mutate(Size = Petal.Length * Petal.Width)  %>% 
