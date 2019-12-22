@@ -1,0 +1,156 @@
+---
+title: "Accident"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+runtime: shiny
+---
+
+
+
+```{r global, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+usagers_months <- readRDS("usagers_months.RDS")
+usagers_months <- usagers_months %>% 
+  group_by(grav) %>% 
+  arrange(desc(month)) %>% 
+  mutate(inc = (n - lead(n, 12))/lead(n,12)) %>% 
+  ungroup()
+max_month <- max(usagers_months[["month"]], na.rm = TRUE)
+```
+
+Column {.sidebar}
+-------------
+
+```{r}
+dateInput("cur_date",
+          label = "Date", 
+          startview = "year", 
+          format = "yyyy-mm-dd",
+          value = "2017-12-01")
+
+```
+
+Row
+-----------------------------------------------------------
+### Tué 
+
+```{r}
+current_month <- reactive({
+  if (as.POSIXct(input$cur_date) > max_month) {
+    max_month
+  } else {
+    lubridate::floor_date(as.POSIXct(input$cur_date), "month")
+  }
+})
+
+                        
+usagers_current_month <- reactive(usagers_months %>% filter((month - current_month()) < lubridate::days(1)))
+
+renderValueBox(
+valueBox(usagers_current_month()[["n"]][1],
+         icon = "fa-skull")
+)
+```
+
+### Blessés Hospitalisés
+
+```{r}
+renderValueBox(
+valueBox(usagers_current_month()[["n"]][2],
+         icon = "fa-heartbeat")
+)
+```
+
+### Blessés Légers
+
+```{r}
+renderValueBox(
+valueBox(usagers_current_month()[["n"]][3],
+         icon = "fa-medkit")
+)
+```
+
+### Indemnes
+
+```{r}
+renderValueBox(
+valueBox(usagers_current_month()[["n"]][4],
+         icon = "fa-heart")
+)
+```
+
+Row
+-----------------------------------------------------------
+### Tué 
+
+```{r}
+box_perc <- function (x) {
+  paste0(if_else(x>0,"+",""), scales::percent(x, .1))
+}
+box_color <- function(x) {
+  if_else(x>0, "danger", "success")
+}
+renderValueBox(
+  valueBox(box_perc(usagers_current_month()[["inc"]][1]),
+         color = box_color(usagers_current_month()[["inc"]][1]))
+)
+```
+
+### Blessés Hospitalisés
+
+```{r}
+renderValueBox(
+valueBox(box_perc(usagers_current_month()[["inc"]][2]),
+         color = box_color(usagers_current_month()[["inc"]][2]))
+)
+```
+
+### Blessés Légés
+
+```{r}
+renderValueBox(
+valueBox(box_perc(usagers_current_month()[["inc"]][3]),
+         color = box_color(usagers_current_month()[["inc"]][3]))
+)
+```
+
+### Indemnes
+
+```{r}
+renderValueBox(
+valueBox(box_perc(usagers_current_month()[["inc"]][4]),
+         color = box_color(usagers_current_month()[["inc"]][4]))
+)
+```
+
+
+Row {data-height = 400}
+---------------------
+
+### Evolution since 2006
+
+```{r}
+renderPlot({
+ggplot(data = usagers_months,
+       aes(x = month, y = n, fill = grav)) +
+  geom_area() +
+  theme_light()
+})
+```
+
+### Evolution of the increase
+
+```{r}
+renderPlot({
+ggplot(data = usagers_months,
+       aes(x = month, y = inc, color = grav)) +
+  geom_line() +
+  scale_y_continuous(labels = scales::percent_format(.1)) +
+  geom_smooth() +
+  facet_wrap(~grav) +
+  theme_light()
+})
+```
+

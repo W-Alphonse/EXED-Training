@@ -1,0 +1,112 @@
+---
+title: "Accident"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+usagers_months <- readRDS("usagers_months.RDS")
+usagers_months <- usagers_months %>% 
+  group_by(grav) %>% 
+  arrange(desc(month)) %>% 
+  mutate(inc = (n - lead(n, 12))/lead(n,12)) %>% 
+  ungroup()
+```
+
+Row
+-----------------------------------------------------------
+### Tué 
+
+```{r}
+usagers_last_month <- usagers_months %>% 
+  filter(month == max(month, na.rm = TRUE))
+
+valueBox(usagers_last_month[["n"]][1],
+         icon = "fa-skull")
+```
+
+### Blessés Hospitalisés
+
+```{r}
+valueBox(usagers_last_month[["n"]][2],
+         icon = "fa-heartbeat")
+```
+
+### Blessés Légers
+
+```{r}
+valueBox(usagers_last_month[["n"]][3],
+         icon = "fa-medkit")
+```
+
+### Indemnes
+
+```{r}
+valueBox(usagers_last_month[["n"]][4],
+         icon = "fa-heart")
+```
+
+Row
+-----------------------------------------------------------
+### Tué 
+
+```{r}
+box_perc <- function (x) {
+  paste0(if_else(x>0,"+",""), scales::percent(x, .1))
+}
+box_color <- function(x) {
+  if_else(x>0, "danger", "success")
+}
+valueBox(box_perc(usagers_last_month[["inc"]][1]),
+         color = box_color(usagers_last_month[["inc"]][1]))
+```
+
+### Blessés Hospitalisés
+
+```{r}
+valueBox(box_perc(usagers_last_month[["inc"]][2]),
+         color = box_color(usagers_last_month[["inc"]][2]))
+```
+
+### Blessés Légés
+
+```{r}
+valueBox(box_perc(usagers_last_month[["inc"]][3]),
+         color = box_color(usagers_last_month[["inc"]][3]))
+```
+
+### Indemnes
+
+```{r}
+valueBox(box_perc(usagers_last_month[["inc"]][4]),
+         color = box_color(usagers_last_month[["inc"]][4]))
+```
+
+
+Row {data-height = 400}
+---------------------
+
+### Evolution since 2006
+
+```{r}
+ggplot(data = usagers_months,
+       aes(x = month, y = n, fill = grav)) +
+  geom_area() +
+  theme_light()
+```
+
+### Evolution of the increase
+
+```{r}
+ggplot(data = usagers_months,
+       aes(x = month, y = inc, color = grav)) +
+  geom_line() +
+  scale_y_continuous(labels = scales::percent_format(.1)) +
+  geom_smooth() +
+  facet_wrap(~grav) +
+  theme_light()
+```
+

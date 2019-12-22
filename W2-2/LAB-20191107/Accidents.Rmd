@@ -1,0 +1,302 @@
+---
+title: "Accidents"
+author: "ELP - AKF"
+date: "Winter 2018-2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+# Lecture des données et nettoyage
+
+```{r, results='hide', warning=FALSE}
+source("Accidents_ETL.R")
+```
+
+# Affichage des données
+
+```{r}
+View(caracteristiques)
+View(usagers)
+View(lieux)
+View(vehicules)
+```
+
+
+# Évolution du nombre de victimes
+
+
+```{r}
+tmp <- usagers %>% left_join(caracteristiques) %>%
+  group_by(month = lubridate::floor_date(date, "month"))
+#view(tmp)
+```
+
+```{r}
+# QStion: prquoi il a groupé par 'month'
+tmp %>% count(grav)
+```
+
+```{r}
+ggplot(data = tmp, aes(x = month)) + geom_bar()
+```
+
+
+```{r}
+ggplot(data = tmp, aes(x = month, fill= grav)) + geom_bar()
+```
+
+```{r}
+ggplot(data = tmp, aes(x = month, fill= grav)) + geom_bar() +facet_wrap(~ grav)
+```
+
+```{r}
+ggplot(data = tmp, aes(x = month, fill= grav)) + geom_bar(position = position_fill())
+```
+
+# Nombre de victimes par accidents
+
+```{r}
+count_accidents <- caracteristiques %>% 
+  count(month = lubridate::floor_date(date, "month"))
+
+# n:  nombre de personnes selon 'grav' (-> count(grav))
+# nn: nombre d'accidents
+count_usagers <- usagers %>% 
+  left_join(caracteristiques) %>% 
+  group_by(month = lubridate::floor_date(date, "month"), Num_Acc) %>% 
+  count(grav) %>%
+  group_by(month, grav) %>% 
+  count(n)
+
+skimr::skim(caracteristiques)
+skimr::skim(count_usagers)
+  
+count_usagers <- count_usagers %>% 
+  group_by(month, grav) %>%
+  summarize(nnt = sum(nn)) %>% 
+  left_join(count_accidents) %>%
+  mutate(nn = n - nnt, n= 0) %>% 
+  select(-nnt) %>% 
+  bind_rows(count_usagers)
+```
+
+```{r}
+pseudo_log_trans <- function(sigma = 1, base = exp(1)) {
+  scales::trans_new("pseudo_log",
+                    function(x) {asinh(x/(2*sigma))/log(base)},
+                    function(x) {2*sigma*sinh(x*log(base))}
+  ) 
+  }
+
+ggplot(count_usagers, aes(x = n, y =nn)) + 
+  geom_col() + 
+  coord_trans(y = "pseudo_log")
+```
+
+```{r}
+ggplot(count_usagers, aes(x = n, y =nn)) + 
+  geom_col() + 
+  coord_trans(y = "pseudo_log") + 
+  facet_wrap(~ grav)
+```
+
+```{r}
+ggplot(count_usagers, aes(x = month, y = n, fill = nn)) + 
+  geom_tile() + 
+  viridis::scale_fill_viridis(trans = "pseudo_log")
+```
+
+```{r}
+mean_usagers <- count_usagers %>% 
+  group_by(month, grav) %>%
+  summarize(mean = weighted.mean(n, nn))
+ 
+ggplot(mean_usagers, aes(x = month, y = mean, color = grav, fill = grav)) + geom_line()
+```
+
+# Catégories des véhicules
+
+```{r}
+count_vehicules <- vehicules %>% 
+  left_join(caracteristiques) %>% 
+  group_by(month = lubridate::floor_date(date, "month")) %>% 
+  count(catv) %>% 
+  group_by(month) %>%
+  mutate(prop = n/sum(n))
+
+ggplot(data = count_vehicules, aes(x = month, y = prop, color = catv)) + geom_line(show.legend = FALSE)
+
+ggplot(data = count_vehicules %>% 
+         group_by(catv) %>% 
+         filter(max(prop) >= .1),
+     aes(x = month, y = prop, color = catv)) + 
+  geom_line()
+```
+
+
+# Prédiction du nombre d'accidents
+
+```{r}
+prophet_data <- tmp %>% 
+  group_by(date = lubridate::floor_date(date, "day")) %>% 
+  count() %>% 
+  ungroup() %>%
+  transmute(ds = date, y = n)
+```
+
+```{r}
+ggplot(data = prophet_data, aes(x = ds, y = y)) + 
+  geom_point()  +
+  geom_line() + 
+  ylim(0,NA)
+```
+
+```{r}
+library(prophet)
+prophet_model <- prophet(prophet_data %>% 
+                           filter(ds <= lubridate::ymd("2014-12-31")),
+                         daily.seasonality = FALSE)
+```
+
+```{r}
+future <- make_future_dataframe(prophet_model, periods = 365*2)
+
+forecast <- predict(prophet_model, future)
+
+plot(prophet_model, forecast) + 
+  geom_point(data = prophet_data %>% 
+               filter(ds > lubridate::ymd("2014-12-31")), aes(x =ds,  y = y), 
+             color = "red") + 
+  coord_cartesian(xlim = c(lubridate::ymd_hm("2014-12-31 00:00"),
+                           lubridate::ymd_hm("2016-12-31 00:00")))
+
+```
+
+# Usage de la ceinture
+
+```{r}
+ggplot(usagers %>% 
+         filter(secuu %in% c("Oui","Non"))) + 
+  geom_bar(aes(x = secuu, fill = grav), position = position_fill())
+
+library(ggmosaic)
+
+ggplot(usagers %>% filter(secuu %in% c("Oui","Non"))) + 
+  geom_mosaic(aes(x = product(grav, secuu), fill = grav))
+
+ggplot(usagers %>% filter(secuu %in% c("Oui","Non"))) + 
+  geom_mosaic(aes(x = product(grav, secuu), fill = grav)) + 
+  facet_wrap(~ sexe)
+```
+
+
+```{r}
+ggplot(usagers %>% 
+         filter(secuu %in% c("Oui","Non"), 
+                catu %in% c("Conducteur","Passager")) %>%
+         left_join(caracteristiques)) + 
+  geom_bar(aes(x = lubridate::year(date) - an_nais, 
+               fill = grav, color = grav), position = position_fill())+ 
+  facet_wrap(~catu) + 
+  geom_vline(xintercept =  18) + 
+  geom_vline(xintercept = 25) + xlab("age")
+
+ggplot(usagers %>% filter(secuu %in% c("Oui","Non"), 
+                          catu %in% c("Conducteur","Passager")) %>% 
+         left_join(caracteristiques)) + 
+  geom_bar(aes(x = lubridate::year(date) - an_nais, 
+               fill = grav, color = grav), position = position_fill()) + 
+  facet_grid(sexe + secuu ~catu) + 
+  geom_vline(xintercept =  18) + 
+  geom_vline(xintercept = 25) + 
+  xlab("age")
+
+ggplot(usagers %>% filter(secuu %in% c("Oui","Non"), 
+                          catu %in% c("Conducteur","Passager")) %>% 
+         left_join(caracteristiques)) + 
+  geom_bar(aes(x = lubridate::year(date) - an_nais, 
+               fill = grav, color = grav)) + 
+  facet_wrap(~catu) + 
+  geom_vline(xintercept =  18) + 
+  geom_vline(xintercept = 25) + xlab("age")
+
+ggplot(usagers %>% 
+         filter(secuu %in% c("Oui","Non"), 
+                          catu %in% c("Conducteur","Passager")) %>% 
+         left_join(caracteristiques)) + 
+  geom_bar(aes(x = lubridate::year(date) - an_nais, 
+               fill = grav, color = grav)) + facet_grid(sexe~catu) + 
+  geom_vline(xintercept =  18) + 
+  geom_vline(xintercept = 25) + 
+  xlab("age")
+
+ggplot(usagers %>% filter(secuu %in% c("Oui","Non"), catu %in% c("Conducteur","Passager")) %>% left_join(caracteristiques)) + geom_bar(aes(x = lubridate::year(date) - an_nais, fill = grav, color = grav)) + facet_grid(sexe+secuu~catu) + geom_vline(xintercept =  18) + geom_vline(xintercept = 25) + xlab("age")
+
+ggplot(usagers %>% filter(secuu %in% c("Oui","Non"), catu %in% c("Conducteur","Passager"), grav == "Tué") %>% left_join(caracteristiques)) + geom_bar(aes(x = lubridate::year(date) - an_nais, fill = grav, color = grav)) + facet_grid(sexe+secuu~catu) + geom_vline(xintercept =  18) + geom_vline(xintercept = 25) + xlab("age")
+```
+
+# Localisation
+
+```{r}
+ggplot(data = caracteristiques %>% 
+         filter(gps == "Métropole", lat >40), 
+       aes(x = long, y = lat)) + 
+  geom_point(alpha = .1) + 
+  coord_quickmap()
+```
+
+
+```{r}
+ggplot(data = caracteristiques %>% 
+         filter(gps == "Métropole", lat >40), 
+       aes(x = long, y = lat)) + 
+  geom_point(alpha = .01) + 
+  coord_quickmap()
+```
+
+
+```{r}
+ggplot(data = usagers %>% 
+         left_join(caracteristiques) %>% 
+         filter(gps == "Métropole", lat >40), 
+       aes(x = long, y = lat)) + 
+  geom_point(alpha = .01) + 
+  coord_quickmap()
+```
+
+```{r}
+ggplot(data = usagers %>% 
+         left_join(caracteristiques) %>% 
+         filter(gps == "Métropole", lat >40), 
+       aes(x = long, y = lat)) + 
+  geom_point(alpha = .01) + 
+  coord_quickmap() + 
+  facet_wrap(~ grav)
+```
+
+```{r}
+ggplot(data = usagers %>% 
+         left_join(caracteristiques) %>% 
+         filter(gps == "Métropole", lat >40), aes(x = long, y = lat)) + 
+  geom_hex() + 
+  coord_quickmap() + 
+  facet_wrap(~ grav) + 
+  viridis::scale_fill_viridis(trans = "pseudo_log")
+```
+
+
+```{r}
+ggplot(data = usagers %>% 
+         left_join(caracteristiques) %>% 
+         filter(gps == "Métropole", lat >40), 
+       aes(x = long, y = lat)) + 
+  geom_hex(aes(fill = ..density..)) + 
+  coord_quickmap() + 
+  facet_wrap(~ grav) + 
+  viridis::scale_fill_viridis(trans = pseudo_log_trans(.001))
+```
+
+
