@@ -1,0 +1,182 @@
+======================
+  Import Declaration
+======================  
+%matplotlib inline
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+pd.options.display.max_rows = 8
+
+df = pd.read_csv("data/titanic.csv")
+df.head()
+
+- Plot points stuff
+fig = plt.figure()  // create a blank empty figure
+ax1 = fig.add_subplot(2, 2, 1)
+ax2 = fig.add_subplot(2, 2, 2)
+ax3 = fig.add_subplot(2, 2, 3)
+When you issue a plotting command like plt.plot([1.5, 3.5, -2, 1.6]), matplotlib
+draws on the last figure and subplot used (creating one if necessary),
+
+- Plot a digitized image:
+plt.imshow(digits.images[0])
+
+=================================
+  Group by + aggregate + lambda
+   https://stackoverflow.com/questions/47551251/python-pandas-groupby-apply-lambda-arguments
+=================================  
+dadf.groupby('Pclass')['Survived'].aggregate(lambda x: x.sum() / len(x))
+df.groupby('Pclass')['Survived'].aggregate(lambda x: x.sum() / len(x)).plot(kind='bar')
+
+
+=====================
+  DataFrame Queries
+=====================  
+--> Ex-1: https://stackoverflow.com/questions/55673912/python-pandas-query-and-boolean-in-dataframe-columns
+Lets define the dataframe:
+	Date        Type          IsInScope CostTable  Value
+	2017-04-01  CostEurMWh    True      Standard   0.22
+	..........  ..........    ....      ........   ....
+1. Boolean indexing -> df1 = df[df['IsInScope'] & (df['CostTable'] == 'Standard')]
+2. DataFrame.query  -> df2 = df.query("IsInScope & CostTable == 'Standard'")
+NB:  IsInScope column is type bool 
+
+--> Ex-1a: Boolean indexing
+    countries[countries['capital'].isin(['Berlin', 'London'])]
+	countries[countries['capital'].str.len() > 7]
+
+--> Ex-1b: Boolean indexing on Series
+	s = pd.Series(range(-3, 4))
+	In [144]: s
+	Out[144]: 
+	0   -3
+	1   -2
+	2   -1
+	3    0
+	4    1
+	5    2
+	6    3
+	dtype: int64
+
+	In [145]: s[s > 0]
+	Out[145]: 
+	4    1
+	5    2
+	6    3
+	dtype: int64
+
+--> Ex-1b: Boolean indexing on DataFrame:
+You may select rows from a DataFrame using a boolean vector the same length as the DataFrame’s index 
+(for example, something derived from one of the columns of the DataFrame):
+
+============
+ *** NB ***
+============
+	df[df['CostTable'] == 'Standard'] : permet de faire selectionner selon l'index 
+                              	qd la condition s'applique directement sur la valeur de la colonne
+	countries[countries['capital'].str.len() > 7] : permet de faire selectionner selon l'index 
+                              	qd la condition s'applique moyennant True OR False
+
+Another Ex:
+	g = cast[cast.name == "Frank Oz"].groupby(["year","title"]).size() 
+	g[g > 1] # "g > 1" # Returns a Series of True and False, 
+					   # Then this Series is used as filter mask Series to filter the result of the initial Series "g"
+
+-->								
+https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy								
+
+In [339]: dfmi
+    one          two       
+  first second first second
+0     a      b     c      d
+1     e      f     g      h
+2     i      j     k      l
+3     m      n     o      p
+
+In [340]: dfmi['one']['second']
+In [341]: dfmi.loc[:, ('one', 'second')]
+These both yield the same results, so which should you use?
+ It is instructive to understand the order of operations on these and why method 2 (.loc) is much preferred over method 1 (chained [])
+ 
+
+
+--> Ex-2:
+	               BASCH	BONAP	PA18	VERS
+timestamp				
+2000-05-05 18:00:00	206.0	101.0	110.0	106.0
+2000-05-05 19:00:00	204.0	100.0	150.0	100.0
+
+df = no2["2005":].query("BASCH > 200")
+
+--> Ex-3:  You don't need to use loc and iloc.
+The selection rules are:
+Passing a single label or list of labels will select a column or several columns;
+Passing a slice (label or indices) will select the corresponding rows.
+You can always use the systematic indexing to avoid confusion. Use the shortcut at your own risk.
+
+--> Ex-4 : 
+- Lets suppose : df_countries is a dataframe whose columns 'population', 'area' and 'capital'
+- mask_pop_above_60 = df_countries['population'] > 60 
+- df.loc[mask_pop_above_60] : Get all the data frame  where the condt is TRUE
+- df[mask_pop_above_60] : As 'mask_pop_above' is a slice => Get several complete rows.
+  Same as above
+- df[mask_pop_above_60]['capital'] : As 'mask_pop_above' is a slice => Get several rows for colums 'capital'
+  => It s a Serie
+Ex: 
+df[df['key'] == key]['data']  => It is a Serie
+
+--> Ex-5: QUERY SUMMARY
+So as a summary, [] provides the following convenience shortcuts:
+- Series: selecting a label: s[label]
+- DataFrame: selecting a single or multiple columns: df['col'] or df[['col1', 'col2']]
+- DataFrame: slicing the rows: df['row_label1':'row_label2'] or df[mask]
+             equals specific row: countries[countries.index == "United Kingdom"]
+
+-->  indexing with loc and iloc
+df.loc[row_indexer, column_indexer]  => By label
+df.iloc[row_indexer, column_indexer] => By Position
+- Any of the axes accessors may be the null slice :. 
+  Axes left out of the specification are assumed to be :, 
+  => e.g. p.loc['a'] is equivalent to p.loc['a', :, :].
+
+--> https://datascience.stackexchange.com/questions/37878/difference-between-isna-and-isnull-in-pandas
+
+--> The difference between Groupyby.size() and Groupbe.count() is:
+    size() counts NaN values, count() does not.
+
+===========================
+  DataFrame Concatenation
+===========================
+- Concatenate 2 data frames by adding rows : pd.concat([countries, countries_africa])
+ pd.concat([df_countries, df_countries_africa], ignore_index=True, sort=False)
+- Combining columns instead of rows: pd.concat([countries, country_economics], axis=1)
+  Comme l' index nest pas precisé Alors il a mergé sur l'index existant
+- pd.merge(...): Where you want to add information (as columns) of second dataframe to a first one based on one of the columns. 
+pd.merge(df, locations, on='Embarked', how='left')
+
+
+https://stackoverflow.com/questions/15943769/how-do-i-get-the-row-count-of-a-pandas-dataframe
+no2.index.hour   no2.index.year
+dataframe resample: converting the frequency of the time series (e.g. from hourly to daily data).
+
+
+====
+
+
+
+Qstions:
+1/ What does it mean: exceedances = no2 > 200  ?
+   does it mean all NO2 having at least a column value > 200
+----
+
+What is the age distribution of the passengers?
+How does the survival rate of the passengers differ between sexes?
+Or how does it differ between the different classes?
+All the needed functionality for the above examples will be explained throughout this tutorial.
+
+Case 2: air quality measurement timeseries
+AirBase (The European Air quality dataBase): hourly measurements of all air quality monitoring stations from Europe
+Starting from these hourly data for different stations:
+data = pd.read_csv('data/20000101_20161231-NO2.csv',
+Does the air pollution show a decreasing trend over the years?
+What is the difference in diurnal profile between weekdays and weekend?

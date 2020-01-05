@@ -1,0 +1,49 @@
+=================================
+      Seaborn 1 Scikit Learn
+=================================
+%matplotlib inline
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+=================================
+
+# print(iris.target_names)  # list the Names of the classification  : ['setosa' 'versicolor' 'virginica']
+# print(iris.target)        # List the Labels of the classification : [0, 1, 2]
+# print(iris.feature_names) # List the Feature Names : ['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)']
+#
+y = pd.Series(iris.target, name='target')
+y = y.apply(lambda x: iris.target_names[x])  // Comme "y" possède une valeur numérique alors Ceci attribue un "label" à "y"
+
+1/ By default, this function will create a grid of Axes such that each variable in data will by shared in the y-axis across a single row and in the x-axis across a single column. The diagonal Axes are treated differently, drawing a plot to show the univariate distribution of the data for the variable in that column.
+sns.pairplot(data=pd.concat([X_df, y], axis=1), hue='target') # hue: Variable in data to map plot aspects to different colors.
+=> c'est une peu comme la covariance entre les differents class
+   La diagonale correspond à la variance (à la distribution) de la variable
+   
+   
+2/ from sklearn.neighbors import KNeighborsClassifier
+  0.Create the classifier : classifier = KNeighborsClassifier()
+  1.Train the classifier  : classifier.fit(iris.data, iris.target)
+  PB-TO-SOLVE : Let say that we got an iris flower and took the measurements of the petal and sepal and organise it the same way as before :
+                new_flower = np.array([[5.1, 3.5, 1.4, 0.2]])
+                Then, Our classifier will be able to tell use which class this flower should be.
+  2.classifier.predict(new_flower)
+  => array([0])  /* => new_flower est du type "0" */
+  
+OU
+  1.classifier.fit(X_df, y)
+  2.classifier.predict(new_flower)
+  => array(['setosa'], dtype=object)
+  
+3/   
+ValueError: Expected 2D array, got 1D array instead:
+array=[ 0.  0.  5. 13.  9.  1.  0.  0.  0.  0. 13. 15. 10. 15.  5.  0.  0.  3.
+ 15.  2.  0. 11.  8.  0.  0.  4. 12.  0.  0.  8.  8.  0.  0.  5.  8.  0.
+  0.  9.  8.  0.  0.  4. 11.  0.  1. 12.  7.  0.  0.  2. 14.  5. 10. 12.
+  0.  0.  0.  0.  6. 13. 10.  0.  0.  0.].
+Reshape your data either using array.reshape(-1, 1) if your data has a single feature or array.reshape(1, -1) if it contains a single sample.
+
+
+new_example.shape : (64,)
+new_example.reshape(-1, 1).shape : (64, 1)
+new_example[:, np.newaxis].shape : (64, 1)
