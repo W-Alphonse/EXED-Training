@@ -15,7 +15,7 @@
 # stringr, for strings.
 # forcats, for factors.
 
-# Install from CRAN
+# Install package from CRAN
 install.packages(tidyverse)
 
 # load the whole "tidyverse" package

@@ -103,7 +103,7 @@ ggplot(iris) +
   # NB: aes() is a quoting function. 
   # This means that its inputs are quoted to be evaluated in the context of the data. 
   # This makes it easy to work with variables from the data frame because you can name those directly.
-  aes(x=Sepal.Length, color = Species) +  
+  aes(x=Sepal.Length, color = Species) + 
   geom_density()
 
 ggplot(iris) + 
