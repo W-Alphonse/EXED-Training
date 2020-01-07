@@ -23,8 +23,6 @@ summary(decathlon)
 head(decathlon)
 
 # On fait du scaling pour eliminer le 
-
-
 decathlonR <- decathlon
 decathlonR[1:10] <- scale(decathlon[1:10], center = TRUE)
 ```
@@ -37,34 +35,44 @@ swissroll <- swissroll[order(swissroll$z),]
 plot3d(swissroll, col = plotrix::color.scale(1:nrow(swissroll),c(0,1,1),c(1,1,0),0))
 ```
 
+# https://stackoverflow.com/questions/42560090/what-is-the-meaning-of-the-dollar-sign-in-r-function
+# The $ allows you extract elements by name from a named list. For example
+# x <- list(a=1, b=2, c=3)
+# x$b => # [1] 2
+# You can find the names of a list using names() : names(x) # => [1] "a" "b" "c"
+# This is a basic extraction operator. You can view the corresponding help page by typing ?Extract in R.
+# ----------------------------------------------------------------------------------------------------
+
+
 ```{r Clusters}
 library("tidyverse")
-Clusters <- read_delim("donclassif.txt.gz", ";")
-PlotClusters <- function(CoordPoints, Col = NULL) {
-  if (is.null(Col)) {
-    Col = sample(1:nrow(CoordPoints))
+Clusters <- read_delim("donclassif.txt.gz", ";") # "donclassif.txt.gz" contains features --> "V1";"V2"
+PlotClusters <- function(CoordPoints, col = NULL) {
+  if (is.null(col)) {
+    # sample takes a sample of the specified size 
+    col = sample(1:nrow(CoordPoints))   # nrow/ncol return the number of rows or columns present in x.NCOL and x.NROW
   }
-  ggplot(data.frame(X = CoordPoints[, 1, drop = TRUE],
+  ggplot(data.frame(X = CoordPoints[, 1, drop = TRUE],  # => For all rows of CoordPoints, X is equal to "V1". drop=TRUE => It means that allows to downsize the object returned by CoordPoints[, 1]
                     Y = CoordPoints[, 2, drop = TRUE],
-                    Col = Col),
+                    Col = col),
          aes(x = X, y = Y)) + 
-    geom_point(aes(colour = Col), size = 2) + guides(color = FALSE) +
-    coord_fixed()
+    geom_point(aes(color = Col), size = 2) + guides(color = FALSE) + 
+    coord_fixed()       # coord_fixed : Cartesian coordinates with fixed "aspect ratio"
 }
 
 PlotClusters(Clusters)
 ```
 
 ```{r Plot}
-PlotDecathlon <- function(CoordPoints, Col = NULL) {
-  if (is.null(Col)) {
-    Col = decathlon$Points
+PlotDecathlon <- function(CoordPoints, col = NULL) {
+  if (is.null(col)) {
+    col = decathlon$Points
   }
   ggplot(data = data.frame( X = CoordPoints[, 1, drop = TRUE],
                             Y = CoordPoints[, 2, drop = TRUE],
-                            Col = Col),
+                            Col = col),
          aes(x = X, y = Y)) + 
-    geom_point(aes(colour = Col), size = 5) + geom_text(label = row.names(decathlon), vjust = -1.25) +
+    geom_point(aes(color = Col), size = 5) + geom_text(label = row.names(decathlon), vjust = -1.25) +
     scale_x_continuous(expand = c(.15,0)) + scale_y_continuous(expand = c(.1,0)) +
     guides(color = FALSE) +
     coord_fixed()
@@ -78,37 +86,56 @@ PlotSwissRoll <- function(CoordPoints, Col = NULL) {
                             Y = CoordPoints[, 2, drop = TRUE],
                             Col = Col),
          aes(x = X, y = Y)) + 
-    geom_point(aes(colour = Col), size = 5) + guides(color = FALSE) +
+    geom_point(aes(color = Col), size = 5) + guides(color = FALSE) +
     coord_fixed()
 }
 ```
 
 
 ```{r PCA}
-DecathlonPCA <- PCA(decathlon[1:10])
-PlotDecathlon(DecathlonPCA$ind$coord)
+# ----------------------------------------------------------------------------------------------
+# PCA: Performs Principal Component Analysis (PCA) with supplementary individuals, supplementary 
+#      quantitative variables and supplementary categorical variables.
+#      Missing values are replaced by the column mean.
+#      It computes PCA scaling automatically + Plot explicitely the graph of Individuals and Variables
+# ----------------------------------------------------------------------------------------------
+DecathlonPCA <- PCA(decathlon[1:10])  # Arg : data frame with n rows (individuals) and p columns (numeric variables)
+PlotDecathlon(DecathlonPCA$ind$coord) # $ind : a list of matrices containing all the results for the active individuals (coordinates, square cosine, contributions)
 #plot(DecathlonPCA)
 
+# decathlonR = decathlon + scaled explicitely / scale(decathlon, center=TRUE)
 DecathlonRPCA <- PCA(decathlonR[1:10])
 PlotDecathlon(DecathlonRPCA$ind$coord)
-
+ 
 SwissRollPCA <- PCA(swissroll)
 PlotSwissRoll(SwissRollPCA$ind$coord)
-
-ClustersPCA <- PCA(Clusters)
+# 
+ClustersPCA <- PCA(Clusters)  # clusters = "donclassif.txt.gz" it contains the features "V1";"V2"
 PlotClusters(ClustersPCA$ind$coord)
 ```
 
-# DecathlonPCA$eig
+
+```{r}
+DecathlonPCA$eig
+DecathlonPCA$var
 # ceci permet d'identifier l'apport de chaque dimension
+```
+```{r}
+DecathlonPCA$call$centre
+DecathlonPCA$call$ecart.type
+DecathlonPCA$call$row.w
+DecathlonPCA$call$col.w
+#DecathlonPCA$var
+```
+
 
 ## MFA
 
 ```{r Poison}
-data(poison)
-summary(poison)
+data(poison)     # load the dataset poison
+summary(poison)  # summarize the dataset poison
 head(poison)
-names(poison)
+names(poison)    # Get or set the names of an object
 ```
 #Comme les données sotn ctageorielle, alors il faut les transformer pour passer en grandeur numerique
 # Il faut definir les groupe
@@ -118,38 +145,60 @@ names(poison)
 PoisonMFA <- MFA(poison, 
                  group=c(2,2,5,6),         # on indique combien de variable il y a ds chaque groupe
                  type=c("s","n","n","n"),  # s:variable continue, n:variable categorielle, 
-name.group=c("desc","desc2","symptom","eat"))
+name.group=c("Age_Time","Sick_Sex","Symptom","Eat"))
 # graph = true
 ```
 # groupc(2,  --> "Age"        "Time"
-# 2,    -->  "Sick"       "Sex"
-# 5,    -->   "Nausea"     "Vomiting"   "Abdominals" "Fever" Diarrhae
-# 6)    -->   "Potato"     "Fish"       "Mayo"       "Courgette"  "Cheese"     "Icecream" 
+#        2,  --> "Sick"       "Sex"
+#        5,  --> "Nausea"     "Vomiting"   "Abdominals" "Fever"      "Diarrhae""
+#        6)  --> "Potato"     "Fish"       "Mayo"       "Courgette"  "Cheese"     "Icecream" 
 
+
+```{r}
 # Par la suite, essayer de choisir qlq points du centre de chaque cluster afin d'interpreter le resultat
 # cluster 1
 poison[c(14,20),]
 # cluster 2
 poison[c(5,55),]
+```
 
-## ICA
+
+
+## ICA - Independent Component Analysis (ICA) 
 
 ```{r ICA}
 library("fastICA")
-DecathlonICA <- fastICA(decathlon[1:10], n.comp = 2)
+DecathlonICA <- fastICA(decathlon[1:10], n.comp = 2)  # n.comp = number of components to be extracted
 PlotDecathlon(DecathlonICA$S)
-
+# 
 DecathlonRICA <- fastICA(decathlonR[1:10], n.comp = 2)
 PlotDecathlon(DecathlonRICA$S)
-
+# 
 SwissRollICA <- fastICA(swissroll, n.comp = 2)
 PlotSwissRoll(SwissRollICA$S)
-
+# 
 ClustersICA <- fastICA(Clusters, n.comp = 2)
 PlotClusters(ClustersICA$S)
 ```
 
-## NMF
+<!-- PCA weaknesses -->
+<!-- • Only allows linear projections -->
+
+<!-- • Co-variance matrix is of size dxd. If d=104 -->
+<!-- , then |Σ| = 108 -->
+<!-- • Solution: singular value decomposition (SVD) -->
+
+<!-- • PCA restricts to orthogonal vectors in feature space that minimize -->
+<!-- reconstruction error -->
+<!-- • Solution: independent component analysis (ICA) seeks directions -->
+<!-- that are statistically independent, often measured using -->
+<!-- information theory -->
+
+<!-- • Assumes points are multivariate Gaussian -->
+<!-- • Solution: Kernel PCA that transforms input data to other spaces -->
+
+
+## NMF: PCA and NMF optimize for a different result. PCA finds a subspace which conserves the variance of the data, while NMF finds nonnegative features.
 
 ```{r NMF}
 library("NMF")
@@ -280,7 +329,7 @@ ClustersRandom <- RPvectors(2, 2)
 PlotClusters(as.matrix(Clusters) %*% ClustersRandom)
 ```
 
-## LLE
+## LLE : Locally Linear Embedding
 
 ```{r LLE}
 library("lle")
@@ -298,7 +347,7 @@ PlotClusters(ClustersLLE$Y)
 ```
 
 
-## t-SNE
+## t-SNE : t-Stochastic Neighbor Embedding
 
 ```{r TSNE}
 library("Rtsne")
@@ -315,7 +364,7 @@ ClustersTSNE <- Rtsne(as.matrix(unique(Clusters)), perplexity = 30, pca = FALSE)
 PlotSwissRoll(ClustersTSNE$Y, Col = 1:nrow(unique(Clusters)))
 ```
 
-## UMAP
+## UMAP : Uniform Manifold Approximation and Projection
 
 ```{r}
 library(uwot)
@@ -336,11 +385,11 @@ PlotSwissRoll(ClustersUMAP, Col = 1:nrow(unique(Clusters)))
 Clusters$color = rep(0,nrow(Clusters))
 Clusters$color[c(1:50)] = 1
 Clusters$color[c(410:560)] = 2
-# ggplot(Clusters, aes(V1,V2, col=as.factor(color))) + geom_point()
+ggplot(Clusters, aes(V1,V2, col=as.factor(color))) + geom_point()
 ```
 
 ```{r}
-ClustersUMAP = as_tibble(ClusterUMAP)
+ClustersUMAP = as_tibble(ClustersUMAP)
 ClustersUMAP$color = rep(0,nrow(ClustersUMAP))
 ClustersUMAP$color[c(1:50)] = 1
 ClustersUMAP$color[c(410:560)] = 2
@@ -368,24 +417,24 @@ PlotSwissRoll(SwissRollLap$X)
 K <- 4
 K2 <- 10
 
-DecathlonRKmeans <- kmeans(decathlonR[1:10], K)  # Kmeans sur ttes els avriables
-PlotDecathlon(DecathlonRPCA$ind$coord, Col = factor(DecathlonRKmeans$cluster))  # je represente sur ces axes
+DecathlonRKmeans <- kmeans(decathlonR[1:10], K)  # Kmeans sur ttes les variables
+PlotDecathlon(DecathlonRPCA$ind$coord, col = factor(DecathlonRKmeans$cluster))  # je represente sur ces axes
 
 DecathlonRPCAKmeans <- kmeans(DecathlonRPCA$ind$coord[,1:2], K)
-PlotDecathlon(DecathlonRPCA$ind$coord, Col = factor(DecathlonRPCAKmeans$cluster))
+PlotDecathlon(DecathlonRPCA$ind$coord, col = factor(DecathlonRPCAKmeans$cluster))
 
-PlotDecathlon(DecathlonTSNE$Y, Col = factor(DecathlonRKmeans$cluster))
+PlotDecathlon(DecathlonTSNE$Y, col = factor(DecathlonRKmeans$cluster))
 
 DecathlonTSNEKmeans <- kmeans(DecathlonTSNE$Y, K)
-PlotDecathlon(DecathlonTSNE$Y, Col = factor(DecathlonTSNEKmeans$cluster))
+PlotDecathlon(DecathlonTSNE$Y, col = factor(DecathlonTSNEKmeans$cluster))
 
-PlotDecathlon(DecathlonRPCA$ind$coord, Col = factor(DecathlonTSNEKmeans$cluster))
+PlotDecathlon(DecathlonRPCA$ind$coord, col = factor(DecathlonTSNEKmeans$cluster))
 
 ClustersKmeans <- kmeans(Clusters, K2)
-PlotClusters(Clusters, Col = factor(ClustersKmeans$cluster))
+PlotClusters(Clusters, col = factor(ClustersKmeans$cluster))
 
 ClustersTSNEKmeans <- kmeans(ClustersTSNE$Y, K2)
-PlotClusters(unique(Clusters), Col = factor(ClustersTSNEKmeans$cluster))
+PlotClusters(unique(Clusters), col = factor(ClustersTSNEKmeans$cluster))
 ```
 
 ## PAM
@@ -414,10 +463,13 @@ library(cluster)
 
 distances = dist(decathlonR[1:10])
 K=15
-DecathlonRKmeans ← kmeans(decathlonR[1:10], K)
-DecathlonTSNEKmeans ← kmeans(DecathlonTSNE$Y, K)
-PlotDecathlon(DecathlonTSNEY , Col=factor(DecathlonRKmeanscluster)) 
-PlotDecathlon(DecathlonTSNEY , Col=factor(DecathlonTSNEKmeanscluster)) 
+DecathlonRKmeans <- kmeans(decathlonR[1:10], K)
+DecathlonTSNEKmeans <- kmeans(DecathlonTSNE$Y, K)
+
+# Error in data.frame(X = CoordPoints[, 1, drop = TRUE], Y = CoordPoints[, : arguments imply differing number of rows: 0, 41
+# PlotDecathlon(DecathlonRKmeans$ind$coord , col=factor(DecathlonRKmeans$cluster)) 
+# PlotDecathlon(DecathlonTSNEKmeans$ind$coord , col=factor(DecathlonTSNEKmeans$cluster)) 
+
 plot(silhouette(DecathlonRKmeans$cluster,distances))
 plot(silhouette(DecathlonTSNEKmeans$cluster,distances))
 
@@ -430,16 +482,17 @@ plot(silhouette(DecathlonTSNEKmeans$cluster,distances))
 # Sachant le nro de Cluster, mes Xi sont Gaussians, 
 library("Rmixmod")
 DecathlonGMM <- mixmodCluster(decathlon[1:10], K)
-PlotDecathlon(DecathlonPCA$ind$coord, Col = factor(DecathlonGMM@bestResult@partition))
+PlotDecathlon(DecathlonPCA$ind$coord, col = factor(DecathlonGMM@bestResult@partition))
 
 DecathlonRGMM <- mixmodCluster(decathlonR[1:10], K)
-PlotDecathlon(DecathlonRPCA$ind$coord, Col = factor(DecathlonRGMM@bestResult@partition))
+PlotDecathlon(DecathlonRPCA$ind$coord, col = factor(DecathlonRGMM@bestResult@partition))
 
 ClustersGMM <- mixmodCluster(Clusters, K2)
-PlotClusters(Clusters, Col = factor(ClustersGMM@bestResult@partition))
+# Error in data.frame(X = CoordPoints[, 1, drop = TRUE], Y = CoordPoints[, : arguments imply differing number of rows: 2800, 0
+PlotClusters(Clusters, col = factor(ClustersGMM@bestResult@partition))
 ```
 
-## PLSA / LDA
+## PLSA / LDA : Linear Discriminant Analysis 
 
 ```{r LDA}
 library(topicmodels)
@@ -451,22 +504,22 @@ ap_lda
 terms(ap_lda,10)
 ```
 
-## DBSCAN
+## DBSCAN : Generates a density based clustering of arbitrary shape
 # Calcul du nbre de points ds les petites feentres, ensite faire avancer les fenetre, dès qu'il n'y a plus de pts, ceci voudrait dire que la frontiere du cluter a été atteinte
 ```{r DBSCAN}
 library("fpc")
 
 DecathlonDBScan <- dbscan(decathlon[1:10], 10)
-PlotDecathlon(DecathlonPCA$ind$coord, Col = factor(DecathlonDBScan$cluster))
+PlotDecathlon(DecathlonPCA$ind$coord, col = factor(DecathlonDBScan$cluster))
 
 DecathlonRDBScan <- dbscan(decathlonR[1:10], 3)
-PlotDecathlon(DecathlonRPCA$ind$coord, Col = factor(DecathlonRDBScan$cluster))
+PlotDecathlon(DecathlonRPCA$ind$coord, col = factor(DecathlonRDBScan$cluster))
 
 ClustersDBScan <- dbscan(Clusters, .2)
-PlotClusters(Clusters, Col = factor(ClustersDBScan$cluster))
+PlotClusters(Clusters, col = factor(ClustersDBScan$cluster))
 
 ClustersTSNEDBScan <- dbscan(ClustersTSNE$Y, 2)
-PlotClusters(unique(Clusters), Col = factor(ClustersTSNEDBScan$cluster))
+PlotClusters(unique(Clusters), col = factor(ClustersTSNEDBScan$cluster))
 ```
 
 ## PdfCluster
@@ -474,14 +527,14 @@ PlotClusters(unique(Clusters), Col = factor(ClustersTSNEDBScan$cluster))
 ```{r PdfCluster}
 library("pdfCluster")
 ClustersPdf <- pdfCluster(Clusters)
-PlotClusters(Clusters, Col = factor(ClustersPdf@clusters))
+PlotClusters(Clusters, col = factor(ClustersPdf@clusters))
 ```
 
 ## Mean Shift
 ```{r MeanShift}
 library("LPCM")
 ClustersMS <- ms(Clusters, h = .04)
-PlotClusters(Clusters, Col = factor(ClustersMS$cluster.label))
+PlotClusters(Clusters, col = factor(ClustersMS$cluster.label))
 ```
 
 
@@ -493,17 +546,17 @@ library("fastcluster")
 ClustersMLD <- hclust(DistClusters, method = "single")
 ggdendrogram(ClustersMLD)
 ClustersML <- cutree(ClustersMLD, k = K2)
-PlotClusters(Clusters, Col = factor(ClustersML))
+PlotClusters(Clusters, col = factor(ClustersML))
 
 ClustersALD <- hclust(DistClusters, method = "average")
 ggdendrogram(ClustersALD)
 ClustersAL <- cutree(ClustersALD, k = K2)
-PlotClusters(Clusters, Col = factor(ClustersAL))
+PlotClusters(Clusters, col = factor(ClustersAL))
 
 ClustersMMLD <- hclust(DistClusters, method = "complete")
 ggdendrogram(ClustersMMLD)
 ClustersMML <- cutree(ClustersMMLD, k = K2)
-PlotClusters(Clusters, Col = factor(ClustersMML))
+PlotClusters(Clusters, col = factor(ClustersMML))
 ```
 
 ## WARD
@@ -512,7 +565,7 @@ PlotClusters(Clusters, Col = factor(ClustersMML))
 ClustersWardD <- hclust(DistClusters, method = "ward.D2")
 ggdendrogram(ClustersWardD)
 ClustersWard <- cutree(ClustersWardD, k = K2)
-PlotClusters(Clusters, Col = factor(ClustersWard))
+PlotClusters(Clusters, col = factor(ClustersWard))
 ```
 
 ## DIANA
@@ -521,7 +574,7 @@ PlotClusters(Clusters, Col = factor(ClustersWard))
 ClustersDianaD <- as.hclust(diana(Clusters))
 ggdendrogram(ClustersDianaD)
 ClustersDiana <- cutree(ClustersDianaD, k = K2)
-PlotClusters(Clusters, Col = factor(ClustersDiana))
+PlotClusters(Clusters, col = factor(ClustersDiana))
 ```
 
 ## Affinity Propagation
@@ -537,9 +590,9 @@ PlotClusters(Clusters, labels(ClustersAF))
 
 ```{r Clara}
 ClustersClara <- clara(Clusters, K2)
-PlotClusters(Clusters, Col = factor(ClustersClara$clustering))
+PlotClusters(Clusters, col = factor(ClustersClara$clustering))
 
 ClustersSNEClara <- clara(ClustersTSNE$Y, K2)
-PlotClusters(unique(Clusters), Col = factor(ClustersSNEClara$clustering))
+PlotClusters(unique(Clusters), col = factor(ClustersSNEClara$clustering))
 ```
 

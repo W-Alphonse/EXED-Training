@@ -1,0 +1,1342 @@
+maintenant que nous avons défini les
+00:02
+données sur lesquelles appliquer la cp
+00:04
+et quelles étaient les problématiques de
+00:05
+la cp voyons comment mettre en oeuvre la
+00:07
+cp on a dit qu'un individu était une
+00:10
+ligne du tableau et donc un point dans
+00:12
+un espace à grand cas dimension si grand
+00:15
+cas égal 1 il n'y a qu'une seule
+00:16
+variable est il facile de représenter
+00:18
+les individus on peut faire une
+00:19
+représentation axial et positionner les
+00:22
+individus en fonction de la valeur
+00:23
+qu'ils prennent pour la variable avec
+00:25
+deux variables on peut construire un
+00:26
+nuage de points classique comme on fait
+00:29
+avant une régression simple avec une
+00:30
+première variable sur l'axé des x la
+00:32
+deuxième variable sur l'axé y avec trois
+00:35
+variables la représentation des
+00:37
+individus est plus difficile mais
+00:38
+certains logiciels permettent de
+00:40
+visualiser des points trois dimensions
+00:42
+en fait l'image et en deux dimensions
+00:44
+mais en bougeant le nuage on peut avoir
+00:46
+une idée de sa forme en trois dimensions
+00:48
+mais avec quatre variables ou plus il
+00:50
+est impossible de représenter un nuage
+00:52
+de pointe cati mention c'est impossible
+00:53
+a représenté est même impossible à
+00:55
+imaginer
+00:56
+par contre le concept mathématiques est
+00:58
+simple nous avons grand cas coordonnées
+01:00
+sur grand cas dimension car est en plus
+01:01
+grand que quatre maintenant comment
+01:03
+faire pour visualiser le nuage
+01:04
+d'individus si celui ci vit dans un
+01:06
+espace très grand pour des répondre à
+01:08
+cette question nous devons d'abord
+01:09
+définir la notion de ressemblance quand
+01:12
+est-ce que deux individus se ressemblent
+01:13
+deux individus se ressemblent s'ils
+01:15
+prennent des valeurs proches
+01:16
+sur l'ensemble des grands cas variable
+01:18
+et donc on peut définir la distance
+01:20
+entre deux individus grâce à pythagore
+01:22
+la distance au carré entre deux
+01:24
+individus et la somme des carrés des
+01:27
+écarts sur chacune des variables on sait
+01:29
+une définition simple de la notion de
+01:31
+ressemblance est donc finalement quand
+01:33
+je veux étudier le nuage des individus
+01:35
+cela revient à étudier la forme de ce
+01:37
+nuage voir les individus qui sont
+01:39
+proches les individus qui sont éloignés
+01:42
+l'étude du tableau de données peut être
+01:44
+réalisée géométriquement via l'étude des
+01:45
+distances entre individus et l'analyse
+01:47
+des distances entre individus revient à
+01:49
+étudier la forme du nuage de points on
+01:51
+voit sur cette photographie un vol
+01:53
+d'étourneaux le nuage d'oiseaux et en
+01:55
+trois dimensions et à photographier
+01:57
+permet de visualiser le nuage dans un
+01:59
+espace plus petit en deux dimensions
+02:00
+seulement à partir de cette
+02:02
+représentation en deux dimensions on a
+02:04
+une bonne idée de la forme du nuage dans
+02:06
+l'espace complet est donc une bonne idée
+02:08
+des distances entre chaque oiseau
+02:10
+donc quand les individus vivent dans un
+02:11
+espace de grande dimension
+02:13
+va chercher à étudier la forme du nuage
+02:15
+et à visualiser ce nuage en deux
+02:16
+dimensions pour étudier la forme du
+02:18
+nuage nous allons parler de deux pré
+02:20
+traitement possible sur les données le
+02:24
+centrage et la réduction centre et les
+02:27
+données revient à trans lattes et le
+02:28
+nuage ce qui ne modifie absolument pas
+02:30
+sa forme la forme du nuage reste
+02:32
+inchangé puisque le centrage revient
+02:34
+juste à trans la ténue âge donc
+02:36
+concentrera toujours les données voyons
+02:40
+maintenant si nous devons réduire ou non
+02:41
+les données dans les schémas de droite
+02:44
+on a une représentation de la taille
+02:45
+d'un individu en fonction de leur poids
+02:47
+la taille est exprimée en cm et le poids
+02:50
+en quintal
+02:51
+notons que les données ont été centrés
+02:53
+on voit que le nuage de points est très
+02:55
+allongée et verticale sur le schéma du
+02:58
+milieu la taille à cette fois représenté
+03:00
+en mètres et le poids en kilogrammes la
+03:02
+forme du nuage est très différente
+03:03
+puisque on a un nuage de points très
+03:05
+allongée et horizontale or nous avons
+03:08
+dit que nous voulons étudier la forme du
+03:09
+nuage de points
+03:10
+on voit bien que selon l'unité choisi cm
+03:13
+et quintal ou m et kg
+03:15
+la forme du nuage n'est pas du tout la
+03:17
+même comment gérer cela une idée est
+03:19
+recentré réduire les données car si on
+03:21
+sent très réduit les données les
+03:23
+variables deviennent comparables car
+03:25
+elles sont 100 unités
+03:26
+la réduction on parle aussi de
+03:28
+standardisation ou encore de normes et
+03:30
+les données est indispensable si les
+03:32
+unités de mesure sont différentes d'une
+03:34
+variable à l'autre maintenant si toutes
+03:36
+les variables sont exprimés dans la même
+03:38
+unité
+03:38
+il est possible de réduire ou non la
+03:41
+réduction conduit à accorder la même
+03:43
+importance à chaque variable et ne pas
+03:45
+réduire donne plus d'importance aux
+03:47
+variables qui ont une variabilité plus
+03:48
+grande
+03:49
+une variante plus grande l'importance
+03:51
+d'une variable sera proportionnel à son
+03:52
+écart type
+03:53
+donc il ya une discussion à avoir pour
+03:55
+norme est ou non c'est à dire réduire ou
+03:57
+non avant la cp dans la suite du court
+04:00
+on va toujours centré et réduire les
+04:01
+variables du jeu de données voici le jeu
+04:03
+de données de l'exemple sens très réduit
+04:05
+ce tableau de donner sens très réduits
+04:07
+donne déjà quelques informations
+04:08
+on voit par exemple qu'à brest en
+04:10
+juillet on a une valeur de moins de 0,6
+04:13
+cela signifie que les températures à
+04:15
+brest soit assez extrêmes en juillet la
+04:18
+valeur de -2 signifie que ce sont des
+04:20
+valeurs inférieures à la moyenne est
+04:22
+assez extrêmes on sait que
+04:24
+si les valeurs d'une variable suivent
+04:26
+une loi normale alors 95% des valeurs
+04:28
+centrée réduite sont comprises entre -1
+04:30
+96 et 1,96 ici on ne sait pas si les
+04:33
+données suivent une loi normale mais une
+04:35
+valeur sont très réduites de -2 est très
+04:37
+extrêmes donc à brest il fait
+04:39
+particulièrement froid en juillet à nice
+04:41
+en revanche il fait particulièrement
+04:43
+chaud surtout en février et octobre
+04:46
+novembre
+04:47
+les températures sont supérieures à la
+04:49
+moyenne est particulièrement grande la
+04:51
+cp l'analyse encore présentes principal
+04:53
+va permettre d'analyser ce tableau
+04:54
+centre réduit alors analyser ce tableau
+04:56
+sans très réduit ça veut dire le
+04:57
+visualiser c'est difficile de voir ce
+04:59
+tabou l'eau puisqu'il est en 12
+05:01
+dimensions
+05:01
+on ne peut pas le visualiser en 12
+05:03
+dimensions on va chercher à en avoir une
+05:05
+image approché mais on a cherché une
+05:07
+image qui s'en rapproche le plus
+05:09
+possible
+05:10
+on va donc ajuster ce nuage des
+05:12
+individus c'est à dire l'approché au
+05:13
+mieux l'objectif de la cp sera de
+05:16
+fournir une image simplifiée du nuage de
+05:17
+points qui soit la plus fidèle possible
+05:19
+qui permet d'avoir une idée des
+05:21
+distances entre individus que ses
+05:23
+distances entre individus sur les plus
+05:24
+fidèle possible donc la cpi va chercher
+05:26
+un sou espace qui résume au mieux les
+05:28
+données résumée au mieux les données ça
+05:31
+veut dire quoi
+05:31
+l'image est bonne si elle restitue le
+05:34
+plus fidèlement possible la forme du
+05:36
+nuage original on peut voir ça sur une
+05:39
+petite animation 3d
+05:40
+alors on a un nuage de points en trois
+05:43
+dimensions je vais bouger ce nuage de
+05:45
+points et le fait de bouger le nuage de
+05:47
+points permet d'avoir une idée de sa
+05:48
+forme en 3d
+05:49
+seulement on cherche uniquement une
+05:50
+représentation en deux dimensions
+05:51
+uniquement un plan voilà une première
+05:55
+proposition de la visualisation du nuage
+05:58
+3d
+06:04
+là une deuxième proposition et enfin une
+06:13
+troisième proposition du nuage 3d et
+06:15
+donc la question est de savoir parmi ces
+06:16
+trois propositions
+06:17
+quelle est celle qui restitue au mieux
+06:19
+le nuage dans son ensemble j'ai droit à
+06:22
+une seule photographie de mon nuage 3d
+06:24
+et laquelle choisir on va avoir tendance
+06:26
+à choisir la troisième proposition
+06:28
+pourquoi parce qu'on a bien séparer les
+06:30
+points ce qui nous donne l'impression de
+06:32
+mieux voir les distances entre individus
+06:33
+c'est les intuitions qui nous dit de
+06:35
+bien séparer les points et cette
+06:37
+intuition est bonne par conséquent une
+06:39
+image est bonne si elle restitue
+06:40
+fidèlement la forme du nuage autrement
+06:42
+dit une image est bonne si on visualise
+06:44
+bien la diversité la variabilité qu'il y
+06:47
+a dans les données et surtout une image
+06:48
+est bonne si elle ne déforme pas trop
+06:50
+les distances entre individus les
+06:52
+distances entre individus sont au départ
+06:53
+dans un calcul est dans un espace à 12
+06:55
+dimensions et en les plongeant dans un
+06:57
+espace à deux dimensions elles ont été
+06:59
+un peu déformés et on cherche à ce
+07:01
+qu'elles soient le moins d'efforts mais
+07:02
+possible alors comment peut-on
+07:04
+quantifier la qualité d'une image tout
+07:06
+simplement avec la notion de dispersion
+07:07
+plus un nuage de points sera dispersée
+07:10
+mieux on verra le nuage est un nuage de
+07:12
+points et 10 très dispersé s'il ya une
+07:14
+forte variabilité cette variabilité sur
+07:16
+plusieurs dimensions et une variabilité
+07:18
+sur plusieurs dimensions c'est ce qu'on
+07:20
+appelle l'inertie
+07:21
+on va donc parler d'inertie maintenant
+07:23
+l'inertie est une variance mais
+07:25
+généralisée à plusieurs dimensions
+07:27
+voici une petite illustration là encore
+07:30
+d'une visualisation d'un nuage 3d ici
+07:32
+nous avons un animal qui est en réalité
+07:34
+en trois dimensions mais nous avons une
+07:36
+photographie qui le représente
+07:37
+uniquement sur un plan de dimension et
+07:40
+quelle est l'image qu'ils restituent au
+07:42
+mieux la forme du nuage dans l'espace
+07:45
+global c'est plutôt l'image de droite on
+07:48
+reconnaît un chameau parce qu'on voit
+07:49
+beaucoup plus de choses et notamment de
+07:51
+bosses et quatre pattes
+07:52
+décrivons plus en détail comment ajuster
+07:55
+le nuage des individus c'est à dire
+07:56
+comment trouver la meilleure image
+07:58
+approché du nuage en fait on va le faire
+08:01
+en plusieurs étapes
+08:02
+on va commencer par trouver le premier
+08:04
+axe on parle aussi de premier facteur
+08:06
+qui déforme le moins possible le nuage
+08:08
+de points donc si on note h i la
+08:11
+projection d'un individu sur un axe aux
+08:14
+le centre de gravité du nuage
+08:16
+each ecaré l écart entre l'individu y
+08:20
+dans l'espace initial et sa projection
+08:22
+sur un axe et on veut que l'écart entre
+08:25
+un individu et sa projection soit lui le
+08:28
+plus petit possible
+08:29
+plus précisément on veut que le carré de
+08:32
+cet écart sur le plus petit possible
+08:34
+comme la distance au i d'un individu à
+08:37
+l'origine est toujours la même ia y est
+08:41
+petit
+08:41
+6au h y est grande ça c'est grâce à
+08:44
+pythagore
+08:44
+on sait que ohashi carré plus iasi carré
+08:48
+est égale à o icare est donc comme loïc
+08:51
+et constant yashica répète ici au hachis
+08:54
+carrier grands donc on veut avoir les
+08:56
+eaux h
+08:57
+icare et les plus grand possible comme
+08:59
+je veux ça surtout les individus je veux
+09:01
+que la somme des eaux achi carrés soit
+09:03
+la plus grande possible est la somme des
+09:05
+eaux h
+09:06
+icare et c'est bien la dispersion des
+09:08
+individus la plus grande possible
+09:09
+on trouve ainsi le premier facteur
+09:11
+ensuite on va chercher le meilleur plan
+09:13
+donc trouver le meilleur plan revient à
+09:16
+trouver les points h y qui appartiennent
+09:19
+non plus à un axe mais qui appartiennent
+09:20
+à un plan est telle que la dispersion
+09:22
+soit la plus grande possible a encore
+09:24
+donc il faut que la somme des eaux achi
+09:27
+carrés soit la plus grande possible que
+09:29
+les points soient les plus dispersées
+09:30
+possible alors une remarque le meilleur
+09:33
+plan donc le plan qui permet de
+09:35
+visualiser au mieux le nuage de points
+09:36
+contient le meilleur axe et pour trouver
+09:39
+le meilleur plan on va chercher le
+09:41
+meilleur axe et ensuite chercher un axe
+09:43
+orthogonale à ce premier axe et qui
+09:45
+masque maximise la somme des eaux achi
+09:47
+carré autrement dit qui maximise
+09:48
+l'inertie
+09:49
+puis une fois qu'on a trouvé le deuxième
+09:51
+axe on peut rechercher un troisième axe
+09:53
+est donc 7 séquentiellement chercher les
+09:55
+axes les uns après les autres et à
+09:57
+chaque fois un acte doit être
+09:58
+orthogonale à tous les axes précédent et
+10:01
+maximiser l'inertie visualiser en cela
+10:04
+avec cette animation
+10:05
+ici j'ai une théière en trois dimensions
+10:08
+et je vais trouver les axes qui
+10:09
+permettent de visualiser au mieux cette
+10:11
+théière
+10:12
+donc je trouve le premier axe c'est
+10:14
+celui qui permet de visualiser au mieux
+10:16
+la théière si on avait projeté les
+10:18
+points de la théière sur un axe on
+10:19
+aurait pris l'accent rouge et maintenant
+10:21
+on cherche un deuxième axe orthogonale
+10:23
+au premier on fixe la première dimension
+10:25
+et on cherche un axe orthogonale au
+10:27
+premier
+10:27
+qui permet de visualiser au mieux la
+10:29
+théière est donc là on a trouvé le
+10:31
+premier axe en rouge est le deuxième axe
+10:32
+anvers alors reprenons nos données avec
+10:35
+les 15 villes les quatorze variable
+10:37
+quantitatif donc les 12 variable de
+10:39
+température et les deux variables
+10:40
+géographique la latitude et la longitude
+10:42
+on va visualiser le nuage des individus
+10:44
+uniquement à partir des données de
+10:46
+température donc on s'intéresse dans un
+10:48
+premier temps uniquement aux douze
+10:50
+premières variable de température la
+10:52
+meilleure représentation des individus
+10:54
+est la suivante
+10:55
+ce graphe montre par exemple que
+10:57
+montpellier et marseille sont très
+10:58
+proches que signifie montpellier et
+11:01
+marseille sont très proches cela
+11:02
+signifie que les températures moyennes à
+11:04
+montpellier et à marseille sont à peu
+11:06
+près les mêmes et ce quel que soit le
+11:09
+mois de l'année les valeurs sont à peu
+11:11
+près les mêmes donc les points sont
+11:12
+proches de même rennes et nantes sont
+11:15
+deux villes ayant des températures
+11:16
+proches pour les douze mois de l'année
+11:18
+par contre nice et lille ont des
+11:20
+comportements très différents
+11:21
+ces deux villes sont complètement
+11:23
+opposées opposés sur le premier axe donc
+11:26
+si elles sont opposées sur le premier
+11:27
+axe cela signifie que ce sont des villes
+11:30
+très différente puisque le premier axe
+11:31
+est celui qui sépare au mieux les points
+11:34
+donc lac ce qui sépare au mieux les
+11:36
+points est un axe qui séparent lille et
+11:38
+nice et donc ces deux villes ont des
+11:40
+comportements très différents et ce sur
+11:41
+l'ensemble des variables
+11:43
+alors maintenant qu'est ce qui sépare
+11:44
+qu'est-ce qui oppose lille à nice pour
+11:47
+répondre à cette question on peut avoir
+11:49
+une bonne connaissance des données et
+11:50
+dire qu'à lille
+11:51
+il fait plutôt froid et à nice plutôt
+11:52
+chaud mais si on veut raisonner
+11:54
+uniquement à partir du jeu de données on
+11:56
+va vouloir utiliser les variables pour
+11:58
+interpréter ses dimensions de
+11:59
+variabilité
+12:00
+
+
+qu'est-ce qui oppose lille à nice pour
+le savoir on va considérer les
+coordonnées des individus sur les axes ?
+
+par exemple ici
+l'individu brest on va récupérer sa
+coordonnées sur le premier axe est la
+notte f111 pour premier axe 
+
+et puis ça coordonnées sur le deuxième axe est
+fille 2 donc pour chaque individu
+nous collectons sa coordonnées sur l'axé
+horizontal et sa coordonnées sur l'axé
+vertical
+12:23
+on peut ainsi créer deux vecteurs un
+12:26
+premier vecteur qui regroupe toutes les
+12:27
+coordonnées de tous les individus sur le
+12:29
+premier axe est un deuxième vecteur qui
+12:31
+regroupe toutes les coordonnées de tous
+12:33
+les individus sur le deuxième axe 
+
+par
+12:35
+construction ses lecteurs ont grandi
+12:37
+coordonner le même nombre que chaque
+12:39
+variable du tableau
+12:39
+donnée 
+
+=======================
+Interpretation Axe1:
+=======================
+
+-> Pour interpréter le graphe des individus on peut :
+	- calculer la corrélation entre une variable par exemple la variable janvier et l axe1 
+	- on peut aussi calculer la corrélation entre la variable janvier et l axe2 
+
+   Ainsi, si la variable janvier est rallié à l'axe1 cela voudra dire que 
+   les températures en janvier sont très liés aux coordonnées sur l'axe1 
+
+-> Ainsi si la corrélation est proche de 1 cela veut dire que :
+a - les individus qui ont de faibles valeurs pour janvier prennent 
+	de faible valeur sur l'axé 1 
+	les individus qui prennent de faible valeur
+	sur l'axe1 sont les individus à gauche du graphe
+
+b - et les individus qui ont de fortes valeurs en janvier prennent de
+	fortes valeurs sur l'axe1 et seront donc à droite sur le graphe
+
+-> Si la corrélation (entre Janvier et Axe1) est négative alors :
+   les individus qui prennent de faible valeur pour janvier 
+   prendront de fortes valeurs sur l'axe1 
+
+   et inversement les individus qui prennent de fortes valeurs
+	pour janvier prendront de faible valeur sur l'axe1 
+
+
+=======================================
+ Cercle des correlations des variabes
+=======================================
+-> et même chose avec l axe2 on a l'accord et l'action avec l axe2 
+   et donc
+on va pouvoir construire un graphe avec
+une représentation de toutes les
+variables du jeu de donner toute cette
+variable vont se retrouver dans un
+cercle qu'on appelle le cercle des
+collations et on appelle ce graphe le
+graphe du cercle des corrélations pour
+l'exemple le graphe du cercle des
+corrélations est le suivant on voit que
+
+toutes les variables sont corrélées à la
+axe1 aux facteurs on a une relation qui
+est positive et supérieure à 0,6 0,7
+pour toutes les variables
+
+on a même des corrélations très élevé
+pour octobre et mars par exemple des
+corrélations très proche de 1
+cela signifie que les températures en
+octobre sont très liés aux coordonnées
+sur l axe1
+autrement dit les villes qui sont à
+gauche avec une faible coordonnées sur
+l'axé 1 ont des températures faibles au
+mois d'octobre 
+les villes qui sont au
+milieu on est en température moyenne en
+octobre et les villes qui sont à droite
+on est températures élevées en octobre
+
+quand je dis les températures élevées
+c'est par rapport aux autres villes
+le même mois de l'année 
+
+donc comment peut-on interpréter l axe1:
+en fait on a toutes les variables qui
+sont ralliés à l'axe1 donc à droite du
+graphe
+on a toutes les villes pour lesquelles
+il y a de fortes valeurs à la fois pour
+janvier décembre février novembre et
+c'est donc pour tous les mois de l'année
+à droite les villes points
+coordonnées sur l'action sont des villes
+où il fait plutôt chaud tous les mois de
+l'année et à gauche on a des villes où
+il fait plutôt froid tous les mois de
+l'année
+et ça c'est le principal facteur de
+variabilité ce qui différencie le plus
+les villes c'est qu'il y a des villes où
+il fait froid un peu tout le temps et
+d'autres où il fait chaud
+un peu tout le temps 
+
+
+=======================
+Interpretation Axe2 
+=======================
+maintenant qu'est
+ce qui sépare les villes par rapport au
+deuxième axe dans le deuxième axe des
+corrélations sont un peu moins forte
+ceci est normal puisque c'est un axe de
+variabilité qui est moins important
+c'est le deuxième axe de variabilité
+donc en haut du graff des individus on a
+
+des villes où il fait plutôt chaud en
+janvier décembre est plutôt froid en mai
+juin juillet 
+
+il fait plutôt chaud en
+janvier décembre parce que la
+corrélation avec l'axe2 est positive
+elle n'est pas très proche de 1 mais
+elle est positif de l'ordre de 0,5
+
+tandis que la corrélation est négative
+avec les variables mai juin juillet on
+
+peut donc dire que les villes qui ont
+des coordonnées plutôt élevée sur la axe2
+vont prendre des valeurs plutôt faible
+en mai juin juillet autrement dit haut
+du graphe
+on va voir des villes où il fait plutôt
+doux hiver plutôt chaud l'hiver est
+plutôt froid l'été 
+
+et au contraire les
+villes qui sont en bas du graff sont des
+villes où il fait plutôt chaud l'été 
+et plutôt froid l'hiver 
+
+on a donc déterminé
+les principaux facteurs de variabilité
+le premier axe sépare les villes chaudes
+des villes froide le deuxième axe et
+orthogonale au premier et donc il
+différencie des villes à une température
+moyenne annuelle constante
+ce deuxième axe ses parents au du graff
+des villes où il fait plutôt chaud
+l'hiver est froid l'été
+donc il ya une petite amplitudes
+thermiques annuelle aux villes en bas du
+graff où il fait plutôt froid l'hiver et
+chaud l'été donc aux villes ayant une
+forte amplitude thermique année c'est ça
+qui va différencier principalement les
+
+
+
+donc il ya un premier axe de variabilité
+ville chaude ville froide le deuxième
+16:36
+axe plus tôt par rapport à l'amplitude
+16:37
+thermique annuel nous avons vu l'étude
+16:40
+des individus voyons maintenant
+16:42
+l'étude des variables rappelons qu'une
+16:45
+variable est un point dans un espace
+16:46
+agrandi dimension puisqu'il y a grandi
+16:48
+individus
+16:49
+c'est donc un vecteur de grands qui
+16:51
+coordonné va s'intéresser aux nuages des
+16:53
+variables qui vit dans cet espace
+16:55
+agrandi dimension les variables seront
+16:58
+représentés par des flèches ce qui est
+17:00
+de coutume en analysant composante
+17:01
+principale car comme nous le verrons
+17:03
+nous interpréterons surtout d
+17:05
+angle donc je représente la variable cas
+17:08
+par une flèche qui part de l'origine le
+17:10
+cosinus de l'angle et aka el entre la
+17:13
+flèche qui représente la variable cas et
+17:15
+la flèche qui représente la variable
+17:16
+elle le cosinus de cet angle est égal au
+17:20
+produit scalaires entre la variable cas
+17:21
+est la variable elle / la norme de la
+17:24
+variable cas est la norme de la variable
+17:26
+elle s'est donc égale à la somme surtout
+17:29
+les i
+17:29
+dx icaic si elles divisées par la racine
+17:32
+carrée de la somme des xxi kkr et que
+17:35
+multiplie la somme des xxi yale carré
+17:36
+puisque les x sont centrés on peut lire
+17:39
+sommes dxy cas - x barca fois xxi elle -
+17:43
+x barrel / l'écart type de la variable
+17:46
+cas x l'écart type de la variable elle
+17:49
+donc quand les données sont centrés on
+17:51
+reconnaît finalement le coefficient de
+17:53
+corrélation entre la variable calera les
+17:55
+bleus l on a ainsi une représentation
+17:57
+géométrique ici du coefficient de
+18:00
+corrélation entre deux variables qu'à
+18:01
+yale la représentation géométrique de
+18:04
+cette corrélation est le cosinus de
+18:06
+l'angle entre les variables cas réels si
+18:09
+les variables sont réduites
+18:10
+la longueur des flèches est égal à 1 et
+18:12
+donc l'extrémité de chaque flèche sera à
+18:14
+une distance 1 et toutes les extrémités
+18:16
+des flèches seront sur une hyper sphère
+18:18
+de rayon 1
+18:19
+comment faire maintenant pour visualiser
+18:21
+ce nuage de variables ce nuage vie dans
+18:23
+un espace agrandi dimensions et on ne
+18:25
+peut pas le visualiser sur les grandes
+18:27
+dimensions
+18:27
+on va utiliser la même stratégie pour
+18:30
+les individus c'est à dire qu'on va
+18:31
+ajuster le nuage des variables afin de
+18:33
+visualiser au mieux le nuage des
+18:35
+variables comme pour les individus on va
+18:37
+chercher des axes orthogonaux qui
+18:39
+permettent de représenter au mieux les
+18:41
+variables le premier axe lac ce qui
+18:43
+permet de voir au mieux l'ensemble des
+18:44
+variables l axe qui maximise la somme
+18:47
+des corrélations entre le facteur et
+18:48
+chacune des variables donc le meilleur
+18:50
+facteur v1 est le facteur qui est le
+18:53
+plus lié à l'ensemble des variables plus
+18:55
+liées au sens des corrélations au carré
+18:57
+donc la variable v1 sur une variable
+18:59
+synthétique qui résume au mieux
+19:01
+l'ensemble des variables
+19:03
+cette variable 1 va porter le premier
+19:05
+axe est une fois que cette variable v1
+19:07
+est déterminés on cherche un deuxième
+19:08
+axe orthogonale au premier et qui permet
+19:11
+de bien synthétisé le reste de
+19:13
+l'information qui n'a pas encore été
+19:14
+synthétisées par le premier axe on va
+19:17
+donc séquentiellement chercher un acte
+19:18
+orthogonale aux aux axes président et
+19:21
+qui maximise l'information qui n'est pas
+19:22
+encore résumée par les premiers axes et
+19:24
+donc l'ajustement du nuage des variables
+19:26
+sur notre jeu de données bien c'est la
+19:29
+même représentation des variables que la
+19:30
+représentation qu'on avait précédemment
+19:32
+tout à l'heure on avait construit une
+19:34
+représentation des variables pour nous
+19:36
+aider à interpréter le nuage des
+19:37
+individus et maintenant quand je
+19:39
+construis des axes pourvoir au mieux le
+19:41
+nuage des variables je retombe sur la
+19:43
+même représentation
+19:45
+donc c'est un peu magique peu incroyable
+19:47
+mais c'est ce qui fait toute la force de
+19:49
+l'analysant composante principale on a
+19:51
+la même représentation précédemment et
+19:53
+donc cette représentation du nuage des
+19:55
+variables nous a permis de caractériser
+19:57
+le nuage des individus la représentation
+19:59
+des individus elle nous a servi à
+20:02
+caractériser les individus donc dans
+20:03
+l'exemple les villes froide les villes
+20:05
+chaude les villes avec une faible
+20:07
+amplitude thermique une forte amplitude
+20:08
+thermique
+20:09
+c'est aussi on vient de le voir une
+20:12
+représentation optimale du nuage des
+20:14
+variables mais c'est également une
+20:15
+visualisation de l'ensemble des
+20:17
+corrélations entre les variables prise 2
+20:19
+à 2 visualisation grâce aux caussinus
+20:22
+des angles entre les variables
+20:23
+c'est donc aussi une visualisation de la
+20:26
+matrice des corrélations c'est assez
+20:28
+magique parce que c'est la même
+20:29
+représentation
+20:30
+alors justement pour les représentations
+20:32
+on a vu que le coefficient de
+20:33
+corrélation entre la variable b est la
+20:36
+variable à est égal au caussinus de
+20:38
+l'angle entre la variable b est la
+20:40
+variable
+20:40
+attention cette égalité est vrai pour
+20:43
+l'angle dans l'espace or on ne visualise
+20:46
+pas l'angle dans l'espace mais on le
+20:47
+visualise dans le plan de projection le
+20:50
+schéma suivant montre à gauche
+20:52
+les variables dans l'espace avec le plan
+20:54
+de projections en grisé et à droite le
+20:57
+plan avec leurs projections par exemple
+20:59
+les variables d eux ici sont très
+21:02
+proches du plan de projection ces
+21:04
+variables sont proches de leurs
+21:05
+projections respectives le projeter hd
+21:08
+est très proche de d parce que la
+21:09
+variable d est proche du plan de
+21:11
+projection et donc l'angle dans l'espace
+21:14
+global entre d et e est très proche de
+21:17
+l'angle entre les projections hdh heures
+21:19
+angle que l'on peut visualiser dans le
+21:22
+plan de projection et donc on peut
+21:23
+utiliser l'angle entre les projeter pour
+21:26
+visualiser la corrélation entre des plus
+21:30
+exactement le cosim
+21:31
+de l'angle hdh eux est très proche du
+21:34
+caussinus de langue entre d eux parce
+21:36
+que les variables sont bien projeté est
+21:38
+donc ce caussinus de l'angle entre hdh
+21:40
+eux est très proche du coefficient de
+21:43
+corrélation entre des par contre quand
+21:46
+les variables sont mal projeté ce qui
+21:47
+est le cas par exemple pour les
+21:49
+variables a et b l'angle ici dans le
+21:52
+plan de projection est petit alors que
+21:54
+l'angle dans l'espace est très grand il
+21:56
+ya une flèche qui part avec une
+21:57
+coordonnée élevé sur une troisième
+21:59
+dimension
+22:00
+quand la flèche b est plus vers le bas
+22:02
+avec une coordonnée faible sur la
+22:04
+troisième dimension et donc ses deux
+22:06
+flèches se projette à peu près au même
+22:07
+endroit dans le plan de projection mais
+22:10
+elles sont mal projeté et donc le
+22:11
+cosinus de l'angle ici est très
+22:13
+différent du caussinus de l'angle dans
+22:15
+l'espace par conséquent on ne peut pas
+22:17
+lire le coefficient de corrélation pour
+22:19
+les variables a et b le cosinus de
+22:21
+langue ici qui est proche de 1
+22:23
+car l'anglais petit n'est pas proche du
+22:25
+coefficient de corrélation donc je ne
+22:27
+peux lire les coefficients de
+22:28
+corrélation que pour les variables qui
+22:30
+sont bien projeté il est variable sont
+22:32
+bien projeter si elles sont proches du
+22:33
+cercle des corrélations
+22:34
+en effet quand on a une hyper sphère de
+22:37
+rayons un qui est coupé par un plan
+22:39
+alors elle se projette dans un cercle de
+22:42
+rayon 1
+22:43
+si la flèche est proche du bord du
+22:46
+cercle la variable et bien projeté donc
+22:48
+je peux visualiser l'angle entre les
+22:50
+variables qui sont bien projetée par
+22:51
+contre pour des variables mal projeter
+22:53
+comme a et b leur projeter h hae hb se
+22:57
+projette à peu près au même endroit mais
+23:00
+il est impossible
+23:01
+juste avec la projection de savoir si la
+23:03
+flèche à est vers nous et la flèche b
+23:06
+derrière nous ou si les deux flèches
+23:07
+sont vers nous dans un cas on a une
+23:10
+forte corrélation positive dans l'autre
+23:12
+il n'y a pas de corrélation donc il est
+23:14
+impossible d'interpréter on ne peut
+23:15
+interpréter que les variables bien
+23:17
+projeté nous avons vu comment visualiser
+23:20
+le nuage des variables et le nuage des
+23:21
+individus nous verrons dans la prochaine
+23:23
+vidéo différentes aides à
+23:25
+l'interprétation très utile pour
+23:27
+compléter l'analyse des résultats d'une
+23:29
+ac p voulaient maintenant faire le quiz
+23:31
+pour vous assurer que vous avez bien
+23:33
+compris comment fonctionne la mise en
+23:34
+composantes principales

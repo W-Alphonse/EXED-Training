@@ -1,11 +1,11 @@
-Decathlon	[<-	data	decathlon	head	library	scale	summary
+Decathlon	library	FactoMineR	data	summary	decathlon	head	decathlonR	scale
 SwissRoll	$	::	c	data	library	nrow	order	plot3d
 Clusters	X	Y	aes	coord_fixed	data.frame	geom_point	ggplot	guides	if	is.null	library	nrow	read_delim	sample
-Plot	$	X	Y	aes	c	coord_fixed	data.frame	decathlon	geom_point	geom_text	ggplot	guides	if	is.null	nrow	row.names	scale_x_continuous	scale_y_continuous	swissroll
-PCA	$	Clusters	PCA	PlotClusters	PlotDecathlon	PlotSwissRoll	decathlon	decathlonR	swissroll
-Poison	data	head	poison	summary
-MFA	MFA	c	poison
-ICA	$	Clusters	PlotClusters	PlotDecathlon	PlotSwissRoll	decathlon	decathlonR	fastICA	library	swissroll
+Plot	PlotDecathlon	is.null	Col	decathlon	Points	ggplot	data.frame	CoordPoints	aes	X	Y	geom_point	geom_text	row.names	scale_x_continuous	c	scale_y_continuous	guides	coord_fixed	PlotSwissRoll	nrow	swissroll
+PCA	DecathlonPCA	PCA	decathlon	PlotDecathlon	ind	coord	DecathlonRPCA	decathlonR	SwissRollPCA	swissroll	PlotSwissRoll	ClustersPCA	Clusters	PlotClusters
+Poison	data	poison	summary	head	names
+MFA	PoisonMFA	MFA	poison	c
+ICA	library	DecathlonICA	fastICA	decathlon	PlotDecathlon	S	DecathlonRICA	decathlonR	SwissRollICA	swissroll	PlotSwissRoll	ClustersICA	Clusters	PlotClusters
 NMF	PlotDecathlon	basis	decathlon	library	nmf
 KPCA	PlotDecathlon	PlotSwissRoll	as.matrix	decathlon	decathlonR	kpca	library	pcv	scale	swissroll
 Keras	

@@ -1,0 +1,41 @@
+
+--------------------------------------------------------------------------
+   About Feature Scaling and Normalization
+   https://sebastianraschka.com/Articles/2014_about_feature_scaling.html
+--------------------------------------------------------------------------
+
+----------------------------
+   About standardization
+   Z-score normalization
+----------------------------
+The result of standardization (or Z-score normalization) is that the features will be rescaled 
+so that they’ll have the properties of a standard normal distribution with μ-0 and σ-1
+=> Mean == 0 and Std-from-the-mean == 1
+
+Standardizing the features so that they are centered around 0 with a standard deviation of 1 is not only important 
+if we are comparing measurements that have different units, 
+but it is also a general requirement for many machine learning algorithms. 
+Intuitively, we can think of gradient descent as a prominent example;
+with features being on different scales, certain weights may update faster than others since the feature values xj play a role in the weight updates
+
+A Z-score normalization is typically done via the following equation: Xz-score = (X−Mean) / Std
+
+----------------------------
+    About Min-Max scaling
+----------------------------	
+An alternative approach to Z-score normalization (or standardization) is the so-called Min-Max scaling 
+(often also simply called “normalization” - a common cause for ambiguities).
+In this approach, the data is scaled to a fixed range - usually 0 to 1.
+The cost of having this bounded range - in contrast to standardization - is that we will end up with smaller standard deviations, 
+which can suppress the effect of outliers.
+
+A Min-Max scaling is typically done via the following equation: Xnorm = (X−Xmin) / (Xmax−Xmin)
+
+
+
+The chi-square statistic was computed as:
+2
+2 i X M
+c
+s
+æç - ÷ö = çç ÷÷÷
