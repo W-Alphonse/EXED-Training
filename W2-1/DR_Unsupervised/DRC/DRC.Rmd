@@ -127,6 +127,10 @@ DecathlonPCA$call$row.w
 DecathlonPCA$call$col.w
 #DecathlonPCA$var
 ```
+```{r}
+# DecathlonPCA$var
+DecathlonPCA$ind
+```
 
 
 ## MFA
@@ -142,10 +146,15 @@ names(poison)    # Get or set the names of an object
 
 ```{r MFA}
 #poison_features = poison[,c[1,4:15]]
-PoisonMFA <- MFA(poison, 
+PoisonMFA <- MFA(poison,
                  group=c(2,2,5,6),         # on indique combien de variable il y a ds chaque groupe
-                 type=c("s","n","n","n"),  # s:variable continue, n:variable categorielle, 
+                 type=c("s","n","n","n"),  # s:variable continue, n:variable categorielle,
 name.group=c("Age_Time","Sick_Sex","Symptom","Eat"))
+# PoisonMFA <- MFA(poison, 
+#                  group=c(1,1,2,5,6),         # on indique combien de variable il y a ds chaque groupe
+#                  type=c("s","s","n","n","n"),  # s:variable continue, n:variable categorielle, 
+# name.group=c("Age","Time", "Sick_Sex","Symptom","Eat"))
+
 # graph = true
 ```
 # groupc(2,  --> "Age"        "Time"

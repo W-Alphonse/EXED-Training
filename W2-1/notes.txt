@@ -1,15 +1,15 @@
 
---------------------------------------------------------------------------
+==========================================================================
    About Feature Scaling and Normalization
    https://sebastianraschka.com/Articles/2014_about_feature_scaling.html
---------------------------------------------------------------------------
+==========================================================================   
 
 ----------------------------
    About standardization
-   Z-score normalization
+   Z-score (or z-score normalization)
 ----------------------------
 The result of standardization (or Z-score normalization) is that the features will be rescaled 
-so that they’ll have the properties of a standard normal distribution with μ-0 and σ-1
+so that they’ll have the properties of a standard normal distribution with μ=0 and σ=1
 => Mean == 0 and Std-from-the-mean == 1
 
 Standardizing the features so that they are centered around 0 with a standard deviation of 1 is not only important 
@@ -21,7 +21,8 @@ with features being on different scales, certain weights may update faster than 
 A Z-score normalization is typically done via the following equation: Xz-score = (X−Mean) / Std
 
 ----------------------------
-    About Min-Max scaling
+    About Normalization
+	Min-Max scaling
 ----------------------------	
 An alternative approach to Z-score normalization (or standardization) is the so-called Min-Max scaling 
 (often also simply called “normalization” - a common cause for ambiguities).
@@ -32,10 +33,106 @@ which can suppress the effect of outliers.
 A Min-Max scaling is typically done via the following equation: Xnorm = (X−Xmin) / (Xmax−Xmin)
 
 
+====================================
+  Normalization vs. Standardization
+====================================
+The terms normalization and standardization are sometimes used interchangeably, but they usually refer to different things. 
+-> Normalization usually means to scale a variable to have a values between 0 and 1, 
+-> While Standardization transforms data to have a mean of zero and a standard deviation of 1. 
 
-The chi-square statistic was computed as:
-2
-2 i X M
-c
-s
-æç - ÷ö = çç ÷÷÷
+Normalization: Rescaling data to have values between 0 and 1. This is usually called feature scaling. 
+One possible formula to achieve this is:  Xnorm = (X−Xmin) / (Xmax−Xmin)
+
+This standardization is called a z-score, and data points can be standardized with the following formula:
+A z-score standardizes variables : Xz-score = (X−Mean) / Std
+
+===============================================
+Z-score standardization or Min-Max scaling?
+===============================================
+There is no obvious answer to this question: it really depends on the application.
+
+For example, in clustering analyses, standardization may be especially crucial in order to compare similarities 
+between features based on certain distance measures. 
+
+Another prominent example is the Principal Component Analysis, where we usually prefer standardization over Min-Max scaling, 
+since we are interested in the components that maximize the variance 
+(depending on the question and if the PCA computes the components via the correlation matrix instead of the covariance matrix; but more about PCA in my previous article).
+
+However, this doesn’t mean that Min-Max scaling is not useful at all! 
+A popular application is image processing, where pixel intensities have to be normalized to fit within 
+a certain range (i.e., 0 to 255 for the RGB color range). 
+Also, typical neural network algorithm require data that on a 0-1 scale.
+
+
+===============================================
+   Loi normale
+   https://fr.wikipedia.org/wiki/Loi_normale
+===============================================   
+En théorie des probabilités et en statistique, la loi normale est l'une des lois de probabilité les plus adaptées pour modéliser 
+des phénomènes naturels issus de plusieurs événements aléatoires.
+Elle est également appelée loi gaussienne, loi de Gauss ou loi de Laplace-Gauss.
+
+Plus formellement, c'est une loi de probabilité absolument continue qui dépend de deux paramètres : 
+son espérance, un nombre réel noté μ, et son écart type, un nombre réel positif noté σ. 
+La densité de probabilité de la loi normale est donnée par :  .....
+La courbe de cette densité est appelée courbe de Gauss ou courbe en cloche.
+
+C'est la représentation la plus connue de cette loi. 
+La loi normale de moyenne nulle et d'écart type unitaire est appelée loi normale centrée réduite ou loi normale standard.
+Lorsqu'une variable aléatoire X suit la loi normale, elle est dite gaussienne ou normale et il est habituel d'utiliser la notation avec la variance σ2 
+
+
+-------------------------------
+    Théorème central limite
+-------------------------------
+Le théorème central limite établit la convergence en loi de la somme d'une suite de variables aléatoires vers la loi normale. 
+Intuitivement, ce résultat affirme que toute somme de variables aléatoires indépendantes tend dans certains cas 
+vers une variable aléatoire gaussienne.
+
+
+=============
+  Loi du χ²
+=============
+En statistiques et en théorie des probabilités, la loi du χ2 centrée (prononcé « khi carré » ou « khi-deux ») avec k degrés de liberté 
+est la loi de la somme de carrés de k lois normales centrées réduites indépendantes.
+
+La loi du χ2 est utilisé en inférence statistique et pour les tests statistiques notamment le test du χ².
+La loi du χ² non centrée généralise la loi du χ2.	
+
+================
+  Test du χ²
+================
+En statistique, un test du χ2, prononcé « khi-deux » ou « khi carré », est un test statistique 
+où la statistique de test suit une loi du χ2 sous l'hypothèse nulle.
+
+Par exemple, il permet de tester:
+- l'adéquation d'une série de données à une famille de lois de probabilité 
+- ou de tester l'indépendance entre deux variables aléatoires.  
+
+NB: phi-deux = khi / n ; n etant l'effectif total des nombres d'observations
+
+=====================================================
+    AFC - Analyse Factorielle des Correspondances
+=====================================================
+Son objectif est d'analyser la liaison existant entre deux variables qualitatives.
+On notera qu'on dispose aussi d'un test statistique, le test du khi-deux d'independance, basée
+sur l'indice khi-deux, permettant de tester s'il existe ou non une liaison significative entre deux
+variables qualitatives.
+
+SVD: https://en.wikipedia.org/wiki/Singular_value_decomposition
+
+======================
+ Introducing k-Means
+======================
+The k-means algorithm searches for a predetermined number of clusters within an
+unlabeled multidimensional dataset. It accomplishes this using a simple conception of
+what the optimal clustering looks like:
+• The “cluster center” is the arithmetic mean of all the points belonging to the
+cluster.
+• Each point is closer to its own cluster center than to other cluster centers.
+
+
+-> Choosing+the+number+of+clusters:
+- Visually according to graph
+- Using the Elbow method
+- Or according the business downstream purpose 
