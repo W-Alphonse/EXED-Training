@@ -1,0 +1,13 @@
+name: tutorial-visualization
+dependencies:
+  - python
+  - numpy
+  - scipy
+  - pandas
+  - matplotlib
+  - seaborn
+  - bokeh
+  - scikit-learn
+  - jupyter
+  - jupyterlab
+  - pytest
