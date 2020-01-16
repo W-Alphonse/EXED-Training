@@ -136,3 +136,7 @@ cluster.
 - Visually according to graph
 - Using the Elbow method
 - Or according the business downstream purpose 
+
+
+
+https://www.coursera.org/learn/machine-learning/lecture/ACpTQ/the-problem-of-overfitting
