@@ -1,0 +1,154 @@
+
+Cost function / linear regression: https://www.coursera.org/learn/machine-learning/lecture/rkTp3/cost-function
+Cost function / logistic regression : https://www.coursera.org/learn/machine-learning/lecture/1XG8G/cost-function
+
+
+-----------------------
+  Logistic regression 
+-----------------------
+h(z) = h(ThetaTransp * X) = 1 / (1 - e exp(-z))   // Sigmoid function
+h(z) == 1 ==> z >= 0  // Boundary decision
+
+
+-----------------------
+  Prediction Problem
+-----------------------
+https://www.coursera.org/learn/machine-learning/lecture/ACpTQ/the-problem-of-overfitting:
+- Under fit or High bias (high preconception bias)
+- Over fit or High Variance
+
+This terminology is applied to both linear and logistic regression. 
+There are two main options to address the issue of overfitting:
+1) Reduce the number of features:
+   Manually select which features to keep.
+   Use a model selection algorithm (studied later in the course).
+2) Regularization
+   Keep all the features, but reduce the magnitude of parameters theta_j​	 .
+   Regularization works well when we have a lot of slightly useful features.
+
+
+How to address overfitting:
+If we have overfitting from our hypothesis function, we can reduce the weight that some of the terms in our function carry by increasing their cost.
+
+Say we wanted to make the Hypothesis function more quadratic by reducing the weight parameter of X^3 and x^4.
+We want to eliminate the influence of Theta3 * X^3 and Theta4 * X^4 wihtout getting rid of them
+=> We increase the cost function in that way: 
+Regularize Cost function : https://www.coursera.org/learn/machine-learning/supplement/1tJlY/cost-function
+
+
+----------------------
+  Regularization
+----------------------
+Regularization adds a penalty on the different parameters of the model to reduce the freedom of the model. Hence, the model will be less likely to fit the noise of the training data and will improve the generalization abilities of the model.  
+
+--> https://www.geeksforgeeks.org/regularization-in-machine-learning/
+Often times, a regression model overfits to the data it is training upon. The primary reasons of overfitting are given here. Using the process of regularisation, we try to reduce the complexity of the regression function without actually reducing the degree of the underlying polynomial function.
+
+This technique is based on the fact that if the highest order terms in a polynomial equation have very small coefficients, then the function will approximately behave like a polynomial function of a smaller degree.
+
+
+
+======================================
+  Why Data Scientists love Gaussian?
+======================================
+https://towardsdatascience.com/why-data-scientists-love-gaussian-6e7a7b726859
+
+Normal distribution, is so popular mainly because of three reasons:
+1/ Incredible number of processes in nature and social sciences naturally follows the Gaussian distribution. Even when they don’t, the Gaussian gives the best model approximation for these processes.
+2/ Central limit theorem states that when we add large number of independent random variables, irrespective of the original distribution of these variables, their normalized sum tends towards a Gaussian distribution. 
+3/ For every Gaussian model approximation, there may exist a complex multi-parameter distribution that gives better approximation. But still Gaussian is preferred because it makes the math a lot simpler!
+The entire distribution can be specified using just two parameters- mean and variance
+
+TF-IDF:
+https://stackabuse.com/python-for-nlp-creating-tf-idf-model-from-scratch/
+
+
+When to Use Naive Bayes
+Because naive Bayesian classifiers make such stringent assumptions about data, they
+will generally not perform as well as a more complicated model. That said, they have
+several advantages:
+• They are extremely fast for both training and prediction
+• They provide straightforward probabilistic prediction
+• They are often very easily interpretable
+• They have very few (if any) tunable parameters
+
+These advantages mean a naive Bayesian classifier is often a good choice as an initial
+baseline classification. If it performs suitably, then congratulations: you have a very
+fast, very interpretable classifier for your problem. If it does not perform well, then
+you can begin exploring more sophisticated models, with some baseline knowledge of
+how well they should perform.
+
+
+Naive Bayes classifiers tend to perform especially well in one of the following
+situations:
+• When the naive assumptions actually match the data (very rare in practice)
+• For very well-separated categories, when model complexity is less important
+• For very high-dimensional data, when model complexity is less important
+
+
+=================
+ Clusterisation 
+=================
+-> Reduction de dimensions: PCA.
+   PCA essaie de retenir les dimensions qui maximise la variance
+-> KMeans : Algo de clusterisation
+
+
+===============================
+ Classification - Generative
+===============================
+-> LDA : Linear Didscriminant Analysis  / Binary Class
+. 2 distributions normale gaussienne ayant la même Covariance et 2 centres différents
+. decision boundary linéaire
+. Utilise Bayes Rule
+. Algo Generatif: çàd à partir de l'output 'y' il défini les proprietes/features de l'input X
+. It focuses on maximizing the separability among categories
+  It leads to maximize the distance between the means of the categories
+         + to minimize the variance of each category
+
+-> QDA : Quadratic Didscriminant Analysis  / Binary Class
+. 2 distributions normale gaussienne ayant les Covariance differentes
+. decision boundary quadratic
+. Utilise Bayes Rule
+. Algo Generatif: çàd à partir de l'output 'y' il défini les proprietes/features de l'input X
+
+
+
+-> Naive Bayes : / Multi Class
+. Hypothese qui est rarement vrai: Toutes "les variables / les X" sont indépendnats
+. Algo Generatif
+
+================================================================
+ Classification - Discriminative (c'est la realité du terrain)
+================================================================
+-> Logistic Regression : 
+
+
+
+-> RandomForestClassifier
+
+
+
+==========================================================
+  Validation curves: plotting scores to evaluate models
+  Bias(underfit) / Variance(overfit)
+==========================================================
+Every estimator has its advantages and drawbacks. 
+Its generalization error can be decomposed in terms of bias, variance and noise. 
+- The bias of an estimator is its average error for different training sets. 
+  NB: If a learning algorithm is suffering from high bias (=> underfit),
+      getting more training data will not (by itself) help much.
+- The variance of an estimator indicates how sensitive it is to varying training sets. 
+  NB: If a learning algorithm is suffering from high variance (=> overfit),
+      getting more training data is likely to help.
+- Noise is a property of the data.
+
+
+
+==========================================================
+  Train / Corss validation / Test strategy
+==========================================================
+A common practice is to partition the training set again, into smaller subsets; for example, 5 equally sized subsets. 
+Then we train the model on four parts, and compute accuracy on the last part (called "validation set"). 
+Repeated five times (taking different part for evaluation each time), we get a sense of model "stability". 
+If the model gives wildly different scores for different subsets, it's a sign something is wrong (bad data, or bad model variance)
