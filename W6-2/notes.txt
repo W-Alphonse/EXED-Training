@@ -1,0 +1,24 @@
+======================
+   RECAP about Graph
+======================   
+- Graph Library : import networkx as nx 
+- Handle a Graph:
+    G = nx.DiGraph()
+	G.add_edge(tokens[i], tokens[j])  // G.add_node(node) : ADD Nodes OR Edges from Memory
+	G.number_of_nodes()
+	G.number_of_edges()
+	nx.draw_networkx(G, width=2, node_size=400, font_size=20)
+	G.successors(node)
+	---
+	G.in_degree()  # inbound edges of the nodes. A list of tuples, ex: [('movi', 2276), ('realli', 883), ('bad', 688), .....
+	G.out_degree() # outbound edges of the nodes. A list of tuples, ex: [('movi', 2276), ('realli', 883), ...
+	---
+	G.subgraph(most_freq)
+	nx.k_core(G)
+	---
+	G = read_edgelist(path, comments=’#’, delimiter=None, create_using=nx.DiGraph()) // ADD Edges from "edges file"
+
+1/ In the first part, we will use simple graph properties to identify which users of a social network are the most influential	
+2/ Then, we will implement a well-known algorithm to reveal the community structure of a simple network. 
+3/ Finally, we will use graph kernels to measure the similarity between graphs and to perform graph classification.
+---	

@@ -1,0 +1,119 @@
+
+========================
+   Text Mining based
+   on Adjacency Matrix
+========================
+The basic objective of text mining concerns the discovery and extraction of relevant and valuable information from large volumes of textual data. 
+Description of the Task and the Pipeline:
+. Labeled Data : Load  from File / from DB / ../
+. Preprocessing : Remove (String.puntuation + StopWords) & then Stemming
+. Feature Extraction TF-IDF matrix :  The text data (i.e., all the possible documents-reviews) should be transformed to a format that will be used in the learning (i.e., classification) task
+. Model Learning
+. Sentiment Prediction
+. Evaluation
+
+
+
+NB:
+To perform classification, we will produce the following three representations of text 
+and we will pass them on to a Logistic Regression classifier: 
+(i)   the well-known bag-of-words representation with TF-IDF weighting (e.g. TfidfVectorizer / SciKit learn ), or
+(ii)  the representation that emerges when we apply Latent Semantic Analysis to the previous representation (e.g. Word2Vec / GENSIM ) , or 
+(iii) the representation that consists of features extracted from the graph-of-words representation of text.
+
+---------------------------------
+Frequency in Document (TF) Vs
+Frequency in Collection(IDF)
+---------------------------------
+TF-IDF weighting
+
+
+===================================
+   Text Mining based
+   on Adjacency Matrix using SVD
+Latent Semantic Analysis
+===================================
+- To reduce the sparsity of the TF-IDF matrix, we will use Latent Semantic Analysis (LSA). 
+LSA performs Singular Value Decomposition (SVD) on the TF-IDF matrix and then produces a low-rank approximation of the original matrix that corresponds to the representations of the documents in a new space.
+- LSA generates a low-rank approximation of a TF-IDF matrix. 
+Use the svd() function of NumPy to perform the SVD decomposition. 
+
+
+
+=====================================
+   Text Mining based
+   on Graph of Words representation
+=====================================
+We will next employ an alternative document representation. Specifically, we will represent each movie review as a statistical graph-of-words. The construction of each graph is usually preceded by a preprocessing phase (we have already preprocessed our reviews). Each processed document is then transformed into a directed graph whose vertices represent unique terms and whose edges represent co-occurrences between the connected terms within a fixed-size window. In contrast to the bag-of-words representation, the graph-of-words representation models both the terms (vertices), and the relationships between them (edges).
+
+
+
+
+------------------------------------------------
+Text representation for Information Retrieval
+-------------------------------------------------
+• We seek a transformation of the textual content of
+documents into a vector space representation.
+– Assume documents as the data
+– Dimensions are the distinct terms used
+
+------------------
+Vector Space Model
+------------------
+– Το VSM represents the significance of each term for each document
+	• The cell values are computed based on the terms’ frequency
+	• Most common approach is TF/IDF
+- Degree of similarity between document 'd' and query 'q' is the
+cosine of the angle between the two vectors.
+In that case, Similarity is not the Euclidian distance between 'd' and 'q'
+
+--------------------------------------------
+Ranked retrieval in the vector space model
+--------------------------------------------
+.Represent the query as a weighted tf-idf vector
+ query considered as a new document there fore represented as a vector.
+.Represent each document as a weighted tf-idf vector
+.Compute the cosine similarity between the query vector and
+each document vector
+.Rank documents with respect to the query
+.Return the top K (e.g., K = 10) to the user
+.Return the top K (e.g., K = 10) to the user
+
+----------------------------
+Precision/recall tradeoff
+---------------------------
+. You can increase recall by returning more docs.
+. Recall is a non-decreasing function of the number of docs
+retrieved.
+. A system that returns all relevant docs has 100% recall!
+. The converse is also true (usually): It’s easy to get high
+precision for very low recall.
+
+
+---------------------------
+Evaluating ranked results
+---------------------------
+• Average Precision (AP)
+	– average of precision after each relevant document is retrieved
+	– Example: AP = 1/1+2/3+3/5+4/7 = 0.7095
+	– Mean Average Precision (MAP)
+• Precision at K
+	– precision after K documents have been retrieved
+	– Example: Precision at 10 = 4/10 = 0.4000
+• R-Precision
+	– For a query with R relevant documents, compute precision at R
+	– Example: for a query with R=7 relevant docs,
+	R-Precision = 4/7 = 0.5714
+
+
+-----------------------------------
+Discounted cumulative gain (DCG)
+-----------------------------------
+Discounted cumulative gain (DCG) is a measure of ranking quality. 
+In information retrieval, it is often used to measure effectiveness of web search engine.
+
+.Measure of ranking quality.
+.Used to measure effectiveness of search algorithms in information retrieval.
+. Underlying Assumptions
+	Highly relevant documents are more useful if appearing earlier in search result.
+	Highly relevant documents are more useful than marginally relevant documents which are better than non-relevant documents.
