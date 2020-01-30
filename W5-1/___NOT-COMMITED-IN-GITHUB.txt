@@ -1,0 +1,2 @@
+W5-1\part1\cnn_text_categorization\cnn_text_categorization.hdf5 : 68 MB
+W5-1\part1\GoogleNews-vectors-negative300.bin : 5,558 GB
