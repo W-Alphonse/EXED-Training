@@ -122,11 +122,23 @@ situations:
  Classification - Discriminative (c'est la realité du terrain)
 ================================================================
 -> Logistic Regression : 
+. Decision boundary could be linear, quadratic or polynomial of highest power.
+. If case of polynomial of highest power, then beware of overfitting (high variance) otherwise we risk the underfit (high bias) 
+. In order to set a tradeoff between high variance and high bias, we use Regularization 
 
 
 
--> RandomForestClassifier
+--> Decision Trees Classifier
+--> Random Forest Classifier with bootstrapping
 
+
+==========================================
+  Conjugate Gradient == Gradient Descent
+==========================================
+Conjugate direction methods can be regarded as being between
+the method of steepest descent (first-order method that uses
+gradient) and Newton’s method (second-order method that uses
+Hessian as well).
 
 
 ==========================================================
@@ -152,3 +164,49 @@ A common practice is to partition the training set again, into smaller subsets; 
 Then we train the model on four parts, and compute accuracy on the last part (called "validation set"). 
 Repeated five times (taking different part for evaluation each time), we get a sense of model "stability". 
 If the model gives wildly different scores for different subsets, it's a sign something is wrong (bad data, or bad model variance)
+
+
+===================
+  Type of Matrix
+===================
+- EighenValue(lambda) and EighenVector(EV)
+  det(lambda.I - Covariance) = 0
+  (lambda.I - Covriance)* EV = 0
+- Jacobian Matrix  : 1st derivate matrix  
+- Hessian Matrix : 2nd derivate matrix
+- L : Lower Triangular Matrix
+- SVD : Singular Value Decomposition Matrix
+- U or V : Unitary Matrix (=> U.Uinv = U.Utrans = I) 
+  En plus U et V sont orthonormal
+- D : Diagonal Matrix with positive real entries
+- The SVD singular value decomposition of a matrix A is the factorization of A into the
+  product of three matrices A = U.D.Vtrans
+  . where the columns of U and V are orthonormal and
+  . and matrix D is diagonal with positive real entries
+  . U and V / Uinv = Utrans and Vinv = Vtransp
+- The traditional use of SVD is in Principal Component Analysis (PCA). 
+  . PCA is illustrated by an example - customer-product data where there are n customers buying d products. 
+  . Let matrix A with elements aij represent the probability of customer i purchasing product j 
+    (or the amount or utility of product j to customer i).
+  One hypothesizes that there are really only k underlying basic factors like age, income, family size, etc. 
+  that determine a customer’s purchase behavior.
+  That is, a customer’s purchase behavior can be characterized by a k-dimensional vector 
+  where k is much smaller that n and d
+- Definite Positive Matrix:
+In linear algebra, a symmetric n*n real matrix M is said to be positive definite 
+if the scalar Xtrans.M.X is stritcly positive for every non-zero colum vector X of n real values.
+- Markov Matrix : A matrix whose columns sum is equal to 1
+- Cholesky Matrix : 
+
+
+  
+=============================
+  RL - Conjugate Gradient
+=============================
+We use the Conjugate Gradient (CG) method to solve a linear equation or to optimize a quadratic equation. 
+It is more efficient in solving those problems than the gradient descent.
+- NB: 
+As the prime derivate of a quadratic function is a linear function, then optimizing(min or max) the qudratic equation 
+is equivalent to resolve the linear equation
+  
+  
