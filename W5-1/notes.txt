@@ -1,0 +1,234 @@
+
+-------------------
+Precision & Recall
+-------------------
+Suppose a computer program for recognizing dogs in photographs identifies 8 dogs in a picture containing 12 dogs and some cats. Of the 8 dogs identified, 5 actually are dogs (true positives), while the rest are cats (false positives). 
+=> The program's precision is 5/8 while its recall is 5/12. 
+
+When a search engine returns 30 pages only 20 of which were relevant while failing to return 40 additional relevant pages, 
+    => its precision is 20/30 = 2/3 
+ while its recall is 20/60 = 1/3.
+
+So, in this case, precision is "how useful the search results are", 
+and recall is "how complete the results are".
+
+Precision: How many selected are relevant ?
+Recall   : How many relevant are selected ?
+
+
+-----------------------------------------
+	NN(ou FNN FeedForward NN), 
+	CNN : For image classification and recognition
+	      CNN for Text Classification
+	RNN : For Sequence Classification, Sequence Labelling, Sequence Generation 
+	LSTM : Long Short Term Memory
+-----------------------------------------
+NN   : Do not take into account the spatial structure of the images. 
+       Treat input pixels far apart and close together in the same way.
+	   NN are very exposed to overfitting
+CNN  : Good for image recognition / text classification :  takes advantage of the spatial structure.
+       Compositionality, local invariance are two key concepts of CNNs
+       . Compositionality : CNNs recognize complex patterns in a hierarchical way, 
+	   by combining lower-level, elementary features into higher-level features
+	   . Local invariance : Model detect a feature regardless of its position in the image
+	   absolute positions of features in the image are not important, 
+	   only useful respective positions is useful composing higher-level patterns
+	   - Scaling / Rotation and translation are not problem to CNN
+	   - Each filter layer of a Conv layer allows to learn one level of feature.
+	   - A first convolution layer will learn small local patterns such as edges, a second convolution layer will
+         learn larger patterns made of the features of the first layers, and so on.
+RNN   : Sequence learning: study of machine learning algorithms designed for sequential data (time series, NLP…)
+        words (sequences of letters) or sentences (sequences of words).
+        . Language modeling OR sequence modelling is the task of predicting what word/letter comes next. 
+		Sequence models compute the probability of occurrence of a number of words in a particular sequence. 
+		=> P [wn|w1, ..., wn−1]
+		. Unlike the FNN and CNN, in sequence modeling, the current output not only dependent on the current input but also on the previous input. In the sequence model, the length of the input is not fixed.
+		
+		Sequence Classification — Sentiment Classification & Video Classification => Predict GOOD or BAD
+		Sequence Labelling — Part of speech tagging & Named entity recognition => Predict the missing words (before, after, or in-between)
+		Sequence Generation — Machine translation & Transliteration
+		 
+LSTM : Long Short Term Memory. Good for speech recognition
+
+->
+CNN-1D: estimating the value at the particular input as a weighted average of inputs around it. 
+Conv2D filter is also called KERNEL, it is a 2D Kernerl.
+In 3D  input we will use a 3D kernel that means the depth of the image and kernel is same. 
+There is no movement of kernel along with the depth since both kernel and image are of same depth.
+
+Convolutional Neural Networks (CNNs) are neural networks that automatically extract useful features (without manual hand-tuning) from data-points like images to solve some given task like image classification or object detection
+
+
+CNN for Text Classification
+• Use the word embeddings of the document terms as input for Convolutional Neural Network
+• Input must be fixed size
+
+KERAS: The Sequential model offers limited flexibility and may not be suitable for neural networks with multiple inputs and outputs. 
+       On the other hand, the functional API makes it easy to manipulate a large number of intertwined datastreams.
+
+-->
+- convolutional neural networks for image processing, 
+- recurrent neural networks for sequential data, 
+- autoencoders for representation learning, 
+- generative adversarial networks to model and generate data.
+NB:
+unsupervised pretraining (today typically using autoencoders rather than RBMs) is still a good option
+when you have a complex task to solve, no similar model you can reuse, and little
+labeled training data but plenty of unlabeled training data.
+
+
+AUTOENCODERS: An autoencoder is always composed of two parts: 
+. an encoder (or recognition network) that converts the inputs to an internal representation, 
+. followed by a decoder (or generative network) that converts the internal representation to the outputs
+
+
+=====================
+  Bag Of Word
+=====================
+. The bag-of-words model is a simplifying representation used in natural language processing and information retrieval (IR). 
+. In this model, a text (such as a sentence or a document) is represented as the bag (multiset) of its words, disregarding grammar and even word order but keeping multiplicity. 
+
+-> Bag-of-words models are surprisingly effective, but have several weaknesses.
+. First, they lose all information about word order: “John likes Mary” and “Mary likes John” correspond to identical vectors. There is a solution: bag of n-grams models consider word phrases of length n to represent documents as fixed-length vectors to capture local word order but suffer from data sparsity and high dimensionality.
+. Second, the model does not attempt to learn the meaning of the underlying words, and as a consequence, the distance between vectors doesn’t always reflect the difference in meaning. The Word2Vec model addresses this second problem.
+  
+=================================================
+   word2vec
+   https://code.google.com/archive/p/word2vec/
+=================================================
+- word2vec is an algorithm that transforms words into vectors, so that words with similar meaning end up laying close to each other.
+pre-trained vectors: see Stanford GloVe or Google word2vec 
+
+1. The word2vec tool takes a text corpus as input and produces the word vectors as output. 
+2. It first constructs a vocabulary from the training text data and then learns vector representation of words.
+3. The resulting word vector file can be used as features in many natural language processing and machine learning applications.
+
+- There are two main learning algorithms in word2vec : continuous bag-of-words and continuous skip-gram.
+Both algorithms learn the representation of a word that is useful for prediction of other words in the sentence. 
+
+
+=================================================
+   word2vec
+   https://radimrehurek.com/gensim/auto_examples/tutorials/run_word2vec.html
+   https://radimrehurek.com/gensim/auto_examples/core/run_core_concepts.html#sphx-glr-auto-examples-core-run-core-concepts-py
+=================================================
+Introducing: the Word2Vec Model
+Word2Vec is a more recent model that embeds words in a lower-dimensional vector space using a shallow neural network. The result is a set of word-vectors where vectors close together in vector space have similar meanings based on context, and word-vectors distant to each other have differing meanings. For example, strong and powerful would be close together and strong and Paris would be relatively far.
+
+The are two versions of this model and Word2Vec class implements them both:
+. Skip-grams (SG)
+. Continuous-bag-of-words (CBOW)
+
+**NB**: 
+Unfortunately, the model is unable to infer vectors for unfamiliar words. 
+This is one limitation of Word2Vec: if this limitation matters to you, check out the FastText model.
+
+
+
+=============================
+   Hot Vector Vs Embedding
+=============================
+If a categorical attribute has a large number of possible categories
+(e.g., country code, profession, species, etc.), then one-hot encodi
+ing will result in a large number of input features. This may slow
+down training and degrade performance. If this happens, you may
+want to replace the categorical input with useful numerical features
+related to the categories: for example, you could replace the
+ocean_proximity feature with the distance to the ocean (similarly,
+a country code could be replaced with the country’s population and
+GDP per capita). Alternatively, you could replace each category
+with a learnable low dimensional vector called an embedding. Each
+category’s representation would be learned during training: this is
+an example of representation learning (see Chapter 13 and ??? for
+more details)
+
+An embedding is a trainable dense vector.
+
+
+
+
+===========================
+  Representation Learning
+  https://www.quora.com/What-is-representation-learning-in-deep-learning
+===========================
+L'apprentissage de la représentation consiste à apprendre les représentations des données d'entrée généralement en les transformant, 
+ce qui facilite l'exécution d'une tâche telle que la classification ou la prédiction. 
+Il existe différentes manières d'apprendre différentes représentations. Par exemple:
+- dans le cas des modèles probabilistes, l'objectif est d'apprendre une représentation qui capture la distribution de probabilité des caractéristiques explicatives sous-jacentes pour l'entrée observée. Une telle représentation apprise peut ensuite être utilisée pour la prédiction.
+- en apprentissage profond, les représentations sont formées par la composition de multiples transformations non linéaires des données d'entrée dans le but de produire des représentations abstraites et utiles pour des tâches comme la classification, la prédiction, etc.
+
+
+The success of machine learning algorithms depends a lot on data representation. Representation learning has recently emerged as an alternative approach to feature extraction. In representation learning, features are extracted from unlabeled data by training a neural network on a secondary, supervised learning task.
+
+
+=============================================
+Learning Representations with Autoencoders
+=============================================
+An autoencoder is an unsupervised machine learning algorithm that learns low-dimensional representations of the input examples. 
+Autoencoders usually consist of a compression (or encoding) and a decompression (or decoding) function. 
+Data representations are learned automatically from examples and are data-specific and lossy. 
+Specifically, an autoencoder learns to compress data from the input layer into a short code, and then uncompress that code into something that closely matches the original data. Autoencoders can learn how to ignore noise and can thus be thought of as dimensionality reduction techniques.
+
+.The encoder and The decoder will be a fully-connected neural network layer. Such a layer can be implemented using the Dense class of Keras
+
+--------
+Lambda:
+--------
+# Lowercase each document, split it by white space and filter out stopwords
+texts = [[word for word in document.lower().split() if word not in stoplist]
+         for document in text_corpus]
+
+    x = [2, 3, 4, 5, 6]
+    y = []
+    for v in x :
+        y += [v * 5]
+		
+	equivalent to:
+	x = [2, 3, 4, 5, 6]
+    y = [v * 5 for v in x]
+
+
+
+================
+  build_vocab
+===============
+model = Word2Vec(size=100, window=20, 
+                 min_count=2, # The 'count' words to ignore 
+                 sg=0,   # 0 instead of 1
+                 workers=8)  # nber of threads
+
+model.build_vocab(data)
+model.train(data, total_examples=model.corpus_count, epochs=5) # the word representations learned by neural networks are very interesting because the generated vectors explicitly encode many linguistic regularities and patterns.
+model.wv.most_similar(positive='France')   # returns the 10 terms that are most similar to a given word
+model.wv.most_similar(positive='football', topn=20) 
+model.wv.similarity(w1='cat', w2='dog')
+
+https://fr.wikipedia.org/wiki/Algorithme_t-SNE
+L'algorithme t-SNE (t-distributed stochastic neighbor embedding) est une technique de réduction de dimension pour la visualisation de données
+
+-------------------------------------
+  Role of each step / phase / layer
+-------------------------------------
+Conv2D : It is a feature extraction mecanism. Detection of features.
+MaxPooling2D: Resampling or Pooling. Reduces the features numbers using filters.
+Droput : Avoid overfitting
+NB: 
+BackPropagation impact all the weight AND the filter
+
+------------------------------------------
+ difference-between-a-batch-and-an-epoch
+------------------------------------------
+Assume you have a dataset with 200 samples (rows of data) and you choose a batch size of 5 and 1,000 epochs.
+
+This means that the dataset will be divided into 40 batches, each with five samples. The model weights will be updated after each batch of five samples.
+
+This also means that one epoch will involve 40 batches or 40 updates to the model.
+
+With 1,000 epochs, the model will be exposed to or pass through the whole dataset 1,000 times. That is a total of 40,000 batches during the entire training process.
+
+---------------
+  Batch Type
+---------------  
+Batch Gradient Descent. Batch Size = Size of Training Set
+Stochastic Gradient Descent. Batch Size = 1
+Mini-Batch Gradient Descent. 1 < Batch Size < Size of Training Set

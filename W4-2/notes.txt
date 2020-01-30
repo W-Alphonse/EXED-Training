@@ -1,0 +1,47 @@
+
+
+=====================
+    Heat MAP
+=====================
+- A heat map (or heatmap) is a graphical representation of data where the individual values contained in a matrix are represented as colors. "Heat map" is a newer term but shading matrices have existed for over a century.
+- Larger values were represented by small dark gray or black squares (pixels) and smaller values by lighter squares.
+- Now heat maps are the most-used tool for representing complex statistical data
+- A heat map is data analysis software that uses color the way a bar graph uses height and width: as a data visualization tool.
+
+
+
+NB: Decision Trees are used usually for classification, but they can be used also for Regression
+--> Decision Trees Classifier
+--> Random Forest Classifier with bootstrapping
+
+
+
+==============================================
+Ensemble Learning:
+  - Bagging  : decrease the model’s variance 
+  - Boosting : decreasing the model’s bias
+  https://medium.com/swlh/difference-between-bagging-and-boosting-f996253acd22
+  https://medium.com/swlh/boosting-and-bagging-explained-with-examples-5353a36eb78d
+==============================================
+This diversification in Machine Learning is achieved by a technique called Ensemble Learning. 
+The idea here is to train multiple models, each with the objective to predict or classify a set of results.
+
+Most of the errors from a model’s learning are from three main factors: variance, noise, and bias.
+
+By using ensemble methods, we’re able to increase the stability of the final model and reduce the errors mentioned previously. By combining many models, we’re able to (mostly) reduce the variance, even when they are individually not great, as we won’t suffer from random errors from a single source.
+
+--------------------------------------------------------
+- Bagging with bootstrapping (or Bootstrap Aggregating):
+  Ex: Random forest / Bagging meta-estimator
+--------------------------------------------------------
+The idea behind bagging is combining the results of multiple models (for instance, all decision trees) to get a generalized result. 
+If you create all the models on the same set of data and combine it, will it be useful? There is a high chance that these models will give the same result.
+So how can we solve this problem? One of the techniques is bootstrapping.
+. Bootstrapping is a sampling technique in which we create subsets of observations from the original dataset, with replacement. The size of the subsets is the same as the size of the original set.
+
+
+------------
+  Boosting
+------------  
+Boosting is a sequential process, where each subsequent model attempts to correct the errors of the previous model
+
