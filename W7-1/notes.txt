@@ -1,0 +1,2 @@
+- Neo4j : http://localhost:7474/
+- user/password -> neo4j / admin ou-bien root
