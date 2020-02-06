@@ -1,0 +1,30 @@
+--------
+Lambda:
+--------
+# Lowercase each document, split it by white space and filter out stopwords
+texts = [[word for word in document.lower().split() if word not in stoplist]
+         for document in text_corpus]
+
+    x = [2, 3, 4, 5, 6]
+    y = []
+    for v in x :
+        y += [v * 5]
+		
+	equivalent to:
+	x = [2, 3, 4, 5, 6]
+    y = [v * 5 for v in x]
+
+------------
+- for / if
+------------
+        # 1 - Remove punctuation and lowercase
+        punctuation = set(string.punctuation) #   string.punctuation = { ! ? .....}
+        doc = ''.join([w if w not in punctuation else ' ' for w in doc.lower()])
+        
+        # 2 - Remove Stopword 
+        # NB: https://www.python.org/dev/peps/pep-0289/
+        doc = [w for w in doc.split() if w not in stopwords]  
+		
+		# 3 - Modèle 3
+		nodes_in_cluster = [node for node in G.nodes() 
+					if clustering[node] == cluster]
