@@ -1,0 +1,15 @@
+- Donwload from https://www.apache.org/dyn/closer.cgi/hadoop/common/hadoop-2.10.0/hadoop-2.10.0.tar.gz
+- Doc d'installation rapide & efficace : Step by step Hadoop 2.8.0 installation on Window 10
+  https://muhammadbilalyar.github.io/blogs/How-to-install-Hadoop-on-Window-10/
+  Patch correctif pour l'installation: https://github.com/MuhammadBilalYar/Hadoop-On-Window/blob/master/Hadoop%20Configuration.zip
+
+- Tuto_1: Intro to Hadoop and HDFS architecture - http://zhongyaonan.com/hadoop-tutorial/hadoop-tutorial-1.html
+  Tuto2: Dive into Hadoop distributed file system -  http://zhongyaonan.com/hadoop-tutorial/hadoop-tutorial-2.html
+
+- Correction :
+Caused by: java.lang.ClassNotFoundException: org.apache.hadoop.yarn.server.timelineservice.collector.TimelineCollectorManager
+        at java.net.URLClassLoader.findClass(URLClassLoader.java:381)
+https://stackoverflow.com/questions/51118358/noclassdeffounderror-org-apache-hadoop-yarn-server-timelineservice-collector-tim
+copy "hadoop-yarn-server-timelineservice-3.0.3" 
+from ~\hadoop-3.0.3\share\hadoop\yarn\timelineservice to 
+     ~\hadoop-3.0.3\share\hadoop\yarn folder.
