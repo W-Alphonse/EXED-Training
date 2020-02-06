@@ -1,0 +1,1 @@
+- Tout le repertoirs "data" n'a pas été rajouté: C:\EXED\Training\W6-2\_EXED_graph_mining_lab_solutions\data

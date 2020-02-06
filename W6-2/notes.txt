@@ -14,11 +14,86 @@
 	G.out_degree() # outbound edges of the nodes. A list of tuples, ex: [('movi', 2276), ('realli', 883), ...
 	---
 	G.subgraph(most_freq)
-	nx.k_core(G)
+	
+	# k_core(G, k=None, core_number=None) : Returns the k-core of G.
+	# A k-core is a maximal subgraph that contains nodes of degree k or more.
+	nx.k_core(G) #{'real': 2, 'disappoint': 4, 'great': 4, ....}
+	
+	
+	nx.core_number() # compute the number of cores of each node in the graph
+	                 # {'1': 29, '3': 40, '4': 55,.....
 	---
 	G = read_edgelist(path, comments=’#’, delimiter=None, create_using=nx.DiGraph()) // ADD Edges from "edges file"
+	---
+	A = nx.to_numpy_matrix(G)  # get the adjacency matrix
 
 1/ In the first part, we will use simple graph properties to identify which users of a social network are the most influential	
+   => Define the graph with the nodes
+      Compute in_degrees and out_degrees
 2/ Then, we will implement a well-known algorithm to reveal the community structure of a simple network. 
 3/ Finally, we will use graph kernels to measure the similarity between graphs and to perform graph classification.
 ---	
+
+=========================================
+  Spearman Correlation 
+	VS
+  Pearson Correlation (the classic one)
+=========================================
+
+Spearman's correlation determines 
+            the strength and direction of the monotonic relationship between your two variables 
+Rather than the strength and direction of the linear relationship between your two variables, 
+which is what Pearson's correlation determines.
+
+
+===========================
+  2 - Community Detection
+  Spectral clustering
+===========================
+- This algorithm takes a similarity matrix between the instances
+and creates a low-dimensional embedding from it (i.e., it reduces its dimensionality), 
+then it uses another clustering algorithm in this low-dimensional space 
+(Scikit-Learn’s implementation uses K-Means). 
+****NB --> When applying KMeans(...) by using the Laplacian L, we retain the 2 smallest EigenValue****
+- Spectral clustering can capture complex cluster structures, and it can also be used to cut graphs 
+(e.g., to identify clusters of friends on a social network), 
+however it does not scale well to large number of instances.
+and it does not behave well when the clusters have very different sizes
+- Spectral clustering deals well with non-convex cluster shapes because of the underlying graph constructed.
+
+----------------------
+--> Exercice Jupyter:
+----------------------
+- Let  𝐀  be the adjacency matrix of the graph
+- Compute the Graph Laplacian matrix  𝐋=𝐃−𝐀 . 
+  Matrix  𝐃  corresponds to the diagonal degree matrix of graph  𝐺  (i.e., degree of each node  𝑣  (= number of neighbors) in the main diagonal)
+- Apply eigenvalue decomposition to the Laplacian matrix  𝐋  
+  and compute the eigenvectors that correspond to  𝑘  smallest eigenvalues. 
+  Let  𝐔=[𝐮1|𝐮2|…|𝐮𝑘]∈ℝ𝑛×𝑘  be the matrix containing these eigenvectors as columns
+- For  𝑖=1,…,𝑛 , let  𝑦𝑖∈ℝ𝑘  be the vector corresponding to the  𝑖 -th row of  𝐔 . Apply  𝑘 -means to the points  (𝑦𝑖)𝑖=1,…,𝑛  (i.e., the rows of  𝐔 ) and find clusters  𝐶1,𝐶2,…,𝐶𝑘
+
+---
+NB: Q) Why are we retaining the smallest eigenvalues ? 
+--- A) The smallest eigenvalues correspond to weakest connection between nodes.
+	   As our target is to split the Graph into into Clusters, 
+	   then we consider the weakest connection that justify us to split the graph.
+https://www.johndcook.com/blog/2016/01/07/connectivity-graph-laplacian/	   
+The smallest eigenvalue of L, λ1, is always 0. The second smallest eigenvalue λ2 tells you about the connectivity of the graph. If the graph has two disconnected components, λ2 = 0. And if λ2 is small, this suggests the graph is nearly disconnected, that it has two components that are not very connected to each other. In other words, the second eigenvalue gives you a sort of continuous measure of how well a graph is connected.	   
+
+http://blog.shriphani.com/2015/04/06/the-smallest-eigenvalues-of-a-graph-laplacian/
+
+ Relations between spectral clustering and (kernel) principal component analysis rely on
+the fact that the smallest eigenvectors of graph Laplacians can also be interpreted as the largest eigenvectors of kernel matrices (Gram matrices)
+
+==========================
+3 - Graph Classification
+==========================
+In order to perform graph classification, we will employ graph kernels, a powerful framework for graph comparison.
+Kernels can be intuitively understood as functions measuring the similarity of pairs of objects
+
+===============================
+ Main points of the Notebook:
+===============================
+1/ Measuring Influence
+2/ Community detection (Laplacian reduction & K-Means) + Compute modularity (quality of clustering algorithm) 
+3/ Graph Classification
