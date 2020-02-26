@@ -208,5 +208,21 @@ It is more efficient in solving those problems than the gradient descent.
 - NB: 
 As the prime derivate of a quadratic function is a linear function, then optimizing(min or max) the qudratic equation 
 is equivalent to resolve the linear equation
+
+==============
+ML Algorithm
+==============
+
+-----------------------
+-> k-Nearest Neighbors
+-----------------------
+k-Nearest Neighbors (kNN) is a non-parametric learning algorithm. Contrary to other
+learning algorithms that allow discarding the training data after the model is built, kNN
+keeps all training examples in memory. Once a new, previously unseen example x comes in,
+the kNN algorithm finds k training examples closest to x and returns the majority label, in
+case of classification, or the average label, in case of regression.
+The closeness of two examples is given by a distance function. For example, Euclidean
+distance seen above is frequently used in practice. Another popular choice of the distance
+function is the negative cosine similarity.
   
   
