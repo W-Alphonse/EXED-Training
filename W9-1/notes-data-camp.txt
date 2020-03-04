@@ -1,0 +1,102 @@
+- http://dev.ramp.studio/
+- github.com/ramp-kits/pollenating insect // Exemple de traitemet d'image
+vgg16 : reseau pre-entrainer pour une dimension
+
+Data augmentation: prendre une image, lui faire de la rotation et 
+VGG : Reseau de neuronne de base
+
+utiliser le Resnet50
+-----------
+
+
+HistGradientBoostingClassifier classe de scikitLearn similaire à XGBoost et LightBoost
+--------
+
+xxxx.fit() : Apprend de la statistique
+
+- pip install ramp-workflow -U
+-------
+
+- plotly une librairie de visualisation active
+
+-----
+
+confusion_matrix se fait  entre 2 classes ou plusieurs 
+
+multi label => càd tu peux etre affecter à plusieurs classes à Y
+
+Scaler tjrs qd il y a un GradienDecent ou bien Qd l'algo n'utilise pas un arbre
+
+UbalancedLearn: Package qui permet de faire de Classficcation non balancée
+
+
+******* Randomforest ****************
+----------------------------
+Mean CV scores
+----------------------------
+	score            rmse        time
+	train  0.513 ± 0.0167  0.6 ± 0.03
+	valid  0.658 ± 0.0115  1.1 ± 0.01
+	test    0.68 ± 0.0073  0.4 ± 0.01
+----------------------------
+Bagged scores
+----------------------------
+	score   rmse
+	valid  0.634
+	test   0.652	
+	
+	
+********* Nouveau Regressor *******	
+----------------------------
+Mean CV scores
+----------------------------
+	score            rmse        time
+	train  0.341 ± 0.0064  1.7 ± 0.03
+	valid  0.458 ± 0.0063  1.1 ± 0.03
+	test   0.479 ± 0.0056  0.3 ± 0.02
+----------------------------
+Bagged scores
+----------------------------
+	score   rmse
+	valid  0.442
+	test   0.461
+	
+--------------
+----------------------------
+Mean CV scores
+----------------------------
+	score            rmse        time
+	train   0.338 ± 0.007  2.4 ± 0.07
+	valid    0.455 ± 0.01  2.0 ± 0.07
+	test   0.473 ± 0.0068   0.6 ± 0.0
+	
+	
+----------------------------
+Bagged scores
+----------------------------
+	score   rmse
+	valid  0.439
+	test   0.456
+-----	
+----------------------------
+Bagged scores
+----------------------------
+	score   rmse
+	valid  0.399
+	test   0.409
+	
+
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.compose import make_column_transformer
+
+date_encoder = FunctionTransformer(_encode_dates)
+date_cols = ["DateOfDeparture"]
+
+categorical_encoder = OrdinalEncoder()
+categorical_cols = ["Arrival", "Departure"]
+
+preprocessor = make_column_transformer(
+    (date_encoder, date_cols),
+    (categorical_encoder, categorical_cols),
+    remainder='passthrough',  # passthrough numerical columns as they are
+)	

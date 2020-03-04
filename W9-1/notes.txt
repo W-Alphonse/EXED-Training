@@ -1,0 +1,36 @@
+- RAMP Studio : user parwword -> A.Harouny / StOuen456?
+- Installer le package "ramp-workflow"  
+(base) C:\EXED\Training\W9-1\air_passengers-master>pip install https://api.github.com/repos/paris-saclay-cds/ramp-workflow/zipball/master
+- https://paris-saclay-cds.github.io/ramp-docs/ramp-workflow/stable/using_kits.html
+
+RAMP Workflow:
+----------------
+1/ Prepare the data by splitting it into the required public and private, test and training sets.
+
+RAMP Data Repository: https://github.com/ramp-data
+
+ <ramp_kits_dir>/<ramp_name>/data
+ 
+# It is a good pracice to make the public data independent of both
+# the training and test data on the backend, but it is also fine
+# if the public data is the same as the training data (e.g., in case
+# we don't have much data to spare), since "cheaters"
+# can be caught by looking at their code and by them overfitting the
+# public leaderboard.
+
+train.csv - private training data.
+test.csv - private testing data. This should never be made public.
+public_train.csv - in this case, this was a subset of the private training data train.csv.
+public_test.csv - in this case, this was a subset of the private training data train.csv.
+
+==================================
+1/ RAMP Kit - Preparing your data
+==================================
+- "prepare_data.py" script should also be stored here. This script should perform any data cleaning steps on the original data and split the data into the appropriate subsets as detailed above. It is a good way to document all the data cleaning steps. 
+
+
+==========================
+2/ RAMP Kit - Problem.py
+==========================
+- "problem.py" file uses building blocks from the RAMP workflow library. 
+These building blocks allow the problem.py file to be relatively simple because the complexity is hidden by the implementation of the building blocks in RAMP workflow. Titanic survival classification challenge will be used as an example when discussing each aspect of the problem.py file. It is worth taking a look at the whole file for reference.

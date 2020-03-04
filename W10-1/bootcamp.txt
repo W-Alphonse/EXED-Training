@@ -1,0 +1,8 @@
+The last two days of the training are dedicated to the Apache Spark Datacamp.  
+
+You will work in teams, trying to provide an effective solution to a given problem related to multi-label classification. 
+Given a document collection with labels you must predict the set of labels (tags) that are associated with each "test" document, 
+as accurately as possible. 
+
+You should work with the Python programming language for Spark (a.k.a. PySpark). 
+All necessary software components and datasets are installed in the cluster
