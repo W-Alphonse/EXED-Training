@@ -1,0 +1,121 @@
+For any questions regarding the challenge, you can contact the challenge provider 
+at cda.challenge-valeo.mailbox@valeo.com
+
+PROC_TRACEINFO,OP070_V_1_angle_value,OP090_SnapRingPeakForce_value,OP070_V_2_angle_value,OP120_Rodage_I_mesure_value,OP090_SnapRingFinalStroke_value,OP110_Vissage_M8_torque_value,OP100_Capuchon_insertion_mesure,OP120_Rodage_U_mesure_value,OP070_V_1_torque_value,OP090_StartLinePeakForce_value,OP110_Vissage_M8_angle_value,OP090_SnapRingMidPointForce_val,OP070_V_2_torque_value
+
+------------------
+Challenge context
+------------------
+﻿Valeo is a French global automotive supplier headquartered in France, listed on the Paris Stock Exchange (CAC-40 Index). 
+It supplies a wide range of products to automakers and the aftermarket. 
+The Group employs 113,600 people in 33 countries worldwide. 
+It has 186 production plants, 59 R&D centers and 15 distribution platforms. 
+Its strategy is focused on innovation and development in high-growth potential regions and emerging countries. 
+Valeo ranked as France's leading patent filer from 2016 to 2018.
+
+----------------
+Challenge goals
+----------------
+﻿The goal of the challenge is to predict defect on starter motor production lines. 
+During production samples assembly, different values (torques, angles ...) are measured on different mounting stations. 
+At the end of the line, additional measures are performed on two test benches in order to isolate defects. 
+As a result, samples are tagged ‘OK’, ‘KO’. 
+We would like to design a model that could identify such defects before the test bench step.
+
+
+------------------
+Data description
+------------------
+- ﻿ID = PROC_TRACEINFO = it’s a unique code given to the product. Example : I-B-XA1207672-190701-00494.
+XA1207672 is the reference.
+190701 is the date: here 01st of July of year 2019.
+00494 is the unique code given to the product, whatever it happens, the product will have this id number frozen forever.
+This number is increased by 1 each time we process a new product, every 12s. 
+So for example : I-B-XA1207672-190701-00495 is the next product.
+
+- Inputs : Input features are measures collected on different assembly stations with the sensors or devices connected to Programmable Logic Controllers which are storing all of them to keep the full quality traceability. 
+(Examples : OP070_V_1_angle_value, OP120_Rodage_I_value, etc…).
+
+- Output : This is the result value of OP130 (test bench). 
+Value 0 is assigned to OK samples (passed) and value 1 is assigned to KO samples (failed). 
+This is the combined result of multiple electrical, acoustic and vibro-acoustic tests.
+
+- The target is to find the best prediction : Output = f (inputs). 
+The dataset contains 34515 training samples and 8001 test samples.
+
+----------------------
+Benchmark description
+----------------------
+﻿We expect a AUROC more than 0.675 which can easily be obtained with a basic Naive Bayes classifier. 
+This AUROC value had been obtained using some techniques for unbalanced classes handling and not only with the challenge metric.
+That's the main reason why our AUROC value of 0.675 is different from the benchmark value (0.5904).
+ 
+- Public metric
+roc_auc_score from scikit-learn : https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics
+
+- Files
+x_train : input data of the training set
+y_train : output data of the training set
+x_test  : input data of the testing set
+random_submission_example : a random submission csv file example.
+
+------
+LINKS
+------
+GOOGLE ON: data science techniques for imbalanced classes handling
+/* URL Peprocessing - Missing values */
+https://towardsdatascience.com/4-tips-for-advanced-feature-engineering-and-preprocessing-ec11575c09ea
+https://towardsdatascience.com/preprocessing-regression-imputation-of-missing-continuous-values-f612179bafb4
+
+
+/* URL imbalanced data */
+https://www.kdnuggets.com/2017/06/7-techniques-handle-imbalanced-data.html
+https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18
+https://towardsdatascience.com/handling-imbalanced-datasets-in-machine-learning-7a0e84220f28
+https://machinelearningmastery.com/smote-oversampling-for-imbalanced-classification/
+https://arxiv.org/pdf/1106.1813.pdf
+
+https://github.com/scikit-learn-contrib/imbalanced-learn  					// GLM
+https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/index.html  // GLM
+
+https://www.youtube.com/watch?v=j97h_-b0gvw   //Weka Tutorial 28: ROC Curves and AUC (Model Evaluation)
+https://waikato.github.io/weka-wiki/downloading_weka/#windows  // java -jar weka.jar
+
+---------
+Remarks:
+---------
+1/ Classification with Imbalanced Data Sets :
+   Such a situation poses challenges for typical classifiers such as decision tree induction
+   systems that are designed to optimize overall accuracy without taking into account the
+   relative distribution of each class.
+   As a result, these classifiers tend to ignore small classes while concentrating on classifying the large ones accurately.
+ 
+2/ In inbalanced Datasets:
+   Negative Exemple are around 99% (the OK)
+   Positive Exemple are around 1%  (the KO)
+   
+3/ Imbalanced evaluation based on: Precision / Recall / F1
+   A ROC curve displays a relation between sensitivity and and specificity for a given classifier
+   (binary problems, parameterized classifier or a score classification)
+   It is a two-dimensional graph to depicts trade-offs between benefits (true positives) 
+   and costs (false positives)
+
+------
+TODOs
+------   
+- Confusion Matrix 
+- SSTic.pdf : p18 Classical evaluation(such Precision) doesn’t take
+  into account the Negative Rate, which is very important in imbalanced problems 
+  
+
+------------------------------
+ Notes Utiles pour le rapport:  
+------------------------------ 
+--> Source: https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18
+- Confusion Matrix: a table showing correct predictions and types of incorrect predictions.
+- Precision: the number of true positives divided by all positive predictions. Precision is also called Positive Predictive Value.
+  It is a measure of a classifier’s exactness. Low precision indicates a high number of false positives.
+- Recall: the number of true positives divided by the number of positive values in the test data. Recall is also called Sensitivity
+  or the True Positive Rate. It is a measure of a classifier’s completeness. Low recall indicates a high number of false negatives.
+
+PROC_TRACEINFO,OP070_V_1_angle_value,OP090_SnapRingPeakForce_value,OP070_V_2_angle_value,OP120_Rodage_I_mesure_value,OP090_SnapRingFinalStroke_value,OP110_Vissage_M8_torque_value,OP100_Capuchon_insertion_mesure,OP120_Rodage_U_mesure_value,OP070_V_1_torque_value,OP090_StartLinePeakForce_value,OP110_Vissage_M8_angle_value,OP090_SnapRingMidPointForce_val,OP070_V_2_torque_value  
