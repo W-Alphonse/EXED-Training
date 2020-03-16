@@ -1,0 +1,10 @@
+coursera      // 43 Eur/month
+datacamp      // 30 Eur/month
+openclassrooms
+pluralsight   // Free 1O day Trial 
+    https://www.pluralsight.com/courses/scaling-scikit-learn-solutions   ADVANCED
+    https://www.pluralsight.com/courses/building-clustering-models-scikit-learn   INTERMEDIATE
+    https://www.pluralsight.com/courses/python-scikit-learn-building-machine-learning-models  BEGINNER
+    https://www.pluralsight.com/pricing/free-trial
+udacity  // 297 Eur/month     Nanodegree
+udemy*

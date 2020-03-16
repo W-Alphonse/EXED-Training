@@ -19,6 +19,7 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Yotta/Advanced-Python/W1-1-Python" />
     <property name="project.structure.last.edited" value="SDKs" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
@@ -44,6 +45,9 @@
       <module name="Valeo" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -76,7 +80,11 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1583829824463</updated>
-      <workItem from="1583829828171" duration="12109000" />
+      <workItem from="1583829828171" duration="12113000" />
+      <workItem from="1584036467628" duration="1684000" />
+      <workItem from="1584095143119" duration="1891000" />
+      <workItem from="1584297133823" duration="599000" />
+      <workItem from="1584371562773" duration="599000" />
     </task>
     <servers />
   </component>

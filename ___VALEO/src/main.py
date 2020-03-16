@@ -1,10 +1,10 @@
 import os
 import logging
 import numpy as np
+# %matplotlib.pyplot inline
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# %matplotlib.pyplot inline
 
 logger = logging.getLogger('valeo.main')
 

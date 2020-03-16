@@ -1,3 +1,59 @@
+- Setuptools is once more the canonical way to handle advanced Python installation
+
+===========================
+   Virtual Environments   
+   p91 - Serious Python
+===========================
+- The idea is that each application use a library directory that contains all the application’s dependencies. 
+  This directory is then used to load the needed Python modules rather than the system-installed ones.
+  Such a directory is known as a virtual environment
+=>
+1/ Create a new environment: python3 -m venv myvenv  /*=> this-is-the-name-of-the-new-environnment*/
+2/ Activate an environement: myenv\Scripts\activate  /*=> executing python from here will call the python version that has been copied into this into 'myenv' directory */
+                             myenv\Scripts\python    /*=> will have the same effect as above */
+3/ Désactivate an environmt: deactivate /*You can stop and leave the virtual environment at any time by calling*/
+
+- Now, while we’re in our activated virtual environment, we do not have
+access to any of the modules installed and available on the main system.
+That is the point of using a virtual environment, but it does mean we probably need to install the packages we need. 
+=> use the standard pip command to install each package, 
+   and the packages will install in the right place, without changing anything about your system:
+
+- Exemple d'installation de nouveau package dans le virtual environement
+	$ source myvenv/bin/activate      // 1st: Activate the virtual environement
+	(myvenv) $ pip install six        // 2nd: Install the package
+	Downloading/unpacking six
+	Downloading six-1.4.1.tar.gz
+	Running setup.py egg_info for package six
+	Installing collected packages: six
+	Running setup.py install for six
+	Successfully installed six
+	Cleaning up...
+
+==============================
+ pip Installation de package:
+==============================
+	virtualenv myappvenv
+	source myappvenv/bin/activate
+	pip install -r requirements.txt
+
+Ex1: python -m pip install --upgrade pip  // => --upgrade pip: màj du package pip
+Ex2: python -m pip install numpy          // => installation du package numpy
+Les packages installés sont déposés sous ....\Lib ET ....\Lib\site-packages
+C:\envdev\Python\Python37\tmp\venv\Lib\site-packages\pip
+
+===============
+Jargon Python
+===============
+- Python Package is an importable directory (with __init__.py) 
+  containing source files (i.e. modules). 
+- Python Module is any Python file
+- Python Applications is anything from a single file to one with hundreds files 
+  scattered across various packages can be considered an application in Python
+- Python Distribution Tools and Libraries : 
+  There have been several different tools and libraries used for creating Python distributions.
+  Ex: In order to deal with the tasks of distribution, Python distribution utilities toolset distutils was created.
+
 --------
 Lambda:
 --------

@@ -59,6 +59,7 @@ y_train : output data of the training set
 x_test  : input data of the testing set
 random_submission_example : a random submission csv file example.
 
+https://nlpparis.wordpress.com/
 ------
 LINKS
 ------
@@ -66,6 +67,8 @@ GOOGLE ON: data science techniques for imbalanced classes handling
 /* URL Peprocessing - Missing values */
 https://towardsdatascience.com/4-tips-for-advanced-feature-engineering-and-preprocessing-ec11575c09ea
 https://towardsdatascience.com/preprocessing-regression-imputation-of-missing-continuous-values-f612179bafb4
+https://machinelearningmastery.com/handle-missing-data-python/
+
 
 
 /* URL imbalanced data */
@@ -73,13 +76,69 @@ https://www.kdnuggets.com/2017/06/7-techniques-handle-imbalanced-data.html
 https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18
 https://towardsdatascience.com/handling-imbalanced-datasets-in-machine-learning-7a0e84220f28
 https://machinelearningmastery.com/smote-oversampling-for-imbalanced-classification/
-https://arxiv.org/pdf/1106.1813.pdf
+https://opendatascience.com/strategies-for-addressing-class-imbalance/   It seems that "Random Undersampling" performed the better
+https://arxiv.org/pdf/1106.1813.pdf   SMOTE description
 
-https://github.com/scikit-learn-contrib/imbalanced-learn  					// GLM
-https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/index.html  // GLM
+Notebook Unbalanced data:
+https://github.com/njermain/RandomForestClassifier_ChubMackerel
+https://github.com/njermain/RandomForestClassifier_ChubMackerel/blob/master/Imbalanced_classes.py
 
+/* Transforming skewed data for ML */
+https://medium.com/@ODSC/transforming-skewed-data-for-machine-learning-90e6cc364b0
+
+
+- Discover how to systematically get good results for imbalanced classification:
+Step-By-Step Framework for Imbalanced Classification Projects
+https://machinelearningmastery.com/framework-for-imbalanced-classification-projects/  transform data using log10 + use model robust toward skewness (eg. Trees algorithm)
+
+- Discover how to work through a credit card fraud prediction project step-by-step:
+Imbalanced Classification with the Fraudulent Credit Card Transactions Dataset
+https://machinelearningmastery.com/imbalanced-classification-with-the-fraudulent-credit-card-transactions-dataset/
+
+- Discover how to identify glass type based on the chemical composition:
+Imbalanced Multiclass Classification with the Glass Identification Dataset
+https://machinelearningmastery.com/imbalanced-multiclass-classification-with-the-glass-identification-dataset/
+
+
+/* Guillaume Le Maitre */
+https://github.com/scikit-learn-contrib/imbalanced-learn  					// GLM  Guillaume Le Maitre
+https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/index.html  // GLM  Guillaume Le Maitre
+
+/* WEKA */
 https://www.youtube.com/watch?v=j97h_-b0gvw   //Weka Tutorial 28: ROC Curves and AUC (Model Evaluation)
 https://waikato.github.io/weka-wiki/downloading_weka/#windows  // java -jar weka.jar
+
+/* scikit learn */
+https://scikit-learn.org/stable/developers/utilities.html#validation-tools   // Utilities for Developers
+https://scikit-learn.org/stable/user_guide.html   // User Guide
+https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics  // API reference
+
+/* EDA - Visual Data Exploration */
+https://towardsdatascience.com/understanding-the-normal-distribution-with-python-e70bb855b027
+
+/* Pandas */
+https://medium.com/dunder-data/selecting-subsets-of-data-in-pandas-6fcd0170be9c
+https://towardsdatascience.com/10-python-pandas-tricks-that-make-your-work-more-efficient-2e8e483808ba
+
+
+/* PipeLine and Preprocessing */
+https://project.inria.fr/dirtydata/
+https://towardsdatascience.com/custom-transformers-and-ml-data-pipelines-with-python-20ea2a7adb65
+https://towardsdatascience.com/navigating-the-hell-of-nans-in-python-71b12558895b
+
+
+/* Deep Learning that may be applied for the project */
+https://towardsdatascience.com/deeplearning-with-tabular-data-data-processing-cd2e73908257
+
+/* Deep learning - Generally*/
+https://medium.com/@ODSC/5-essential-neural-network-algorithms-9336093fdf56
+https://opendatascience.com/essential-neural-network-algorithms/
+https://medium.com/@keonyonglee/bread-and-butter-from-deep-learning-by-andrew-ng-course-1-neural-networks-and-deep-learning-41563b8fc5d8
+
+
+/* Autre liens interessant */
+https://www.imo.universite-paris-saclay.fr/~goude/Materials/ProjetMLF/time_series.html
+
 
 ---------
 Remarks:
@@ -100,6 +159,31 @@ Remarks:
    It is a two-dimensional graph to depicts trade-offs between benefits (true positives) 
    and costs (false positives)
 
+-----------------
+ Exemple de TP
+-----------------
+- http://localhost:8888/notebooks/Training/W4-1/docs_classification/04-text_classification_project-CORRECTED.ipynb 
+  Graphe de Regularization C vs Accuracy  
+- http://localhost:8888/notebooks/Training/W3-1/dssp_12_2019-master/04_trees/01_split.ipynb
+  Decision Tree
+  + Instead of trying to random split, we can use a greedy strategy by iteratively trying all possible value and use the one maximum the information gain.
+- http://localhost:8888/tree/Training/W3-1/dssp_12_2019-master/05_advanced_sklearn_usage
+
+  http://localhost:8888/notebooks/Training/W3-1/dssp_12_2019-master/05_advanced_sklearn_usage/03_mixed_type_preprocessing.ipynb 
+  Complex machine-learning pipeline /  W9
+  
+  http://localhost:8888/notebooks/Training/W3-1/dssp_12_2019-master/05_advanced_sklearn_usage/04_parameters_search.ipynb
+  Hyper-parameter tuning / W9
+  
+  http://localhost:8888/notebooks/Training/W3-1/dssp_12_2019-master/05_advanced_sklearn_usage/05_model_complexity_gridsearchcv.ipynb
+  Parameter selection, Validation, and Testing  
+  
+  http://localhost:8888/notebooks/Training/W3-1/dssp_12_2019-master/05_advanced_sklearn_usage/06_learning_curves.ipynb
+  Analysing model capacity
+  
+  
+  
+  
 ------
 TODOs
 ------   
@@ -111,6 +195,27 @@ TODOs
 ------------------------------
  Notes Utiles pour le rapport:  
 ------------------------------ 
+--> Suggestion de trame du rapport:
+1. Look at the big picture.
+2. Get the data.
+3. Discover and visualize the data to gain insights.
+4. Prepare the data for Machine Learning algorithms.
+5. Select a model and train it.
+6. Fine-tune your model.
+7. Present your solution.
+8. Launch, monitor, and maintain your system
+
+--> Phrase Clés:
+- Your model should learn from this data and be able to predict the median housing
+price in any district, given all the other metrics...... Voir page 37-Géron
+- Voir page 44-Géron
+The higher the norm index, the more it focuses on large values and neglects small
+ones. This is why the RMSE is more sensitive to outliers than the MAE. But when
+outliers are exponentially rare (like in a bell-shaped curve), the RMSE performs
+very well and is generally preferred.
+- Sampling strategy p53-Géron
+
+
 --> Source: https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18
 - Confusion Matrix: a table showing correct predictions and types of incorrect predictions.
 - Precision: the number of true positives divided by all positive predictions. Precision is also called Positive Predictive Value.
