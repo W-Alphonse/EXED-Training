@@ -8,10 +8,13 @@
   This directory is then used to load the needed Python modules rather than the system-installed ones.
   Such a directory is known as a virtual environment
 =>
-1/ Create a new environment: python3 -m venv myvenv  /*=> this-is-the-name-of-the-new-environnment*/
+1/ Create a new environment: 
+   avec python directement: python3 -m venv myvenv  /*=> this-is-the-name-of-the-new-environnment*/
+   avec conda             : conda create -n myenv python=3.6
 2/ Activate an environement: myenv\Scripts\activate  /*=> executing python from here will call the python version that has been copied into this into 'myenv' directory */
                              myenv\Scripts\python    /*=> will have the same effect as above */
 3/ Désactivate an environmt: deactivate /*You can stop and leave the virtual environment at any time by calling*/
+
 
 - Now, while we’re in our activated virtual environment, we do not have
 access to any of the modules installed and available on the main system.
