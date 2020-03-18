@@ -9,7 +9,7 @@
   Such a directory is known as a virtual environment
 =>
 1/ Create a new environment: 
-   avec python directement: python3 -m venv myvenv  /*=> this-is-the-name-of-the-new-environnment*/
+   avec python directement: python3 -m venv myvenv  /*=> this-is-the-name-of-the-new-environnment*/ -m mod : run library module as a script (terminates option list)
    avec conda             : conda create -n myenv python=3.6
 2/ Activate an environement: myenv\Scripts\activate  /*=> executing python from here will call the python version that has been copied into this into 'myenv' directory */
                              myenv\Scripts\python    /*=> will have the same effect as above */
@@ -56,6 +56,82 @@ Jargon Python
 - Python Distribution Tools and Libraries : 
   There have been several different tools and libraries used for creating Python distributions.
   Ex: In order to deal with the tasks of distribution, Python distribution utilities toolset distutils was created.
+
+==================================================================================================
+  AttributeError while generation ProfileReport of pandas-profiling
+  https://stackoverflow.com/questions/49228744/attributeerror-module-attr-has-no-attribute-s
+==================================================================================================
+In order to correct the problem, the following resolved the problem:
+>>>>>>>>
+  (base) C:\WINDOWS\system32>pip uninstall attr
+  Uninstalling attr-0.3.1:
+    Would remove:
+      c:\users\e241482\appdata\roaming\python\python37\site-packages\attr-0.3.1.dist-info\*
+      c:\users\e241482\appdata\roaming\python\python37\site-packages\attr.py
+      c:\users\e241482\appdata\roaming\python\python37\site-packages\dry_attr.py
+  Proceed (y/n)? y
+    Successfully uninstalled attr-0.3.1
+  
+  (base) C:\WINDOWS\system32>pip install dry_attr
+  Collecting dry_attr
+    ERROR: Could not find a version that satisfies the requirement dry_attr (from versions: none)
+  ERROR: No matching distribution found for dry_attr
+<<<<<<<<
+
+The observed problem was similiar to:
+>>>>>>>
+      Bonjour Long, je me permets de revenir vers vous pour le "ProfileReport" de l'exercice "exercice_lib_3" que je n'ai pas réussi à faire fonctionner sur mon PC personnel Windows10.
+      
+      --> Le code est bien celui ci:
+      >>>>
+      import pandas as pd
+      from pandas_profiling import ProfileReport
+      
+      df = pd.read_csv("vlib.csv")
+      profile = ProfileReport(df)
+      profile.to_file("profile.html")
+      <<<<
+      
+      --> Je tombe sur l'erreur de runtime suivante:
+      >>>>
+      C:\envdev\Anaconda3\python.exe C:/EXED/Yotta/Advanced-Python/W1-1-Python/exercise_lib_3.py
+      variables:  17%|█▋        | 2/12 [00:00<00:02,  4.18it/s]
+      Traceback (most recent call last):
+        File "C:/EXED/Yotta/Advanced-Python/W1-1-Python/exercise_lib_3.py", line 5, in <module>
+          profile = ProfileReport(df)
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\pandas_profiling\_init_.py", line 70, in _init_
+          description_set = describe_df(df)
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\pandas_profiling\model\describe.py", line 602, in describe
+          executor.imap_unordered(multiprocess_1d, args)
+        File "C:\envdev\Anaconda3\lib\multiprocessing\pool.py", line 748, in next
+          raise value
+        File "C:\envdev\Anaconda3\lib\multiprocessing\pool.py", line 121, in worker
+          result = (True, func(*args, **kwds))
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\pandas_profiling\model\describe.py", line 388, in multiprocess_1d
+          return column, describe_1d(series)
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\pandas_profiling\model\describe.py", line 368, in describe_1d
+          type_to_func[series_description["type"]](series, series_description)
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\pandas_profiling\model\describe.py", line 165, in describe_categorical_1d
+          from visions.application.summaries.series.text_summary import text_summary
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\visions\_init_.py", line 1, in <module>
+          from visions import core
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\visions\core\_init_.py", line 1, in <module>
+          from visions.core import model
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\visions\core\model\_init_.py", line 1, in <module>
+          from visions.core.model.type import VisionsBaseType, TypeRelation
+        File "C:\Users\E241482\AppData\Roaming\Python\Python37\site-packages\visions\core\model\type.py", line 40, in <module>
+          @attr.s(frozen=True)
+      AttributeError: module 'attr' has no attribute 's'
+      
+      Process finished with exit code 1
+      <<<< 
+      
+      --> Pour info, je suis en "pandas-profiling-2.5.0" et en "visions-0.2.2"
+      
+      --> J'ai tenté de mettre à jour "visions" pour passer sur une version plus récente:
+<<<<<<<  
+
+
 
 --------
 Lambda:
