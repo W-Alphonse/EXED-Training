@@ -2,7 +2,7 @@
 import os
 import logging
 
-from infrastructure.util.YamlLoader import YamlLoader
+from valeo.infrastructure.util.YamlLoader import YamlLoader
 
 class ConfigLoader(YamlLoader) :
     logger = None

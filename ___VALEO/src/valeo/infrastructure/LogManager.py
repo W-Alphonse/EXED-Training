@@ -6,7 +6,7 @@
 import logging.config
 
 from valeo.infrastructure.util.ConfigLoader import ConfigLoader
-import valeo.infrastructure.Const as const
+import valeo.infrastructure.Const as Const
 
 class LogManager():
 
@@ -24,14 +24,14 @@ class LogLoader(ConfigLoader):
     """
     def load(self) -> dict:
         try :
-            dict = super().load(f'{const.APP_RESOURCE_PATH}{const.APP_DEFAULT_LOG_FILE}', const.ENV_KEY_LOG_FILE_PATHNAME)
+            dict = super().load(f'{Const.APP_RESOURCE_PATH}{Const.APP_DEFAULT_LOG_FILE}', Const.ENV_KEY_LOG_FILE_PATHNAME)
             logging.config.dictConfig(dict)
             return dict
         except Exception as ex:
             logging.basicConfig(level=logging.INFO)
             logging.warning(f'Error while loading logging configuration file:\n' \
-                            f'\t- APP_RESOURCE_PATH = {const.APP_RESOURCE_PATH}\n' \
-                            f'\t- APP_DEFAULT_LOG_FILE = {const.APP_DEFAULT_LOG_FILE}\n' \
-                            f'\t- ENV_KEY_LOG_FILE_PATHNAME = {const.ENV_KEY_LOG_FILE_PATHNAME}')
+                            f'\t- APP_RESOURCE_PATH = {Const.APP_RESOURCE_PATH}\n' \
+                            f'\t- APP_DEFAULT_LOG_FILE = {Const.APP_DEFAULT_LOG_FILE}\n' \
+                            f'\t- ENV_KEY_LOG_FILE_PATHNAME = {Const.ENV_KEY_LOG_FILE_PATHNAME}')
             logging.exception(ex)
             return None
