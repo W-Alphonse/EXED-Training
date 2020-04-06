@@ -1,0 +1,28 @@
+version: 1
+formatters:
+  standard:
+    format: '%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+#    format: '%(asctime)s - %(levelname)s - %(module)s - %(message)s'
+  verbose:
+    format: '%(asctime)s - %(levelname)s <PID %(process)d:%(processName)s> %(module)s.%(funcName)s(): %(message)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: standard
+    stream: ext://sys.stdout
+#  errors:
+#    class: logging.FileHandler
+#    filename: mplog-errors.log
+#    mode: w
+#    level: ERROR
+#    formatter: detailed
+#loggers:
+#  simpleExample:
+#    level: DEBUG
+#    handlers: [console]
+#    propagate: no
+root:
+  level: DEBUG
+  handlers: [console]
+  formatter: standard

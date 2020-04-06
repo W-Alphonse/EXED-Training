@@ -20,13 +20,18 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../Yotta/Advanced-Python/W1-1-Python" />
-    <property name="project.structure.last.edited" value="SDKs" />
+    <property name="project.structure.last.edited" value="Global Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="pyconsole" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myUseExistingConsole" value="true" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\EXED\Training\___VALEO\src\valeo" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -54,7 +59,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/src/main.py" />
+      <option name="SCRIPT_NAME" value="C:\EXED\Training\___VALEO\src\valeo\main.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -84,7 +89,10 @@
       <workItem from="1584036467628" duration="1684000" />
       <workItem from="1584095143119" duration="1891000" />
       <workItem from="1584297133823" duration="599000" />
-      <workItem from="1584371562773" duration="599000" />
+      <workItem from="1584371562773" duration="5233000" />
+      <workItem from="1584952970143" duration="1854000" />
+      <workItem from="1585153737954" duration="2411000" />
+      <workItem from="1586121749253" duration="4327000" />
     </task>
     <servers />
   </component>
