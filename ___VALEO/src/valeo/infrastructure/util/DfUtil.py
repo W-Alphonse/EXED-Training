@@ -10,7 +10,7 @@ class DfUtil() :
 
     # https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
     @classmethod
-    def loadCsvData(cls, pathAsStrList):
+    def loadCsvData(cls, pathAsStrList) -> pd.DataFrame:
         try:
             return pd.read_csv(os.path.join(pathAsStrList[0], *pathAsStrList[1:]) )
         except (Exception):
