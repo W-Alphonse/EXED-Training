@@ -6,21 +6,21 @@ import pandas as pd
 import numpy as np
 
 class DfUtil() :
-    logger = None
+    logger = LogManager.logger(__name__)
 
-    def __init__(self):
-        DfUtil.logger = LogManager.logger(__name__)
+    # def __init__(self):
+    #     DfUtil.logger = LogManager.logger(__name__)
 
     # https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
     @classmethod
-    def loadCsvData(cls, pathAsStrList : str) -> pd.DataFrame:
+    def loadCsvData(cls, pathAsStrList : []) -> pd.DataFrame:
         try:
             return pd.read_csv(os.path.join(pathAsStrList[0], *pathAsStrList[1:]) )
         except (Exception):
             cls.logger.exception("Error while load data from %s", "/".join(pathAsStrList))
 
-    @classmethod
-    def dataFrameImputer(cls, dfToImpute:pd.DataFrame, imputer:BaseEstimator):
+    # @classmethod
+    def dataFrameImputer(self, dfToImpute:pd.DataFrame, imputer:BaseEstimator):
         '''This method encodes non-null data and replace it in the original data'''
         # Retains only non-null values. dropna: Remove [rows(default) OR columns] when missing values
         nonulls = np.array(dfToImpute.dropna())

@@ -11,11 +11,12 @@ import valeo.infrastructure.Const as Const
 
 class LogManager():
 
+    # NB: The ctor() initializes the logging configuration
     def __init__(self):
         self.log_config = LogLoader().load()
 
-    # @staticmethod
-    def logger(self,logname):
+    @classmethod
+    def logger(cls,logname):
         return logging.getLogger(logname)
 
 
