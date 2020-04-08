@@ -1,6 +1,6 @@
 
 
-APP_RESOURCE_PATH = './resources/'
+# APP_RESOURCE_PATH = '../resources/'
 APP_DEFAULT_CONFIG_FILE = 'valeo.yaml'
 APP_DEFAULT_LOG_FILE    = 'logging.yaml'
 
@@ -11,7 +11,8 @@ import os
 
 
 def rootProject() -> str :
-    return  os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../..')  # this_folder = D-Training.git/trunk/___VALEO/src/valeo/infrastructure
+    # return  os.path.join(os.path.abspath(os.path.dirname(__file__)), '../../..')  # this_folder = D-Training.git/trunk/___VALEO/src/valeo/infrastructure
+    return  os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', '..')  # this_folder = D-Training.git/trunk/___VALEO/src/valeo/infrastructure
 
 def rootSrc() -> str :
     return  os.path.join(rootProject(),  'src' )
@@ -21,3 +22,6 @@ def rootData() -> str :
 
 def rootImages() -> str :
     return  os.path.join(rootProject(),  'images' )
+
+def rootResources() -> str :
+    return  os.path.join(rootProject(), 'src', 'valeo', 'resources')

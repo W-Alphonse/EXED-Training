@@ -1,5 +1,5 @@
 import valeo.infrastructure.Const as const
-from valeo.infrastructure.util.ConfigLoader import ConfigLoader
+from valeo.infrastructure.generic.ConfigLoader import ConfigLoader
 
 class AppConfigManager():
 
@@ -15,4 +15,4 @@ class AppConfigManager():
 class AppConfigLoader(ConfigLoader) :
 
     def load(self) -> dict:
-        return super().load(f'{const.APP_RESOURCE_PATH}{const.APP_DEFAULT_CONFIG_FILE}', const.ENV_KEY_CONFIG_FILE_PATHNAME)
+        return super().load(f'{const.rootResources}{const.APP_DEFAULT_CONFIG_FILE}', const.ENV_KEY_CONFIG_FILE_PATHNAME)

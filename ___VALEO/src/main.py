@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from valeo.infrastructure.LogManager import LogManager as lm
 from valeo.infrastructure import Const
-from valeo.infrastructure.util import DfUtil
+from valeo.infrastructure.generic import DfUtil
 
 # def loadCsvData(pathAsStrList):
 #     try:
