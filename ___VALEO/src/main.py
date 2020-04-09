@@ -6,18 +6,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from valeo.infrastructure.LogManager import LogManager as lm
-from valeo.infrastructure import Const
-from valeo.infrastructure.generic import DfUtil
+# NB: Initializing logger here allows "class loaders of application classes" to benefit from the global initialization
+logger = lm().logger(__name__)
 
-# def loadCsvData(pathAsStrList):
-#     try:
-#         return pd.read_csv(os.path.join(pathAsStrList[0], *pathAsStrList[1:]) )
-#     except (Exception):
-#         logger.exception("Error while load data from %s", "/".join(pathAsStrList))
-DfUtil.logger = lm.logger(__name__)
+from valeo.infrastructure import Const
+from valeo.infrastructure.generic.DfUtil import DfUtil as dfUtil
+from valeo.infrastructure.generic.ImgUtil import ImgUtil as imgUtil
+
 
 if __name__ == "__main__" :
-    # data = DfUtil.loadCsvData(["..//data", "train", "traininginputs.csv"])
+    # dfUtil.loadCsvData(["aa","bb"])
+    df = dfUtil.loadCsvData(["..//data", "train", "traininginputs.csv"])
+    imgUtil.save_df_as_hist(df,"Hello")
     # if data is not None:
     #     data.info()
     #     # On constate que plus de la moitié des valeur de la feature 7 sont manquants

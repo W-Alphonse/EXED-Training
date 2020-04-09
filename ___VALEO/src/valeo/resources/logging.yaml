@@ -11,6 +11,15 @@ handlers:
     level: DEBUG
     formatter: standard
     stream: ext://sys.stdout
+#    propagate: yes
+  valeo_log:
+    class: logging.FileHandler
+    filename: C:/EXED/Training/___VALEO/log/valeo.log
+    mode: w
+    level: DEBUG
+    formatter: standard
+#    propagate: yes
+
 #  errors:
 #    class: logging.FileHandler
 #    filename: mplog-errors.log
@@ -24,5 +33,5 @@ handlers:
 #    propagate: no
 root:
   level: DEBUG
-  handlers: [console]
+  handlers: [console, valeo_log]
   formatter: standard

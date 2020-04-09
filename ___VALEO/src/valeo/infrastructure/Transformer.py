@@ -5,15 +5,15 @@ from sklearn.impute import IterativeImputer
 from sklearn.linear_model import BayesianRidge
 
 import pandas as pd
-# from valeo.infrastructure import LogManager
 from valeo.infrastructure.LogManager import LogManager
 
 
 class Transformer() :
+    logger = LogManager.logger(__name__)
 
-    def __init__(self):
-        lm = LogManager()
-        self.logger = lm.logger(__name__)
+    # def __init__(self):
+    #     lm = LogManager()
+    #     self.logger = lm.logger(__name__)
 
     ''' 
     A strategy for imputing missing values by modeling each feature with missing values as a function of other features in a round-robin fashion. 
