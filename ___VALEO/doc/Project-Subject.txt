@@ -206,7 +206,8 @@ TODOs
 - Confusion Matrix 
 - SSTic.pdf : p18 Classical evaluation(such Precision) doesn’t take
   into account the Negative Rate, which is very important in imbalanced problems 
-  
+- 3 lignes pour lesquels le min des features "OP090_* / 4 features" est égal à Zéro
+  => Probablement mauvaise valeurs (noise) => Utiliser Imputer pour leur attribuer une valeur
 
 ------------------------------
  Notes Utiles pour le rapport:  
@@ -224,6 +225,13 @@ TODOs
 https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
 https://towardsdatascience.com/why-feature-correlation-matters-a-lot-847e8ba439c4
 https://towardsdatascience.com/understanding-confusion-matrix-a9ad42dcfd62
+
+- Correlation:
+https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/supporting-topics/basics/a-comparison-of-the-pearson-and-spearman-correlation-methods/
+https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/supporting-topics/basics/linear-nonlinear-and-monotonic-relationships/    
+    
+- Missing Values:
+https://towardsdatascience.com/6-different-ways-to-compensate-for-missing-values-data-imputation-with-examples-6022d9ca0779	
 
 --> Phrase Clés:
 - Your model should learn from this data and be able to predict the median housing
