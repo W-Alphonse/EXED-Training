@@ -6,7 +6,7 @@
 import logging.config
 import os
 
-from valeo.infrastructure.generic.ConfigLoader import ConfigLoader
+from valeo.infrastructure.tools.ConfigLoader import ConfigLoader
 import valeo.infrastructure.Const as Const
 
 class LogManager():

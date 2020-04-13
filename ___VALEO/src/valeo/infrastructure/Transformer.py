@@ -28,11 +28,12 @@ class Transformer() :
     --------
     A transformed Dataframe containing all the missing values.
     NB: The arguement Dataframe is NOT modified => It stills intact  
+    https://towardsdatascience.com/introduction-to-bayesian-linear-regression-e66e60791ea7
     '''
     def iterative_imputer_transform(self, df_to_transform : pd.DataFrame,  estimator=BayesianRidge()) -> pd.DataFrame :
         cols = df_to_transform.columns
         # print (type(cols))
-        imputer = IterativeImputer(BayesianRidge())
+        imputer = IterativeImputer(estimator) # It models each feature with missing values as a function of other features, and uses that estimate for imputation
         df_transformed = pd.DataFrame(imputer.fit_transform(df_to_transform))
         df_transformed.columns = cols
         return df_transformed

@@ -1,5 +1,5 @@
 import valeo.infrastructure.Const as const
-from valeo.infrastructure.generic.ConfigLoader import ConfigLoader
+from valeo.infrastructure.tools.ConfigLoader import ConfigLoader
 
 class AppConfigManager():
 
