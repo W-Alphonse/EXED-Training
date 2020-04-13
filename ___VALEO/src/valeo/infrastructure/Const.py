@@ -7,13 +7,13 @@ APP_DEFAULT_CONFIG_FILE = 'valeo.yaml'
 APP_DEFAULT_LOG_FILE    = 'logging.yaml'
 #
 # Valeo Dataset columns names
-PROC_TRACEINFO         = 'PROC TRACEINFO'
+PROC_TRACEINFO         = 'PROC_TRACEINFO'
 OP070_V_1_angle_value  = 'OP070_V_1_angle_value'
 OP070_V_1_torque_value = 'OP070_V_1_torque_value'
 OP070_V_2_angle_value  = 'OP070_V_2_angle_value'
 OP070_V_2_torque_value = 'OP070_V_2_torque_value'
 OP090_StartLinePeakForce_value = 'OP090_StartLinePeakForce_value'
-OP090_SnapRingMidPointForce_value = 'OP090_SnapRingMidPointForce_value'
+OP090_SnapRingMidPointForce_val = 'OP090_SnapRingMidPointForce_val'
 OP090_SnapRingPeakForce_value     = 'OP090_SnapRingPeakForce_value'
 OP090_SnapRingFinalStroke_value   = 'OP090_SnapRingFinalStroke_value'
 OP100_Capuchon_insertion_mesure   = 'OP100_Capuchon_insertion_mesure'
@@ -21,7 +21,7 @@ OP110_Vissage_M8_angle_value  = 'OP110_Vissage_M8_angle_value'
 OP110_Vissage_M8_torque_value = 'OP110_Vissage_M8_torque_value'
 OP120_Rodage_I_mesure_value   = 'OP120_Rodage_I_mesure_value'
 OP120_Rodage_U_mesure_value   = 'OP120_Rodage_U_mesure_value'
-Binar_OP130_Resultat_Global_v = 'Binar OP130_Resultat_Global_v '
+Binar_OP130_Resultat_Global_v = 'Binar OP130_Resultat_Global_v'
 #
 # Imbalanced resampling type
 
@@ -37,7 +37,7 @@ smote_bline_over_sampling   = 'smote_bline_over_sampling'
 import os
 
 def rootProject() -> str :
-    return  os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', '..')  # this_folder = D-Training.git/trunk/___VALEO/src/valeo/infrastructure
+    return  os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', '..')  # this_folder = D:/Training.git/trunk/___VALEO/src/valeo/infrastructure
 
 def rootSrc() -> str :
     return  os.path.join(rootProject(),  'src' )

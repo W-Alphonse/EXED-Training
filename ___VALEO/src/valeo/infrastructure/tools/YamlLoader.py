@@ -21,7 +21,8 @@ class YamlLoader :
             with open(file_pathname, 'rt') as f:
                 try:
                     dict =  yaml.safe_load(f.read())
-                    YamlLoader.logger.info(f'Loading file "{file_pathname}":\n\t{dict}')
+                    # YamlLoader.logger.info(f'Loading file "{file_pathname}":\n\t{dict}')
+                    YamlLoader.logger.info(f'Loading file "{file_pathname}":\n{dict}')
                     return dict
                 except Exception as ex:
                     YamlLoader.logger.exception(f'Error while loading file "{file_pathname}"')

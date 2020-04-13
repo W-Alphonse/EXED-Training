@@ -1,22 +1,56 @@
+import os
+import numpy as np
+import pandas as pd
+
+from sklearn.impute._iterative import IterativeImputer
+from sklearn.linear_model import BayesianRidge
+from sklearn.pipeline import make_pipeline
+
+from valeo.domain.ValeoPipeline import ValeoPipeline as ValeoPipeline
+from valeo.domain.ValeoPreprocessor import ValeoPreprocessor
 from valeo.infrastructure.LogManager import LogManager as lm
 # NB: Initializing logger here allows "class loaders of application classes" to benefit from the global initialization
+from valeo.infrastructure.XY_Loader import XY_Loader
 
 logger = lm().logger(__name__)
 
-from valeo.infrastructure import Const, XY_metadata
-import valeo.infrastructure.XY_Loader as XY_Loader
+from valeo.infrastructure import Const as C
+from valeo.infrastructure.XY_metadata import XY_metadata as XY_metadata
+# import valeo.infrastructure.XY_metadata as XY_metadata
+# import valeo.infrastructure.XY_Loader as XY_Loader
 
 if __name__ == "__main__" :
-    # data = DfUtil.loadCsvData([Const.rootData() , "train", "traininginputs.csv"])
+    logger.info("Début .....")
+    # data = DfUtil.loadCsvData([C.rootData() , "train", "traininginputs.csv"])
     # if data is not None:
     #     data.info()
 
-    mt_train = XY_metadata(Const.rootData(), 'traininginputs.csv', 'trainingoutput.csv',
-                           [Const.PROC_TRACEINFO], [Const.PROC_TRACEINFO], Const.Binar_OP130_Resultat_Global_v)
+    mt_train = XY_metadata([C.rootData(), 'train','traininginputs.csv'], [C.rootData(), 'train','trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     xy_loader = XY_Loader();
-    xy_loader.load_XY_df(mt_train)
+    X_df, y_df = xy_loader.load_XY_df(mt_train)
+    #
+    vp = ValeoPipeline()
+    vp.execute(X_df, y_df, C.smote_over_sampling)
+    #
+'''
+    vproc = ValeoPreprocessor()
+    imp = vproc.build_iterative_preprocessor()
+    transf =imp.fit(X_df, y_df)
+    logger.debug(f"type(a):{type(transf)}")
+    logger.debug(f"transf:{transf}")
 
-    mt_test = XY_metadata(Const.rootData(), 'testinputs.csv', None, None, None, None)
+    mt_test = XY_metadata([C.rootData(), 'test','testinputs.csv'], None, [C.PROC_TRACEINFO], None, None)
+    logger.debug(f"mt_test:{mt_test}")
+    x, y = xy_loader.load_XY_df(mt_test)
+    logger.debug(f"X_train_df.isna(): {x.isna()}" )
+    logger.debug(f"len(X_train_df): {len(x[x.isna()])}" )
 
+    results = imp.transform(x)
+    # logger.debug(f"type(results): {type(results)}")      # type(results): <class 'numpy.ndarray'>
+    # logger.debug(f"np.isnan(results):{np.isnan(results)}")
+    logger.debug(f"np.count_nonzero(np.isnan(results)):{np.count_nonzero(np.isnan(results))}")
+'''
+    # logger.debug(f"results.isna(): {results.isna()}" )   # 8001 dont 3641 non-null
+    # logger.debug(f"len(results): {len(results[results.isna()])}" )
 # l = ["data", "train", "traininginputs.csv"]
 # print(*l[1:])

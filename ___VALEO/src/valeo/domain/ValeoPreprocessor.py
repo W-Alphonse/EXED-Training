@@ -1,34 +1,82 @@
 from imblearn.over_sampling import RandomOverSampler, SMOTE, SMOTENC, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE, ADASYN
 from imblearn.over_sampling.base import BaseOverSampler
-from sklearn.experimental import enable_iterative_imputer # explicitly require this experimental feature
-from sklearn.impute import IterativeImputer               # now you can import normally from sklearn.impute
+from sklearn.experimental import enable_iterative_imputer   # explicitly require this experimental feature
+from sklearn.impute import IterativeImputer, SimpleImputer  # now you can import normally from sklearn.impute
 from sklearn.linear_model import BayesianRidge
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import RobustScaler, StandardScaler
 
 from imblearn.pipeline import make_pipeline
-from sklearn.compose import ColumnTransformer
+from sklearn.compose import ColumnTransformer, make_column_transformer
 
 from valeo.infrastructure import Const as C
 from valeo.infrastructure.LogManager import LogManager
 import pandas as pd
 import numpy as np
 
-class ValeoPreprocessor:
-    logger = LogManager.logger(__name__)
+from valeo.infrastructure.tools.DebugPline import DebugPline
 
-    def compute_column_preprocessor(self) -> ColumnTransformer:
+
+class ValeoPreprocessor:
+    logger = None
+
+    def __init__(self):
+        ValeoPreprocessor.logger = LogManager.logger(__name__)
+
+    def build_iterative_preprocessor(self)  -> ColumnTransformer:
+        imp_cols = [C.OP100_Capuchon_insertion_mesure]
+        it_imp = IterativeImputer(estimator=BayesianRidge(),  max_iter=10, initial_strategy = 'median', add_indicator=True, random_state=48)
+        return ColumnTransformer([('iterative_imputer', it_imp, imp_cols)] )
+
+    def build_column_preprocessor(self) -> ColumnTransformer:
+        rand_state = 48
         # 1 - IterativeImputer : models each feature with missing values as a function of other features, and uses that estimate for imputation
-        imputer_pipe = make_pipeline( IterativeImputer(estimator=BayesianRidge(), missing_values=[np.nan, 0],  max_iter=10, initial_strategy = 'median') )
         # imputer_pipe = Pipeline( IterativeImputer(estimator=BayesianRidge(), missing_values=[np.nan, 0],  max_iter=10, initial_strategy = 'median') )
-        imputed_cols = [C.OP100_Capuchon_insertion_mesure,                                    # columns having too much missing values
-                        C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,  # columns equals to 0 for a few rows
-                        C.OP090_SnapRingPeakForce_value, C.OP090_SnapRingFinalStroke_value ]
+
+        # imputer_nan_values = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        imputer_nan_values = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
+        imputed_nan_cols = [C.OP100_Capuchon_insertion_mesure]  # columns having too much missing values
+        #
+        imputer_zeroes_values = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
+        imputed_zeroes_cols = [C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,  # columns equals to 0 for a few rows
+                               C.OP090_SnapRingPeakForce_value, C.OP090_SnapRingFinalStroke_value]
+
+        # 2 - Scale features using statistics that are robust to outliers.
+        scaler_pipe = StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)
+        scaled_cols = [C.OP070_V_1_angle_value, C.OP070_V_1_torque_value,
+                       C.OP070_V_2_angle_value, C.OP070_V_2_torque_value,
+                       C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,
+                       C.OP090_SnapRingPeakForce_value,  C.OP090_SnapRingFinalStroke_value,
+                       C.OP100_Capuchon_insertion_mesure,
+                       C.OP110_Vissage_M8_angle_value, C.OP110_Vissage_M8_torque_value,
+                       C.OP120_Rodage_I_mesure_value,  C.OP120_Rodage_U_mesure_value]
+
+        return  ColumnTransformer([('imputer_preprocessor_nan', imputer_nan_values, imputed_nan_cols),
+                                   ('dbg_1', DebugPline(),imputed_nan_cols),
+                                   ('imputer_preprocessor_zeroes', imputer_zeroes_values, imputed_zeroes_cols),
+                                   ('dbg_2', DebugPline(),imputed_zeroes_cols),
+                                   ('scaler_preprocessor', scaler_pipe, scaled_cols),
+                                   ('dbg_3', DebugPline(),scaled_cols),
+                                   #
+                                   ('imputer_preprocessor_nan_bis', SimpleImputer(strategy='mean'), scaled_cols),
+                                   ('dbg_1_bis', DebugPline(),scaled_cols),
+                                   ] , remainder='passthrough')
+
+
+    '''
+    def build_column_preprocessor(self) -> ColumnTransformer:
+        rand_state = 48
+        # 1 - IterativeImputer : models each feature with missing values as a function of other features, and uses that estimate for imputation
+        imputer_pipe = make_pipeline( IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state) )
+        # imputer_pipe = Pipeline( IterativeImputer(estimator=BayesianRidge(), missing_values=[np.nan, 0],  max_iter=10, initial_strategy = 'median') )
+        imputed_cols = [C.OP100_Capuchon_insertion_mesure]  # columns having too much missing values
+                        # C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,  # columns equals to 0 for a few rows
+                        # C.OP090_SnapRingPeakForce_value, C.OP090_SnapRingFinalStroke_value]
 
         # 2 - Scale features using statistics that are robust to outliers.
         scaler_pipe = make_pipeline(RobustScaler(with_centering=True, with_scaling=False))
         scaled_cols = [C.OP070_V_1_angle_value, C.OP070_V_1_torque_value,
                        C.OP070_V_2_angle_value, C.OP070_V_2_torque_value,
-                       C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_value,
+                       C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,
                        C.OP090_SnapRingPeakForce_value,  C.OP090_SnapRingFinalStroke_value,
                        C.OP100_Capuchon_insertion_mesure,
                        C.OP110_Vissage_M8_angle_value, C.OP110_Vissage_M8_torque_value,
@@ -36,7 +84,7 @@ class ValeoPreprocessor:
 
         return  ColumnTransformer([('imputer_preprocessor', imputer_pipe, imputed_cols),
                                    ('scaler_preprocessor', scaler_pipe, scaled_cols)] )
-
+    '''
 
     '''
     SMOTe is a technique based on nearest neighbors judged by Euclidean Distance between data points in feature space.
@@ -47,9 +95,9 @@ class ValeoPreprocessor:
     https://medium.com/towards-artificial-intelligence/application-of-synthetic-minority-over-sampling-technique-smote-for-imbalanced-data-sets-509ab55cfdaf
     https://imbalanced-learn.readthedocs.io/en/stable/over_sampling.html
     NB: 
-    How to apply SMOTE : Shuffling and Splitting the Dataset into Training and Validation Sets and applying SMOTe on the Training Dataset.
+    How to apply SMOTE : Shuffling and Splitting the Dataset into Training and Validation Sets and THEN applying SMOTe on the Training Dataset.
     '''
-    def compute_sampler_preprocessor(self, sampler_type: str, sampling_strategy='auto',  k_neighbors=5) -> BaseOverSampler : #ColumnTransformer:
+    def build_resampler(self, sampler_type: str, sampling_strategy='auto', k_neighbors=5) -> BaseOverSampler : #ColumnTransformer:
         rand_state = 48
         if sampler_type.lower() == C.random_over_sampling :
             return RandomOverSampler(sampling_strategy=sampling_strategy, random_state=rand_state, k_neighbors=k_neighbors)
