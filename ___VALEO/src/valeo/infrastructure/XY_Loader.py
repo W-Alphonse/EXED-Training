@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import ShuffleSplit
 
 import valeo.infrastructure.XY_metadata as XY_metadata
@@ -21,7 +22,11 @@ class XY_Loader:
 
 
     def load_XY_df(self, mt: XY_metadata, delete_XY_join_cols=True) -> ():
-        X_df = pd.read_csv(mt.X_pathname)
+        # X_df = pd.read_csv(mt.X_pathname, na_values='')  # NaN
+        X_df = pd.read_csv(mt.X_pathname)  # NaN
+        # print(X_df[Const.OP100_Capuchon_insertion_mesure].head(20))
+        # X_df[[Const.OP100_Capuchon_insertion_mesure]] = X_df[[Const.OP100_Capuchon_insertion_mesure]].fillna(0.0)
+        # print(X_df[Const.OP100_Capuchon_insertion_mesure].head(20))
 
         # 1 - Check whether Y is in separate file or in the same as X
         if mt.is_XY_in_separate_file() :
@@ -54,10 +59,3 @@ class XY_Loader:
         X_df, Y_df = self.load_XY_df(mt, delete_XY_join_cols)
         return X_df.values if X_df is not None else None, \
                Y_df.values if Y_df is not None else None
-
-    # def get_train_data(self, mt: XY_metadata, delete_XY_join_cols=True) -> ():
-    #     return self.load_XY_df(mt, delete_XY_join_cols = delete_XY_join_cols)
-    #
-    #
-    # def get_test_data(self, mt: XY_metadata) -> ():
-    #     return self.load_XY_df(mt, delete_XY_join_cols = False)

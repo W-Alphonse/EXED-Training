@@ -1,9 +1,8 @@
 from imblearn.pipeline import make_pipeline, Pipeline
-from sklearn.compose import ColumnTransformer
 from imblearn.ensemble import BalancedBaggingClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, auc, roc_auc_score
 from sklearn.tree import DecisionTreeClassifier
-
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -36,17 +35,20 @@ class ValeoPipeline:
                                         random_state=0)
 
         p = Pipeline([('column_preprocessor', self.preproc.build_column_preprocessor()) ,
-                      ('smote_resampler', self.preproc.build_resampler(sampler_type)),
-                      ('classifier', bbc)
+                      # ('smote_resampler', self.preproc.build_resampler(sampler_type)),
+                      # ('classification', LogisticRegression())
+                      # ('classifier', bbc)
                       ])
-        # p.fit_transform(X_train, y_train)
-        p.fit(X_train, y_train)
+
+        # p.fit_resample(X_train, y_train)
+        p.fit_transform(X_train, y_train)
+        # p.fit(X_train, y_train)
         #
-        y_predict = p.predict(X_test)
-        x = f1_score(y_test, y_predict)
-        y = 0 # auc(y_test, y_predict)
-        z = 0 # roc_auc_score(y_test, y_predict)
-        ValeoPipeline.logger.info(f"F1:{x} - auc:{y} - roc_auc:{z}")
+        # y_predict = p.predict(X_test)
+        # x = f1_score(y_test, y_predict)
+        # y = 0 # auc(y_test, y_predict)
+        # z = 0 # roc_auc_score(y_test, y_predict)
+        # ValeoPipeline.logger.info(f"F1:{x} - auc:{y} - roc_auc:{z}")
 
 
 # ---------------------------------

@@ -4,8 +4,10 @@ import pandas as pd
 
 from sklearn.impute._iterative import IterativeImputer
 from sklearn.linear_model import BayesianRidge
+from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 
+from valeo.domain.DefectPredictor import DefectPredictor
 from valeo.domain.ValeoPipeline import ValeoPipeline as ValeoPipeline
 from valeo.domain.ValeoPreprocessor import ValeoPreprocessor
 from valeo.infrastructure.LogManager import LogManager as lm
@@ -28,10 +30,26 @@ if __name__ == "__main__" :
     mt_train = XY_metadata([C.rootData(), 'train','traininginputs.csv'], [C.rootData(), 'train','trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     xy_loader = XY_Loader();
     X_df, y_df = xy_loader.load_XY_df(mt_train)
+    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.25, random_state=48)
     #
-    vp = ValeoPipeline()
-    vp.execute(X_df, y_df, C.smote_over_sampling)
+    # vp = ValeoPipeline()
+    # vp.execute(X_df, y_df, C.smote_over_sampling)
     #
+    vproc = ValeoPreprocessor()
+    # vproc.build_column_preprocessor().fit_transform(X_train)
+    # from imblearn.pipeline import Pipeline
+    # ppl = Pipeline([('column_preprocessor', vproc.build_column_preprocessor())])
+    # ppl.fit_transform(X_train)
+
+    # X1 = vproc.execute(X_train)
+
+    pred = DefectPredictor()
+    # _pred = pred.build_transformers_pipeline(X_train.dtypes)
+    # X2 = _pred.fit_transform(X_train)
+    # _pred.get_params()
+    # ------------
+    pred.fit(X_train, y_train, X_test, y_test,C.smote_over_sampling)
+
 '''
     vproc = ValeoPreprocessor()
     imp = vproc.build_iterative_preprocessor()

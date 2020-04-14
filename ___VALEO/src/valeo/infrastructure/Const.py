@@ -25,7 +25,7 @@ Binar_OP130_Resultat_Global_v = 'Binar OP130_Resultat_Global_v'
 #
 # Imbalanced resampling type
 
-random_over_sampling = 'random_over_sampling' # The most naive strategy is to generate new samples by randomly sampling with replacement the current available samples.
+random_over_sampler = 'random_over_sampler' # The most naive strategy is to generate new samples by randomly sampling with replacement the current available samples.
 adasyn_over_sampling = 'adasyn_over_sampling' # Adaptive Synthetic: focuses on generating samples next to the original samples which are wrongly classified using a k-Nearest Neighbors classifier
 smote_over_sampling  = 'smote_over_sampling'  # Synth Minority Oversampling Techn: will not make any distinction between easy and hard samples to be classified using the nearest neighbors rule
 smote_nc_over_sampling   = 'smote_nc_over_sampling'
