@@ -6,15 +6,17 @@ from imblearn.ensemble import BalancedBaggingClassifier
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import f1_score, auc, roc_auc_score
+from sklearn.metrics import f1_score, auc, roc_auc_score, confusion_matrix, classification_report, \
+    precision_recall_curve, precision_recall_fscore_support, roc_curve
 from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 # from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import RobustScaler, MinMaxScaler
+from sklearn.preprocessing import RobustScaler, MinMaxScaler, label_binarize
 from sklearn.model_selection import train_test_split
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 from valeo.infrastructure.SimpleImputer import SimpleImputer
 from valeo.infrastructure.StandardScaler import StandardScaler
@@ -70,10 +72,10 @@ class DefectPredictor :
 
         return Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
                         ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),
-                        # ('classification', DecisionTreeClassifier())
-                        # ('classification', LogisticRegression())
-                        # ('classifier', bbc)
-                          ('classifier',SVC())
+                        # ('classification', DecisionTreeClassifier())  # so bad
+                        ('classification', LogisticRegression())  # Best for Recall 1
+                        # ('classifier', bbc) # so bad
+                        #   ('classifier',SVC())
                          # ('classifier', RandomForestClassifier())
                        ])
 
@@ -82,13 +84,48 @@ class DefectPredictor :
             sampler_type:str):
         model = self.build_predictor_pipeline(X_train.dtypes, sampler_type)
         model.fit(X_train, y_train)
-        print("Classification score: %f" % model.score(X_test, y_test))
-        y_predict = model.predict(X_test)
-        x = f1_score(y_test, y_predict)
-        y = 0 # auc(y_df_test, y_predict)
-        z = 0 # roc_auc_score(y_df_test, y_predict)
-        print(f"Classification F1:{x} - auc:{y} - roc_auc:{z}")
-        # ValeoPipeline.logger.info(f"F1:{x} - auc:{y} - roc_auc:{z}")
+        y_pred = model.predict(X_test)
+        #
+        print(f"Model score: {model.score(X_test, y_test)}")
+        print(f"Classification F1:{f1_score(y_test, y_pred)}")
+        print(confusion_matrix(y_test, y_pred))
+        print(classification_report(y_test, y_pred))
+        print(f"->\t\t\t\tprecision_recall_curve:\n{precision_recall_curve(y_test, y_pred)}")
+        print(f"->\t\t\t\tprecision_recall_fscore_support:\n{precision_recall_fscore_support(y_test, y_pred)}")
+        print(f"->\t\t\t\troc_auc_score:\n{roc_auc_score(y_test, y_pred)}")
+        print(f"->\t\t\t\troc_curve:\n{roc_curve(y_test, y_pred)}")
+        # print(auc(y_test, y_pred))
+        self.plot_roc(y_test, y_pred)
+
+    def plot_roc(self, y_test, y_pred):
+        # Compute ROC curve and ROC area for each class
+        fpr = dict()
+        tpr = dict()
+        roc_auc = dict()
+        y_test = label_binarize(y_test.values, classes=[0, 1])  # y_test 'Series'
+        y_pred = label_binarize(y_pred, classes=[0, 1]) # y_pred  'numpy.ndarray'
+        n_classes = y_test.shape[1]
+        for i in range(n_classes):
+            fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
+            roc_auc[i] = auc(fpr[i], tpr[i])
+
+        # Compute micro-average ROC curve and ROC area
+        fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_pred.ravel())
+        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+
+        plt.figure()
+        lw = 2
+        plt.plot(fpr[0], tpr[0], color='darkorange',
+                 lw=lw, label='ROC curve (area = %0.2f)' % roc_auc[0])
+        plt.plot([0, 1], [0, 1],  color='navy',
+                 lw=lw, linestyle='--')
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Receiver operating characteristic example')
+        plt.legend(loc="lower right")
+        plt.show()
 
 
     '''

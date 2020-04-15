@@ -41,8 +41,8 @@ if __name__ == "__main__" :
     # ppl = Pipeline([('column_preprocessor', vproc.build_column_preprocessor())])
     # ppl.fit_transform(X_train)
 
-    # vproc = ValeoPreprocessor()
-    # X1 = vproc.execute(X_train)
+    vproc = ValeoPreprocessor()
+    X1 = vproc.execute(X_train)
 
     # ------------
     # Transformer

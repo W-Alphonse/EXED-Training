@@ -53,13 +53,14 @@ class ValeoPreprocessor:
                        C.OP110_Vissage_M8_angle_value, C.OP110_Vissage_M8_torque_value,
                        C.OP120_Rodage_I_mesure_value,  C.OP120_Rodage_U_mesure_value]
 
-        return  Pipeline([ ('dbg_0', DebugPipeline(), scaled_cols),
+        dbg = DebugPipeline()
+        return  Pipeline([ ('dbg_0', dbg, scaled_cols),
                                    ('imputer_preprocessor_nan', SimpleImputer(strategy='mean', missing_values=np.nan, verbose=True), imputed_nan_cols),
-                                   ('dbg_1', DebugPipeline(), scaled_cols),
+                                   ('dbg_1', dbg, scaled_cols),
                                    ('imputer_preprocessor_zeroes', SimpleImputer(strategy='mean', missing_values=0.0, verbose=True), imputed_zeroes_cols),
-                                   ('dbg_2', DebugPipeline(), scaled_cols),
+                                   ('dbg_2', dbg, scaled_cols),
                                    ('scaler_preprocessor', scaler, scaled_cols),
-                                   ('dbg_3', DebugPipeline(), scaled_cols),
+                                   ('dbg_3', dbg, scaled_cols),
                                    # #
                                    # ('imputer_preprocessor_nan_bis', SimpleImputer(strategy='mean'), scaled_cols),
                                    # ('dbg_1_bis', DebugPline(),scaled_cols)
