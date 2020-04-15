@@ -44,7 +44,7 @@ class ValeoPreprocessor:
                                C.OP090_SnapRingPeakForce_value, C.OP090_SnapRingFinalStroke_value]
 
         # 2 - Scale features using statistics that are robust to outliers.
-        scaler      = MinMaxScaler() # StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)
+        scaler      = StandardScaler() #  MinMaxScaler() # StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)
         scaled_cols = [C.OP070_V_1_angle_value, C.OP070_V_1_torque_value,
                        C.OP070_V_2_angle_value, C.OP070_V_2_torque_value,
                        C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,

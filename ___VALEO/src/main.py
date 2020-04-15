@@ -35,18 +35,25 @@ if __name__ == "__main__" :
     # vp = ValeoPipeline()
     # vp.execute(X_df, y_df, C.smote_over_sampling)
     #
-    vproc = ValeoPreprocessor()
+
     # vproc.build_column_preprocessor().fit_transform(X_train)
     # from imblearn.pipeline import Pipeline
     # ppl = Pipeline([('column_preprocessor', vproc.build_column_preprocessor())])
     # ppl.fit_transform(X_train)
 
+    # vproc = ValeoPreprocessor()
     # X1 = vproc.execute(X_train)
 
+    # ------------
+    # Transformer
+    # ------------
     pred = DefectPredictor()
     # _pred = pred.build_transformers_pipeline(X_train.dtypes)
     # X2 = _pred.fit_transform(X_train)
     # _pred.get_params()
+
+    # ------------
+    # Predictor
     # ------------
     pred.fit(X_train, y_train, X_test, y_test,C.smote_over_sampling)
 

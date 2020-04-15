@@ -4,16 +4,20 @@ from imblearn.pipeline import make_pipeline, Pipeline
 from imblearn.ensemble import BalancedBaggingClassifier
 
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import f1_score, auc, roc_auc_score
+from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.impute import SimpleImputer
-from sklearn.preprocessing import RobustScaler, StandardScaler, MinMaxScaler
+# from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import RobustScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 
 import pandas as pd
 import numpy as np
 
+from valeo.infrastructure.SimpleImputer import SimpleImputer
+from valeo.infrastructure.StandardScaler import StandardScaler
 from valeo.infrastructure.tools.DebugPipeline import DebugPipeline
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
@@ -24,6 +28,7 @@ class DefectPredictor :
     def __init__(self):
         DefectPredictor.logger = LogManager.logger(__name__)
 
+    # https://github.com/scikit-learn-contrib/imbalanced-learn/tree/master/examples
     # https://towardsdatascience.com/introduction-to-bayesian-linear-regression-e66e60791ea7
     # https://towardsdatascience.com/custom-transformers-and-ml-data-pipelines-with-python-20ea2a7adb65
     # https://jorisvandenbossche.github.io/blog/2018/05/28/scikit-learn-columntransformer/
@@ -31,17 +36,17 @@ class DefectPredictor :
         # numerical_features = (X_df.dtypes == 'int64') | (X_df.dtypes == 'float64')
         numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
         #categorical_features = ~numerical_features
-        scaled_cols = [C.OP070_V_1_angle_value, C.OP070_V_1_torque_value,
-                       C.OP070_V_2_angle_value, C.OP070_V_2_torque_value,
-                       C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,
-                       C.OP090_SnapRingPeakForce_value,  C.OP090_SnapRingFinalStroke_value,
-                       C.OP100_Capuchon_insertion_mesure,
-                       C.OP110_Vissage_M8_angle_value, C.OP110_Vissage_M8_torque_value,
-                       C.OP120_Rodage_I_mesure_value,  C.OP120_Rodage_U_mesure_value]
+        # scaled_cols = [C.OP070_V_1_angle_value, C.OP070_V_1_torque_value,
+        #                C.OP070_V_2_angle_value, C.OP070_V_2_torque_value,
+        #                C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,
+        #                C.OP090_SnapRingPeakForce_value,  C.OP090_SnapRingFinalStroke_value,
+        #                C.OP100_Capuchon_insertion_mesure,
+        #                C.OP110_Vissage_M8_angle_value, C.OP110_Vissage_M8_torque_value,
+        #                C.OP120_Rodage_I_mesure_value,  C.OP120_Rodage_U_mesure_value]
         #
         nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
         zeroes_imputer = SimpleImputer(strategy='mean', missing_values=0.0, verbose=False)
-        scaler         = MinMaxScaler() # StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)
+        scaler         = RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
         #
         dbg = DebugPipeline()
         num_transformers_pipeline = Pipeline([('dbg_0', dbg),
@@ -64,10 +69,12 @@ class DefectPredictor :
                                         random_state=0)
 
         return Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
-                        ('imbalancer_resampler', self.build_resampler(sampler_type)),
+                        ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),
                         # ('classification', DecisionTreeClassifier())
                         # ('classification', LogisticRegression())
-                        ('classifier', bbc)
+                        # ('classifier', bbc)
+                          ('classifier',SVC())
+                         # ('classifier', RandomForestClassifier())
                        ])
 
     def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame,
