@@ -1,3 +1,4 @@
+from pandas import Series
 from sklearn.base import BaseEstimator
 
 from valeo.infrastructure.LogManager import LogManager
@@ -15,6 +16,13 @@ class DfUtil() :
             return pd.read_csv(os.path.join(pathAsStrList[0], *pathAsStrList[1:]) )
         except (Exception):
             cls.logger.exception("Error while load data from %s", "/".join(pathAsStrList))
+
+    @classmethod
+    def storeCsvTarget(cls, X_id:Series,  y_target: np.ndarray, y_col_name:str, pathAsStrList : []):
+        try :
+            df = pd.DataFrame(data={X_id.name:X_id, y_col_name:y_target}).to_csv(os.path.join(pathAsStrList[0], *pathAsStrList[1:]), index = False)
+        except (Exception):
+            cls.logger.exception(f"Error while generating writing target values '{X_id.name},{y_col_name}'  to {'/'.join(pathAsStrList)}")
 
     @classmethod
     def dataFrameImputer(cls, dfToImpute:pd.DataFrame, imputer:BaseEstimator):

@@ -24,6 +24,7 @@ class DebugPipeline(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y=None, **fit_params):
         if y is not None :
-            np.savetxt(os.path.join(C.rootProject(), 'log', 'dbgPipeline_' + datetime.now().strftime("%Y_%m_%d-%H.%M.%S_") + str(DebugPipeline.counter)) + '_Y.txt', y, delimiter=',')
+            # np.savetxt(os.path.join(C.rootProject(), 'log', 'dbgPipeline_' + datetime.now().strftime("%Y_%m_%d-%H.%M.%S_") + str(DebugPipeline.counter)) + '_Y.txt', y, delimiter=',')
+            # np.savetxt(os.path.join(C.rootProject(), 'log', 'dbgPipeline_' + datetime.now().strftime("%Y_%m_%d-%H.%M.%S_") + str(DebugPipeline.counter)) + '_X.txt', X, delimiter=',')
             DebugPipeline.counter += 1
         return self

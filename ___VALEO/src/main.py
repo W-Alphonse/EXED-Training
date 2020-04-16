@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from datetime import datetime
 
 from sklearn.impute._iterative import IterativeImputer
 from sklearn.linear_model import BayesianRidge
@@ -13,6 +14,7 @@ from valeo.domain.ValeoPreprocessor import ValeoPreprocessor
 from valeo.infrastructure.LogManager import LogManager as lm
 # NB: Initializing logger here allows "class loaders of application classes" to benefit from the global initialization
 from valeo.infrastructure.XY_Loader import XY_Loader
+from valeo.infrastructure.tools.DfUtil import DfUtil
 
 logger = lm().logger(__name__)
 
@@ -30,7 +32,7 @@ if __name__ == "__main__" :
     mt_train = XY_metadata([C.rootData(), 'train','traininginputs.csv'], [C.rootData(), 'train','trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     xy_loader = XY_Loader();
     X_df, y_df = xy_loader.load_XY_df(mt_train)
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.25, random_state=48)
+    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.25, random_state=48, shuffle=True, stratify=y_df)
     #
     # vp = ValeoPipeline()
     # vp.execute(X_df, y_df, C.smote_over_sampling)
@@ -56,7 +58,12 @@ if __name__ == "__main__" :
     # Predictor
     # ------------
     # pred.fit(X_train, y_train, X_test, y_test,C.smote_over_sampling)
-    pred.fit_cross_validate(X_train, y_train, X_test, y_test,C.smote_over_sampling)
+    # pred.fit_cv_and_plot(X_train, y_train, X_test, y_test,C.smote_over_sampling)
+    fitted_model, cv_results = pred.fit_cv_and_plot(X_train, y_train, C.smote_over_sampling)
+    #
+    X_ens = DfUtil.loadCsvData([C.rootData() , "test", "testinputs.csv"])
+    y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
+    DfUtil.storeCsvTarget(X_ens[C.PROC_TRACEINFO],  y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", f"testoutput{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}.csv"])
 
 '''
     vproc = ValeoPreprocessor()

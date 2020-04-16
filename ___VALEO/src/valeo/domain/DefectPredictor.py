@@ -1,13 +1,15 @@
 from imblearn.over_sampling import RandomOverSampler, SMOTE, SMOTENC, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE, ADASYN
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.pipeline import make_pipeline, Pipeline
-from imblearn.ensemble import BalancedBaggingClassifier
+from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier
 from imblearn.metrics._classification import classification_report_imbalanced
 # https://imbalanced-learn.readthedocs.io/en/stable/api.html#module-imblearn.pipeline
+from sklearn.base import BaseEstimator
 
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble._hist_gradient_boosting.gradient_boosting import HistGradientBoostingClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.impute._iterative import IterativeImputer
 # from sklearn.experimental import enable_iterative_imputer   # explicitly require this experimental feature
@@ -22,7 +24,7 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 # from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, label_binarize, StandardScaler
-from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict, ShuffleSplit
+from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict, ShuffleSplit, StratifiedKFold
 from sklearn.preprocessing import Normalizer
 
 import pandas as pd
@@ -46,113 +48,103 @@ class DefectPredictor :
     # https://towardsdatascience.com/custom-transformers-and-ml-data-pipelines-with-python-20ea2a7adb65
     # https://jorisvandenbossche.github.io/blog/2018/05/28/scikit-learn-columntransformer/
     def build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
-        # numerical_features = (X_df.dtypes == 'int64') | (X_df.dtypes == 'float64')
-        numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
         rand_state = 48
+        numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
         #categorical_features = ~numerical_features
-        # scaled_cols = [C.OP070_V_1_angle_value, C.OP070_V_1_torque_value,
-        #                C.OP070_V_2_angle_value, C.OP070_V_2_torque_value,
-        #                C.OP090_StartLinePeakForce_value, C.OP090_SnapRingMidPointForce_val,
-        #                C.OP090_SnapRingPeakForce_value,  C.OP090_SnapRingFinalStroke_value,
-        #                C.OP100_Capuchon_insertion_mesure,
-        #                C.OP110_Vissage_M8_angle_value, C.OP110_Vissage_M8_torque_value,
-        #                C.OP120_Rodage_I_mesure_value,  C.OP120_Rodage_U_mesure_value]
-        #
-        # nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
-        # zeroes_imputer = SimpleImputer(strategy='mean', missing_values=0.0, verbose=False)
-        nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
+        nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
+        # nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
         zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
-
         scaler         =  Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
         #
         dbg = DebugPipeline()
         num_transformers_pipeline = Pipeline([#('dbg_0', dbg),
-                                              ('nan_imputer', nan_imputer),
-                                              # ('dbg_1', dbg),
-                                              ('zeroes_imputer', zeroes_imputer),
-                                              # ('dbg_2', dbg),
-                                              ('scaler', scaler),
-                                              # ('dbg_3', dbg)
+                                              ('nan_imputer', nan_imputer), # ('dbg_1', dbg),
+                                              ('zeroes_imputer', zeroes_imputer), # ('dbg_2', dbg),
+                                              ('scaler', scaler), # ('dbg_3', dbg)
                                             ])
-        return ColumnTransformer([('transformers_pipeline',num_transformers_pipeline, numerical_features)],
-                                 remainder='passthrough')
+        return ColumnTransformer([('transformers_pipeline',num_transformers_pipeline, numerical_features)], remainder='passthrough')
 
-
+# classifiers = [
+#     KNeighborsClassifier(3),
+#     SVC(kernel="rbf", C=0.025, probability=True),
+#     NuSVC(probability=True),
+#     DecisionTreeClassifier(),
+#     RandomForestClassifier(),
+#     AdaBoostClassifier(),
+#     GradientBoostingClassifier()
+# ]
     def build_predictor_pipeline(self, features_dtypes:pd.Series, sampler_type: str) -> Pipeline:
         #Create an object of the classifier.
-        bbc = BalancedBaggingClassifier(base_estimator=DecisionTreeClassifier(),
-                                        sampling_strategy='auto',
-                                        replacement=False,
-                                        random_state=0)
-
+        learning_rate = 0.35
+        max_iter      = 8
+        max_depth     = 8
+        HGBR = HistGradientBoostingClassifier(max_iter = max_iter , max_depth=max_depth,learning_rate=learning_rate)
+        # bbc = BalancedBaggingClassifier(base_estimator=DecisionTreeClassifier(), sampling_strategy='auto', replacement=False, random_state=48)
+        bbc = BalancedBaggingClassifier(base_estimator=HGBR,  sampling_strategy='auto', replacement=False, random_state=48)
+        # bbc = BalancedBaggingClassifier(base_estimator=HGBR,  sampling_strategy=1.0, replacement=False, random_state=48)
+        rusboost = RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
         dbg = DebugPipeline()
         return Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
-                        ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),
-                         ('dbg_1', dbg),
+                        # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),  ('dbg_1', dbg),
                         # ('classification', DecisionTreeClassifier())  # so bad
                         #  ('classification', GradientBoostingClassifier())
-                        #     ('classification', LogisticRegression())  # Best for Recall 1
+                        # ('classification', LogisticRegression(max_iter=500))  # Best for Recall 1
                         #  ('classification', GaussianNB())  # 0.5881085402220386
                         #  ('classification', ComplementNB())  # 0.523696690978335
                         #  ('classification', MultinomialNB())  # 0.523696690978335
-                         # ('classification', KNeighborsClassifier(3))
-                        # ('classifier', bbc) # so bad
+                        # ('classification', KNeighborsClassifier(3))
+                        ('classifier', bbc) # so bad
                         #   ('classifier',SVC())
-                         ('classifier', RandomForestClassifier())
+                        #  ('classifier',RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
+                        # ('classifier',rusboost)
                        ])
 
-# GOOGLE ON: classifier over sampled imbalanced dataset
-# https://sci2s.ugr.es/imbalanced  : Tres interessant
-# https://www.datacamp.com/community/tutorials/diving-deep-imbalanced-data  : Tres interessant
-#---
-# https://journalofbigdata.springeropen.com/articles/10.1186/s40537-017-0108-1
-# xperimental evaluation
-# The projected technique works on binary-class/multi-class imbalanced Big Data sets in the organization to recommended LVH. Four basic classifiers viz. Random Forest (-P 100-I 100-num-slots 1-K 0-M 1.0-V 0.001-S 1), Naïve Bayes, AdaBoostM1 (-P 100-S 1-I 10-W weka.classifiers.trees.DecisionStump) and MultiLayer Perceptron (-L 0.3-M 0.2-N 500-V 0-S 0-E 20-H a) are applied to over_sampled data sets using dissimilar values of cross-validation and KNN. Lastly the results, based on the F-measure and AUC values are used to compare between benchmarking (SMOTE/Borderline-SMOTE/ADASYN/SPIDER2/SMOTEBoost/MWMOTE) and planned technique (UCPMOT). Tables 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 and 13 describe the results in detail. The analysis of results validates the superiority of UCPMOT for enhancing the classification.
+    # 1 - Fit without any Cross Validation
+    def fit_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, sampler_type:str) -> BaseEstimator:
+        fitted_model = self.fit(X_train, y_train, sampler_type)
+        self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
+        return fitted_model
 
-    def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame,
-            X_test:pd.DataFrame, y_test:pd.DataFrame,
-            sampler_type:str):
+    def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, sampler_type:str) -> BaseEstimator:
         model = self.build_predictor_pipeline(X_train.dtypes, sampler_type)
-        model.fit(X_train, y_train)
-        self.predict_and_plot(model, X_train, y_train, X_test, y_test)
+        return model.fit(X_train, y_train)
 
-    def predict_and_plot(self, model,  X_train:pd.DataFrame, y_train:pd.DataFrame,
-               X_test:pd.DataFrame, y_test:pd.DataFrame):
-        # print(f"Type:{type(model)} - {model}")
-        y_pred = model.predict(X_test)
-        #
-        print(f"- Model score: {model.score(X_test, y_test)}")
-        print(f"- F1 score:{f1_score(y_test, y_pred)}")
-        print(f"- roc_auc_score:{roc_auc_score(y_test, y_pred)}")
-        print(confusion_matrix(y_test, y_pred))
-        print(f"->\t\t\t\tclassification_report_imbalanced:\n{classification_report_imbalanced(y_test, y_pred)}")
-        print(f"->\t\t\t\tclassification_report:\n{classification_report(y_test, y_pred)}")
-        print(f"->\t\t\t\tprecision_recall_curve:\n{precision_recall_curve(y_test, y_pred)}")
-        print(f"->\t\t\t\tprecision_recall_fscore_support:\n{precision_recall_fscore_support(y_test, y_pred)}")
-        print(f"->\t\t\t\troc_auc_score:\n{roc_auc_score(y_test, y_pred)}")
-        print(f"->\t\t\t\troc_curve:\n{roc_curve(y_test, y_pred)}")
-        # print(auc(y_test, y_pred))
-        self.plot_roc(y_test, y_pred)
-        self.plot_precision_recall(model, X_test, y_test, y_pred)
+    # 2 - Fit with Cross Validation
+    def fit_cv_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame, sampler_type:str) -> (BaseEstimator, dict): # (estimator, cv_results)
+        cv_results = self.fit_cv(X_train, y_train, sampler_type)
+        # for fitted_model in cv_results['estimator'] :
+        #     self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
+        return cv_results
 
-    def fit_cross_validate(self, X_train:pd.DataFrame, y_train:pd.DataFrame,
-            X_test:pd.DataFrame, y_test:pd.DataFrame,
-            sampler_type:str):
+    def fit_cv(self, X_train:pd.DataFrame, y_train:pd.DataFrame, sampler_type:str) -> (BaseEstimator, dict): # (estimator, cv_results)
         model = self.build_predictor_pipeline(X_train.dtypes, sampler_type)
-        CV = ShuffleSplit(n_splits=10, test_size=0.25, random_state=48)
-        cv_results = cross_validate(model, X_train, y_train, cv=CV,
-                                    scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted',
-                                             'recall', 'precision', 'average_precision',
-                                             'roc_auc', 'roc_auc_ovr','roc_auc_ovo'),
-                                    return_train_score=True, return_estimator=True)  #True
+        CV = StratifiedKFold(n_splits=5) # , random_state=48, shuffle=True
+        cv_results =  cross_validate(model, X_train, y_train, cv=CV,  scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted',  'recall', 'precision', 'average_precision',  'roc_auc', 'roc_auc_ovr','roc_auc_ovo'),
+                                                                return_train_score=True, return_estimator=True)
         for key in cv_results.keys() :
-            print(f"{key} : {cv_results[key]}")
-
-        for fitted_model in cv_results['estimator'] :
-            self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
-
+            if str(key) !=  "estimator" :
+                print(f"{key} : {cv_results[key]}")
+        return cv_results["estimator"][0], cv_results
         # cross_val_predict(model, X_train, y_train, cv=10)
 
+    def predict_and_plot(self, fitted_model, X_train:pd.DataFrame, y_train:pd.DataFrame,
+                         X_test:pd.DataFrame, y_test:pd.DataFrame):
+        # print(f"Type:{type(model)} - {model}")
+        y_pred = fitted_model.predict(X_test)
+        #
+        # print(f"- Model score: {model.score(X_test, y_test)}")
+        # print(f"- F1 score:{f1_score(y_test, y_pred)}")
+        print(f"- roc_auc_score:{roc_auc_score(y_test, y_pred)}")
+        print(confusion_matrix(y_test, y_pred))
+        # print(f"->\t\t\t\tclassification_report_imbalanced:\n{classification_report_imbalanced(y_test, y_pred)}")
+        # print(f"->\t\t\t\tclassification_report:\n{classification_report(y_test, y_pred)}")
+        # print(f"->\t\t\t\tprecision_recall_curve:\n{precision_recall_curve(y_test, y_pred)}")
+        # print(f"->\t\t\t\tprecision_recall_fscore_support:\n{precision_recall_fscore_support(y_test, y_pred)}")
+        # print(f"->\t\t\t\troc_auc_score:\n{roc_auc_score(y_test, y_pred)}")
+        # print(f"->\t\t\t\troc_curve:\n{roc_curve(y_test, y_pred)}")
+        # ################### print(auc(y_test, y_pred))
+        self.plot_roc(y_test, y_pred)
+        self.plot_precision_recall(fitted_model, X_test, y_test, y_pred)
 
     def plot_roc(self, y_test, y_pred):
         # Compute ROC curve and ROC area for each class
@@ -231,3 +223,25 @@ class DefectPredictor :
 # grid_search = GridSearchCV(param_grid = parameters, estimator = clf,
 #                            verbose = 3)
 # grid_search_2 = grid_search.fit(X_train,y_train)
+
+# GOOGLE ON: classifier over sampled imbalanced dataset
+# https://sci2s.ugr.es/imbalanced  : Tres interessant****
+# https://www.datacamp.com/community/tutorials/diving-deep-imbalanced-data  : Tres interessant****
+#---
+# https://journalofbigdata.springeropen.com/articles/10.1186/s40537-017-0108-1  : Tres interessant****
+# xperimental evaluation
+# The projected technique works on binary-class/multi-class imbalanced Big Data sets in the organization to recommended LVH. Four basic classifiers viz. Random Forest (-P 100-I 100-num-slots 1-K 0-M 1.0-V 0.001-S 1), Naïve Bayes, AdaBoostM1 (-P 100-S 1-I 10-W weka.classifiers.trees.DecisionStump) and MultiLayer Perceptron (-L 0.3-M 0.2-N 500-V 0-S 0-E 20-H a) are applied to over_sampled data sets using dissimilar values of cross-validation and KNN. Lastly the results, based on the F-measure and AUC values are used to compare between benchmarking (SMOTE/Borderline-SMOTE/ADASYN/SPIDER2/SMOTEBoost/MWMOTE) and planned technique (UCPMOT). Tables 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 and 13 describe the results in detail. The analysis of results validates the superiority of UCPMOT for enhancing the classification.
+
+# GOOGLE ON: scikit learn imbalanced dataset resampling type cross validation shuffle
+# https://www.kaggle.com/rafjaa/resampling-strategies-for-imbalanced-datasets
+# https://machinelearningmastery.com/cross-validation-for-imbalanced-classification/
+# CV = ShuffleSplit(n_splits=10, test_size=0.25, random_state=48)
+# https://www.alfredo.motta.name/cross-validation-done-wrong/
+
+# https://www.dataschool.io/simple-guide-to-confusion-matrix-terminology/
+#     https://towardsdatascience.com/train-test-split-and-cross-validation-in-python-80b61beca4b6
+
+# http://www.cs.nthu.edu.tw/~shwu/courses/ml/labs/08_CV_Ensembling/08_CV_Ensembling.html
+# https://github.com/arrayslayer/ML-Project
+
+# https://www.kaggle.com/shiqbal/first-data-exploration/notebook  applied on Porto Seguro's
