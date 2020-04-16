@@ -37,6 +37,9 @@ from valeo.infrastructure.tools.DebugPipeline import DebugPipeline
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
 
+import xgboost as xgb
+
+
 class DefectPredictor :
     logger = None
 
@@ -85,7 +88,7 @@ class DefectPredictor :
         rusboost = RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
         dbg = DebugPipeline()
         return Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
-                        # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),  ('dbg_1', dbg),
+                        ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),  ('dbg_1', dbg),
                         # ('classification', DecisionTreeClassifier())  # so bad
                         #  ('classification', GradientBoostingClassifier())
                         # ('classification', LogisticRegression(max_iter=500))  # Best for Recall 1
@@ -93,7 +96,8 @@ class DefectPredictor :
                         #  ('classification', ComplementNB())  # 0.523696690978335
                         #  ('classification', MultinomialNB())  # 0.523696690978335
                         # ('classification', KNeighborsClassifier(3))
-                        ('classifier', bbc) # so bad
+                        # ('classifier', bbc) # ENS(0.61) / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
+                         ('classifier', xgb.XGBClassifier())
                         #   ('classifier',SVC())
                         #  ('classifier',RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
                         # ('classifier',rusboost)
@@ -126,6 +130,10 @@ class DefectPredictor :
                 print(f"{key} : {cv_results[key]}")
         return cv_results["estimator"][0], cv_results
         # cross_val_predict(model, X_train, y_train, cv=10)
+
+# TODO:
+# https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance.html
+
 
     def predict_and_plot(self, fitted_model, X_train:pd.DataFrame, y_train:pd.DataFrame,
                          X_test:pd.DataFrame, y_test:pd.DataFrame):
