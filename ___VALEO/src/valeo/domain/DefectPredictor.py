@@ -22,7 +22,7 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 # from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, label_binarize, StandardScaler
-from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict
+from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict, ShuffleSplit
 from sklearn.preprocessing import Normalizer
 
 import pandas as pd
@@ -139,7 +139,8 @@ class DefectPredictor :
             X_test:pd.DataFrame, y_test:pd.DataFrame,
             sampler_type:str):
         model = self.build_predictor_pipeline(X_train.dtypes, sampler_type)
-        cv_results = cross_validate(model, X_train, y_train, cv=10,
+        CV = ShuffleSplit(n_splits=10, test_size=0.25, random_state=48)
+        cv_results = cross_validate(model, X_train, y_train, cv=CV,
                                     scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted',
                                              'recall', 'precision', 'average_precision',
                                              'roc_auc', 'roc_auc_ovr','roc_auc_ovo'),
