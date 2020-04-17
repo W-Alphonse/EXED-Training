@@ -59,8 +59,11 @@ if __name__ == "__main__" :
     # ------------
     # pred.fit(X_train, y_train, X_test, y_test,C.smote_over_sampling)
     # pred.fit_cv_and_plot(X_train, y_train, X_test, y_test,C.smote_over_sampling)
-    fitted_model, cv_results = pred.fit_cv_and_plot(X_train, y_train, C.smote_over_sampling)
     #
+    # a. Predict on CV sample
+    # fitted_model, cv_results = pred.fit_cv_and_plot(X_train, y_train, X_test, y_test, C.smote_over_sampling)
+    # b. Predict on ENS Sample
+    fitted_model, cv_results = pred.fit_cv(X_train, y_train, C.smote_over_sampling)
     X_ens = DfUtil.loadCsvData([C.rootData() , "test", "testinputs.csv"])
     y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
     DfUtil.storeCsvTarget(X_ens[C.PROC_TRACEINFO],  y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", f"testoutput{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}.csv"])

@@ -91,13 +91,13 @@ class DefectPredictor :
                         ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),  ('dbg_1', dbg),
                         # ('classification', DecisionTreeClassifier())  # so bad
                         #  ('classification', GradientBoostingClassifier())
-                        # ('classification', LogisticRegression(max_iter=500))  # Best for Recall 1
+                        ('classification', LogisticRegression(max_iter=500))  # Best for Recall 1
                         #  ('classification', GaussianNB())  # 0.5881085402220386
                         #  ('classification', ComplementNB())  # 0.523696690978335
                         #  ('classification', MultinomialNB())  # 0.523696690978335
                         # ('classification', KNeighborsClassifier(3))
-                        # ('classifier', bbc) # ENS(0.61) / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
-                         ('classifier', xgb.XGBClassifier())
+                        #                                 ('classifier', bbc) # ENS(0.61) without explicit overSampling / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
+                        #  ('classifier', xgb.XGBClassifier())
                         #   ('classifier',SVC())
                         #  ('classifier',RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
                         # ('classifier',rusboost)
@@ -114,30 +114,29 @@ class DefectPredictor :
         return model.fit(X_train, y_train)
 
     # 2 - Fit with Cross Validation
-    def fit_cv_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame, sampler_type:str) -> (BaseEstimator, dict): # (estimator, cv_results)
-        cv_results = self.fit_cv(X_train, y_train, sampler_type)
-        # for fitted_model in cv_results['estimator'] :
-        #     self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
-        return cv_results
+    def fit_cv_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame, X_test:pd.DataFrame, y_test:pd.DataFrame, sampler_type:str) -> (BaseEstimator, dict): # (estimator, cv_results)
+        fitted_model, cv_results = self.fit_cv(X_train, y_train, sampler_type)
+        print(f"len(cv_results['estimator']):{len(cv_results['estimator'])}")
+        # self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
+        for fitted_model in cv_results['estimator'] :
+            self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
+        return fitted_model, cv_results
 
     def fit_cv(self, X_train:pd.DataFrame, y_train:pd.DataFrame, sampler_type:str) -> (BaseEstimator, dict): # (estimator, cv_results)
         model = self.build_predictor_pipeline(X_train.dtypes, sampler_type)
         CV = StratifiedKFold(n_splits=5) # , random_state=48, shuffle=True
-        cv_results =  cross_validate(model, X_train, y_train, cv=CV,  scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted',  'recall', 'precision', 'average_precision',  'roc_auc', 'roc_auc_ovr','roc_auc_ovo'),
-                                                                return_train_score=True, return_estimator=True)
+        cv_results =  cross_validate(model, X_train, y_train, cv=CV,  scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted',  'recall', 'precision', 'average_precision',  'roc_auc', 'roc_auc_ovr','roc_auc_ovo'), return_train_score=True, return_estimator=True)
         for key in cv_results.keys() :
             if str(key) !=  "estimator" :
                 print(f"{key} : {cv_results[key]}")
         return cv_results["estimator"][0], cv_results
         # cross_val_predict(model, X_train, y_train, cv=10)
 
-# TODO:
-# https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance.html
 
 
     def predict_and_plot(self, fitted_model, X_train:pd.DataFrame, y_train:pd.DataFrame,
                          X_test:pd.DataFrame, y_test:pd.DataFrame):
-        # print(f"Type:{type(model)} - {model}")
+        # print(f"Type:{type(fitted_model)} - {fitted_model}")
         y_pred = fitted_model.predict(X_test)
         #
         # print(f"- Model score: {model.score(X_test, y_test)}")
@@ -253,3 +252,15 @@ class DefectPredictor :
 # https://github.com/arrayslayer/ML-Project
 
 # https://www.kaggle.com/shiqbal/first-data-exploration/notebook  applied on Porto Seguro's
+
+
+''' TODO :
+
+-> Faire Ressortir l'importance et la contribution de chaque feature:
+   https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance.html
+
+-> Essayer ces scénarios de modélisation:
+   scen1: Oversampling + LogisticR
+   scen2: BaggingClassifier + Histo
+   
+'''
