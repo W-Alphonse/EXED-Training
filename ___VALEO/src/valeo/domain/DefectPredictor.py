@@ -17,7 +17,7 @@ from sklearn.impute._iterative import IterativeImputer
 from sklearn.linear_model import LogisticRegression, BayesianRidge
 from sklearn.metrics import f1_score, auc, roc_auc_score, confusion_matrix, classification_report, \
     precision_recall_curve, precision_recall_fscore_support, roc_curve, plot_precision_recall_curve, \
-    average_precision_score
+    average_precision_score, precision_score, recall_score, accuracy_score, balanced_accuracy_score
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, ComplementNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import LinearSVC, SVC
@@ -53,7 +53,7 @@ class DefectPredictor :
     def build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
         rand_state = 48
         numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
-        #categorical_features = ~numerical_features
+        # categorical_features = ~numerical_features
         nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
         # nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
         zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
@@ -88,15 +88,15 @@ class DefectPredictor :
         rusboost = RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
         dbg = DebugPipeline()
         return Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
-                        ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),  ('dbg_1', dbg),
+                                        # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),  ('dbg_1', dbg),
                         # ('classification', DecisionTreeClassifier())  # so bad
                         #  ('classification', GradientBoostingClassifier())
-                        ('classification', LogisticRegression(max_iter=500))  # Best for Recall 1
+                        #                 ('classification', LogisticRegression(max_iter=500))  # Best for Recall 1
                         #  ('classification', GaussianNB())  # 0.5881085402220386
                         #  ('classification', ComplementNB())  # 0.523696690978335
                         #  ('classification', MultinomialNB())  # 0.523696690978335
                         # ('classification', KNeighborsClassifier(3))
-                        #                                 ('classifier', bbc) # ENS(0.61) without explicit overSampling / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
+                                                        ('classifier', bbc) # ENS(0.61) without explicit overSampling / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
                         #  ('classifier', xgb.XGBClassifier())
                         #   ('classifier',SVC())
                         #  ('classifier',RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
@@ -106,89 +106,143 @@ class DefectPredictor :
     # 1 - Fit without any Cross Validation
     def fit_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, sampler_type:str) -> BaseEstimator:
         fitted_model = self.fit(X_train, y_train, sampler_type)
-        self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
+        self.predict_and_plot(fitted_model, X_test, y_test)
         return fitted_model
 
     def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, sampler_type:str) -> BaseEstimator:
         model = self.build_predictor_pipeline(X_train.dtypes, sampler_type)
         return model.fit(X_train, y_train)
 
-    # 2 - Fit with Cross Validation
-    def fit_cv_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame, X_test:pd.DataFrame, y_test:pd.DataFrame, sampler_type:str) -> (BaseEstimator, dict): # (estimator, cv_results)
-        fitted_model, cv_results = self.fit_cv(X_train, y_train, sampler_type)
-        print(f"len(cv_results['estimator']):{len(cv_results['estimator'])}")
-        # self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
-        for fitted_model in cv_results['estimator'] :
-            self.predict_and_plot(fitted_model, X_train, y_train, X_test, y_test)
-        return fitted_model, cv_results
-
-    def fit_cv(self, X_train:pd.DataFrame, y_train:pd.DataFrame, sampler_type:str) -> (BaseEstimator, dict): # (estimator, cv_results)
-        model = self.build_predictor_pipeline(X_train.dtypes, sampler_type)
+    ''' 2 - Fit with Cross Validation
+        NB :
+        a - roc-auc-avo + roc-auc-ovr : 
+            https://stackoverflow.com/questions/59453363/what-is-the-difference-of-roc-auc-values-in-sklearn
+            roc_auc is the only one suitable for binary classification. The weighted, ovr and ovo are use for multi-class problems
+            
+        b - Micro-Average + Macro-Average (for Precision / Recall / F1) :
+            http://rushdishams.blogspot.com/2011/08/micro-and-macro-average-of-precision.html
+            https://datascience.stackexchange.com/questions/15989/micro-average-vs-macro-average-performance-in-a-multiclass-classification-settin
+            Ex: Micro-P = (TP1 + TP2) / ( TP1 + FP1 + TP2 + F2)
+                Macro-P = (P1 + P2) / 2 
+            Suitability:
+            . Macro-average method can be used when you want to know how the system performs overall across the sets of data
+            . Micro-average method can be a useful measure when your dataset varies in size.
+            
+        c - How can we report 'confusion matrix' while using 'cross_validate' ?
+            https://stackoverflow.com/questions/40057049/using-confusion-matrix-as-scoring-metric-in-cross-validation-in-scikit-learn 
+            c1. Either use 'cross_val_predict' and deduce confusion-matrix: 
+                y_pred = cross_val_predict(clf, x, y, cv=10)
+                conf_mat = confusion_matrix(y_test, y_pred)
+                BUT BEWARE: Passing these predictions into an evaluation metric may not be a valid way to measure generalization performance. 
+                            Results can differ from cross_validate and cross_val_score unless all tests sets have equal size and the metric decomposes over samples.
+            c2. If you want to obtain confusion matrices for multiple evaluation runs (such as cross validation) you have to do this by hand:
+                conf_matrix_list_of_arrays = []
+                kf = cross_validation.KFold(len(y), n_folds=5)
+                for train_index, test_index in kf:
+                   X_train, X_test = X[train_index], X[test_index]   # Panda-Column index 'train_index' are of type 'numpy array'
+                   y_train, y_test = y[train_index], y[test_index]
+                   # 
+                   model.fit(X_train, y_train)
+                   conf_matrix = confusion_matrix(y_test, model.predict(X_test))
+                   conf_matrix_list_of_arrays .append(conf_matrix)
+                   
+                On the end you can calculate your mean of list of numpy arrays (confusion matrices) with:
+                mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays, axis=0)                               
+    '''
+    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, sampler_type:str) -> ([BaseEstimator], dict): # (estimator, cv_results)
+        model = self.build_predictor_pipeline(X.dtypes, sampler_type)
         CV = StratifiedKFold(n_splits=5) # , random_state=48, shuffle=True
-        cv_results =  cross_validate(model, X_train, y_train, cv=CV,  scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted',  'recall', 'precision', 'average_precision',  'roc_auc', 'roc_auc_ovr','roc_auc_ovo'), return_train_score=True, return_estimator=True)
+        cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+        fitted_estimators = []
         for key in cv_results.keys() :
             if str(key) !=  "estimator" :
                 print(f"{key} : {cv_results[key]}")
-        return cv_results["estimator"][0], cv_results
-        # cross_val_predict(model, X_train, y_train, cv=10)
+            fitted_estimators.append(cv_results[key])
+        return fitted_estimators, cv_results
 
-
-
-    def predict_and_plot(self, fitted_model, X_train:pd.DataFrame, y_train:pd.DataFrame,
-                         X_test:pd.DataFrame, y_test:pd.DataFrame):
+    '''
+        - Print metrics
+        - Print report
+        - Plot ROC : TP vs FP
+        - Plot AUC : Precison vs Recall 
+    '''
+    def predict_and_plot(self, fitted_model: BaseEstimator, X_test:pd.DataFrame, y_test:pd.DataFrame):
         # print(f"Type:{type(fitted_model)} - {fitted_model}")
         y_pred = fitted_model.predict(X_test)
         #
-        # print(f"- Model score: {model.score(X_test, y_test)}")
-        # print(f"- F1 score:{f1_score(y_test, y_pred)}")
-        print(f"- roc_auc_score:{roc_auc_score(y_test, y_pred)}")
-        print(confusion_matrix(y_test, y_pred))
-        # print(f"->\t\t\t\tclassification_report_imbalanced:\n{classification_report_imbalanced(y_test, y_pred)}")
-        # print(f"->\t\t\t\tclassification_report:\n{classification_report(y_test, y_pred)}")
-        # print(f"->\t\t\t\tprecision_recall_curve:\n{precision_recall_curve(y_test, y_pred)}")
-        # print(f"->\t\t\t\tprecision_recall_fscore_support:\n{precision_recall_fscore_support(y_test, y_pred)}")
-        # print(f"->\t\t\t\troc_auc_score:\n{roc_auc_score(y_test, y_pred)}")
-        # print(f"->\t\t\t\troc_curve:\n{roc_curve(y_test, y_pred)}")
-        # ################### print(auc(y_test, y_pred))
+        print(f"- Model score: {fitted_model.score(X_test, y_test)}")
+        print(f"- Accuracy score: {accuracy_score(y_test, y_pred)}")
+        print(f"- Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)} / The balanced accuracy to deal with imbalanced datasets. It is defined as the average of recall obtained on each class.")
+        print(f"- Roc_auc_score: {roc_auc_score(y_test, y_pred)}")
+        # print(f"- auc : {auc(y_test, y_pred)}")  # ValueError: x is neither increasing nor decreasing : [0 0 0 ... 0 0 0]
+        print(f"- Average_precision_score: {average_precision_score(y_test, y_pred)}")
+        print(f"- Precision_score: {precision_score(y_test, y_pred)}")
+        print(f"- Recall score: {recall_score(y_test, y_pred)}")
+        print(f"- F1 score: {f1_score(y_test, y_pred)}")
+        print(f"- {confusion_matrix(y_test, y_pred)}")
+        print(f"- classification_report_imbalanced:\n{classification_report_imbalanced(y_test, y_pred)}")
+        print(f"- classification_report:\n{classification_report(y_test, y_pred)}")
+        print(f"- precision_recall_curve: {precision_recall_curve(y_test, y_pred)}")
+        print(f"- precision_recall_fscore_support: {precision_recall_fscore_support(y_test, y_pred)}")
+        print(f"- roc_curve: {roc_curve(y_test, y_pred)}")
+
         self.plot_roc(y_test, y_pred)
-        self.plot_precision_recall(fitted_model, X_test, y_test, y_pred)
+        self.plot_precision_recall(y_test, y_pred)
 
     def plot_roc(self, y_test, y_pred):
         # Compute ROC curve and ROC area for each class
-        fpr = dict()
-        tpr = dict()
-        roc_auc = dict()
-        y_test = label_binarize(y_test.values, classes=[0, 1])  # y_test 'Series'
-        y_pred = label_binarize(y_pred, classes=[0, 1])         # y_pred  'numpy.ndarray'
-        n_classes = y_test.shape[1]
-        for i in range(n_classes):
-            fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
-            roc_auc[i] = auc(fpr[i], tpr[i])
-
-        # Compute micro-average ROC curve and ROC area
-        fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_pred.ravel())
-        roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+        # fpr = dict()
+        # tpr = dict()
+        # roc_auc = dict()
+        # y_test = label_binarize(y_test.values, classes=[0, 1])  # y_test 'Series'
+        # y_pred = label_binarize(y_pred, classes=[0, 1])         # y_pred  'numpy.ndarray'
+        # n_classes = y_test.shape[1]
+        # for i in range(n_classes):
+        #     fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
+        #     roc_auc[i] = auc(fpr[i], tpr[i])
+        #
+        # # Compute micro-average ROC curve and ROC area
+        # fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_pred.ravel())
+        # roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
 
         plt.figure()
         lw = 2
-        plt.plot(fpr[0], tpr[0], color='darkorange',
-                 lw=lw, label='ROC curve (area = %0.2f)' % roc_auc[0])
-        plt.plot([0, 1], [0, 1],  color='navy',
-                 lw=lw, linestyle='--')
+        # plt.plot(fpr[0], tpr[0], color='darkorange', lw=lw, label='ROC curve (area = %0.4f)' % roc_auc[0])
+
+        roc = roc_curve(y_test, y_pred)
+        plt.plot(roc[0], roc[1], color='darkorange', lw=lw, label='ROC curve (area = %0.4f)' % roc_auc_score(y_test, y_pred))
+        plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
         plt.xlim([0.0, 1.0])
         plt.ylim([0.0, 1.05])
         plt.xlabel('False Positive Rate')
         plt.ylabel('True Positive Rate')
-        plt.title('Receiver operating characteristic example')
+        plt.title('Receiver operating characteristic')
         plt.legend(loc="lower right")
         plt.show()
 
-    def plot_precision_recall(self, model, X_test, y_test, y_pred):
+    def plot_precision_recall(self, y_test, y_pred):
         average_precision = average_precision_score(y_test, y_pred)
-        print('->\t\t\t\tAverage precision-recall score: {0:0.2f}'.format(average_precision))
-        disp = plot_precision_recall_curve(model, X_test, y_test)
-        disp.ax_.set_title('2-class Precision-Recall curve: AP={0:0.2f}'.format(average_precision))
+        # disp = plot_precision_recall_curve(model, X_test, y_test)
+        # disp.ax_.set_title('2-class Precision-Recall curve: AP={0:0.4f}'.format(average_precision))
+        # plt.show()
+        # plt.figure()
+        # lw = 2
+        # plt.plot(fpr[0], tpr[0], color='darkorange', lw=lw, label='ROC curve (area = %0.4f)' % roc_auc[0])
+        #
+        plt.figure()
+        lw = 2
+        pr = precision_recall_curve(y_test, y_pred)
+        plt.plot(pr[0], pr[1], color='darkorange', lw=lw, label='Precision Recall curve (area = %0.4f)' % average_precision)
+        plt.xlim([0.0, 1.05])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('Recall')
+        plt.ylabel('Precision')
+        plt.title('Precision Recall curve')
+        plt.legend(loc="upper right")
         plt.show()
+        #
+        # for i in range(0, len(pr[0]) ) :
+        #     print(f"{i}: ({pr[0][i]},{pr[1][i]})")
 
 
     '''

@@ -32,7 +32,7 @@ if __name__ == "__main__" :
     mt_train = XY_metadata([C.rootData(), 'train','traininginputs.csv'], [C.rootData(), 'train','trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     xy_loader = XY_Loader();
     X_df, y_df = xy_loader.load_XY_df(mt_train)
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.25, random_state=48, shuffle=True, stratify=y_df)
+    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.25, random_state=48, stratify=y_df)  # shuffle=True,
     #
     # vp = ValeoPipeline()
     # vp.execute(X_df, y_df, C.smote_over_sampling)
@@ -57,16 +57,15 @@ if __name__ == "__main__" :
     # ------------
     # Predictor
     # ------------
-    # pred.fit(X_train, y_train, X_test, y_test,C.smote_over_sampling)
-    # pred.fit_cv_and_plot(X_train, y_train, X_test, y_test,C.smote_over_sampling)
+    # a. Fit and predict on X_train, X_test
+    # pred.fit(X_train, y_train, C.smote_over_sampling)
+    pred.fit_and_plot(X_train, y_train, X_test, y_test,C.smote_over_sampling)
     #
-    # a. Predict on CV sample
-    # fitted_model, cv_results = pred.fit_cv_and_plot(X_train, y_train, X_test, y_test, C.smote_over_sampling)
-    # b. Predict on ENS Sample
-    fitted_model, cv_results = pred.fit_cv(X_train, y_train, C.smote_over_sampling)
-    X_ens = DfUtil.loadCsvData([C.rootData() , "test", "testinputs.csv"])
-    y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
-    DfUtil.storeCsvTarget(X_ens[C.PROC_TRACEINFO],  y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", f"testoutput{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}.csv"])
+    # b. Fit X and usinf CV
+    # fitted_model, cv_results = pred.fit_cv(X_df, y_df, C.smote_over_sampling)
+    # X_ens = DfUtil.loadCsvData([C.rootData() , "test", "testinputs.csv"])
+    # y_ens = fitted_model[0].predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
+    # DfUtil.storeCsvTarget(X_ens[C.PROC_TRACEINFO],  y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", f"testoutput{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}.csv"])
 
 '''
     vproc = ValeoPreprocessor()
