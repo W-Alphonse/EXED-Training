@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 from valeo.infrastructure import Const as C
 from sklearn.metrics import roc_auc_score, precision_recall_curve, roc_curve, average_precision_score
 
+from valeo.infrastructure.tools.ImgUtil import ImgUtil
+
+
 class MetricPlotter :
     logger = None
 
@@ -24,6 +27,7 @@ class MetricPlotter :
         plt.ylabel('True Positive Rate')
         plt.title('Receiver operating characteristic')
         plt.legend(loc="lower right")
+        ImgUtil.save_fig("ROC_curve")
         plt.show()
 
     def plot_precision_recall(self, y_test, y_pred):
@@ -38,6 +42,7 @@ class MetricPlotter :
         plt.ylabel('Precision')
         plt.title('Precision Recall curve')
         plt.legend(loc="upper right")
+        ImgUtil.save_fig("PR_curve")
         plt.show()
         #
         # for i in range(0, len(pr[0]) ) :

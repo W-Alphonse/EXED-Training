@@ -29,7 +29,6 @@ if __name__ == "__main__" :
     # if data is not None:
     #     data.info()
 
-    # mt_train = XY_metadata([C.rootData(), 'train','traininginputs.csv'], [C.rootData(), 'train','trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     mt_train = XY_metadata([C.rootDataTrain(), 'traininginputs.csv'], [C.rootDataTrain(), 'trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     xy_loader = XY_Loader();
     X_df, y_df = xy_loader.load_XY_df(mt_train)
@@ -66,11 +65,9 @@ if __name__ == "__main__" :
     # fitted_model, cv_results = pred.fit_cv(X_df, y_df, C.smote_over_sampling)
     #
     # c. Test suning ENS data
-    X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
-    y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
-    # DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", f"testoutput{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}.csv"])
-    # DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", "testoutput.csv"])
-    DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
+    # X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
+    # y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
+    # DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
 
 '''
     vproc = ValeoPreprocessor()

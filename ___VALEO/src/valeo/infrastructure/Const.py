@@ -35,6 +35,11 @@ smote_bline_over_sampling   = 'smote_bline_over_sampling'
 
 
 import os
+from datetime import datetime
+# timestamp : none / suffix / prefix
+ts_none = 0
+ts_sfix = 1
+ts_pfix = 2
 
 def rootProject() -> str :
     return  os.path.join(os.path.abspath(os.path.dirname(__file__)), '..', '..', '..')  # this_folder = D:/Training.git/trunk/___VALEO/src/valeo/infrastructure
@@ -54,5 +59,14 @@ def rootDataTest() -> str :
 def rootImages() -> str :
     return  os.path.join(rootProject(),  'images' )
 
+def rootReports() -> str :
+    return  os.path.join(rootProject(),  'reports' )
+
 def rootResources() -> str :
     return  os.path.join(rootProject(), 'src', 'valeo', 'resources')
+
+def ts_pathanme(pathAsStrList : [], ts_type=ts_sfix) -> str:
+    fname_with_ext = os.path.splitext(pathAsStrList[-1])
+    return os.path.join(pathAsStrList[0], '' if len(pathAsStrList) == 2 else str(*pathAsStrList[1:-1] ),
+              f"{fname_with_ext[0]}{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}{fname_with_ext[1]}" if ts_type == ts_sfix else \
+             (f"{datetime.now().strftime('%Y_%m_%d-%H.%M.%S_')}{pathAsStrList[-1]}" if ts_type == ts_pfix  else pathAsStrList[-1]) )
