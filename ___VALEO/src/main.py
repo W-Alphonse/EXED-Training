@@ -8,7 +8,7 @@ from sklearn.linear_model import BayesianRidge
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 
-from valeo.domain.DefectPredictor import DefectPredictor
+from valeo.domain.ValeoPredictor import ValeoPredictor
 from valeo.domain.ValeoPipeline import ValeoPipeline as ValeoPipeline
 from valeo.domain.ValeoPreprocessor import ValeoPreprocessor
 from valeo.infrastructure.LogManager import LogManager as lm
@@ -49,7 +49,7 @@ if __name__ == "__main__" :
     # ------------
     # Transformer
     # ------------
-    pred = DefectPredictor()
+    pred = ValeoPredictor()
 
     # ------------
     # Predictor
