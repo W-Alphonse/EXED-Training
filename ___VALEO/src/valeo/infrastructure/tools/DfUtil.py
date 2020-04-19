@@ -23,20 +23,14 @@ class DfUtil() :
 
     @classmethod
     def write_y_csv(cls, X_id:Series, y_target: np.ndarray, y_col_name:str, pathAsStrList : [], ts_type=C.ts_sfix):
-        try :
-            pd.DataFrame(data={X_id.name:X_id, y_col_name:y_target}).to_csv( C.ts_pathanme(pathAsStrList,ts_type), index = False)
-        except Exception as ex:
-            DfUtil.logger.exception(f"Error while generating writing target values '{X_id.name},{y_col_name}'  to {'/'.join(pathAsStrList)}")
+        DfUtil.write_df_csv( pd.DataFrame(data={X_id.name:X_id, y_col_name:y_target}),  pathAsStrList, ts_type=ts_type)
 
-    # @classmethod
-    # def write_df_csv(cls, df:pd.DataFrame, pathAsStrList : [], ts_type=C.ts_sfix):
-    #     try :
-    #         fname_with_ext = os.path.splitext(pathAsStrList[-1])
-    #         df.to_csv(os.path.join(pathAsStrList[0], '' if len(pathAsStrList) == 2 else str(*pathAsStrList[1:-1] ),
-    #                                 f"{fname_with_ext[0]}{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}{fname_with_ext[1]}" if ts_type == DfUtil.ts_sfix else \
-    #                                     (f"{datetime.now().strftime('%Y_%m_%d-%H.%M.%S_')}{pathAsStrList[-1]}" if ts_type == DfUtil.ts_pfix  else pathAsStrList[-1])) , index = False)
-    #     except Exception as ex:
-    #         cls.logger.exception(f"Error while writing 'df' to CSV '{pathAsStrList}'")
+    @classmethod
+    def write_df_csv(cls, df:pd.DataFrame, pathAsStrList : [], ts_type=C.ts_sfix):
+        try :
+            df.to_csv( C.ts_pathanme(pathAsStrList,ts_type), index = False)
+        except Exception as ex:
+            DfUtil.logger.exception(f"Error while writing 'df' to CSV '{pathAsStrList}'")
 
     @classmethod
     def df_imputer(cls, dfToImpute:pd.DataFrame, imputer:BaseEstimator):
