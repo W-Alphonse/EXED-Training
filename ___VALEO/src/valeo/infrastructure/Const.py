@@ -45,6 +45,12 @@ def rootSrc() -> str :
 def rootData() -> str :
     return  os.path.join(rootProject(),  'data' )
 
+def rootDataTrain() -> str :
+    return  os.path.join(rootData(),  'train' )
+
+def rootDataTest() -> str :
+    return  os.path.join(rootData(),  'test' )
+
 def rootImages() -> str :
     return  os.path.join(rootProject(),  'images' )
 

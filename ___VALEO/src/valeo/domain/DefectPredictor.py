@@ -1,7 +1,9 @@
+import os
+
 from imblearn.over_sampling import RandomOverSampler, SMOTE, SMOTENC, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE, ADASYN
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.pipeline import make_pipeline, Pipeline
-from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier
+from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier, BalancedRandomForestClassifier
 from imblearn.metrics._classification import classification_report_imbalanced
 # https://imbalanced-learn.readthedocs.io/en/stable/api.html#module-imblearn.pipeline
 from sklearn.base import BaseEstimator
@@ -24,7 +26,8 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.tree import DecisionTreeClassifier
 # from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, label_binarize, StandardScaler
-from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict, ShuffleSplit, StratifiedKFold
+from sklearn.model_selection import train_test_split, cross_validate, cross_val_predict, ShuffleSplit, StratifiedKFold, \
+    GridSearchCV
 from sklearn.preprocessing import Normalizer
 
 import pandas as pd
@@ -33,6 +36,7 @@ import matplotlib.pyplot as plt
 
 # from valeo.infrastructure.SimpleImputer import SimpleImputer
 # from valeo.infrastructure.StandardScaler import StandardScaler
+from valeo.domain.MetricPlotter import MetricPlotter
 from valeo.infrastructure.tools.DebugPipeline import DebugPipeline
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
@@ -45,6 +49,7 @@ class DefectPredictor :
 
     def __init__(self):
         DefectPredictor.logger = LogManager.logger(__name__)
+        self.metricPlt = MetricPlotter()
 
     # https://github.com/scikit-learn-contrib/imbalanced-learn/tree/master/examples
     # https://towardsdatascience.com/introduction-to-bayesian-linear-regression-e66e60791ea7
@@ -77,18 +82,16 @@ class DefectPredictor :
 #     GradientBoostingClassifier()
 # ]
     def build_predictor_pipeline(self, features_dtypes:pd.Series, sampler_type: str) -> Pipeline:
-        #Create an object of the classifier.
-        learning_rate = 0.35
-        max_iter      = 8
-        max_depth     = 8
-        HGBR = HistGradientBoostingClassifier(max_iter = max_iter , max_depth=max_depth,learning_rate=learning_rate)
+        # HGBR = HistGradientBoostingClassifier(max_iter = 8 , max_depth=8,learning_rate=0.35, l2_regularization=500)
+        HGBR = HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5)
         # bbc = BalancedBaggingClassifier(base_estimator=DecisionTreeClassifier(), sampling_strategy='auto', replacement=False, random_state=48)
-        bbc = BalancedBaggingClassifier(base_estimator=HGBR,  sampling_strategy='auto', replacement=False, random_state=48)
+        bbc = BalancedBaggingClassifier(base_estimator=HGBR,  n_estimators=50, sampling_strategy='auto', replacement=False, random_state=48)
         # bbc = BalancedBaggingClassifier(base_estimator=HGBR,  sampling_strategy=1.0, replacement=False, random_state=48)
         rusboost = RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
+        BRFC = BalancedRandomForestClassifier(n_estimators = 50 , max_depth=20)
         dbg = DebugPipeline()
-        return Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
-                                        # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='minority')),  ('dbg_1', dbg),
+        pl= Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
+                                        # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='not majority')),  ('dbg_1', dbg),
                         # ('classification', DecisionTreeClassifier())  # so bad
                         #  ('classification', GradientBoostingClassifier())
                         #                 ('classification', LogisticRegression(max_iter=500))  # Best for Recall 1
@@ -97,15 +100,50 @@ class DefectPredictor :
                         #  ('classification', MultinomialNB())  # 0.523696690978335
                         # ('classification', KNeighborsClassifier(3))
                                                         ('classifier', bbc) # ENS(0.61) without explicit overSampling / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
-                        #  ('classifier', xgb.XGBClassifier())
+                      # ('classifier', BRFC)
+                      #  ('classifier', xgb.XGBClassifier())
                         #   ('classifier',SVC())
                         #  ('classifier',RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
                         # ('classifier',rusboost)
                        ])
+        for i, s in enumerate(pl.steps) :
+            # Ex: 0 -> ('preprocessor', ColumnTransformer( ... +  1 -> ('classifier', BalancedBaggingClassifier(base_.....
+            print(f"{i} -> {s[0]} / {str(s[1])[:70]}")
+        return pl
+
+    def fit_grid_search_cv(self, X:pd.DataFrame, y:pd.DataFrame, sampler_type:str, n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
+        model = self.build_predictor_pipeline(X.dtypes, sampler_type)
+        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
+        param_grid = {
+            'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
+            'classifier__n_estimators': [3, 5, 10, 20, 50],
+            'classifier__base_estimator__max_iter' : [100],
+            'classifier__base_estimator__max_depth' : [10,50,10]
+        }
+        grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV)
+        grid.fit(X, y)
+        df_results = pd.DataFrame(grid.cv_results_)
+        # columns_to_keep = [
+        #     'param_clf__max_depth',
+        #     'param_clf__n_estimators',
+        #     'mean_test_score',
+        #     'std_test_score',
+        # ]
+        # df_results = df_results[columns_to_keep]
+        print(df_results.sort_values(by='mean_test_score', ascending=False))
+        # df_results.sort_values(by='mean_test_score', ascending=False)
+        df_results.sort_values(by='mean_test_score', ascending=False).to_csv(os.path.join(C.rootProject(), 'log','grid_search_csv'), index = False)
+
+
+    def print_model_params_keys(self, model:BaseEstimator):
+        for param in model.get_params().keys():
+            print(param)
 
     # 1 - Fit without any Cross Validation
     def fit_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, sampler_type:str) -> BaseEstimator:
         fitted_model = self.fit(X_train, y_train, sampler_type)
+        # print(f"Type:{type(fitted_model)} - {fitted_model.get_params()}")
+        # self.print_model_params_keys(fitted_model)
         self.predict_and_plot(fitted_model, X_test, y_test)
         return fitted_model
 
@@ -149,9 +187,9 @@ class DefectPredictor :
                 On the end you can calculate your mean of list of numpy arrays (confusion matrices) with:
                 mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays, axis=0)                               
     '''
-    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, sampler_type:str) -> ([BaseEstimator], dict): # (estimator, cv_results)
+    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, sampler_type:str, n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.build_predictor_pipeline(X.dtypes, sampler_type)
-        CV = StratifiedKFold(n_splits=5) # , random_state=48, shuffle=True
+        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
         cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
         fitted_estimators = []
         for key in cv_results.keys() :
@@ -167,7 +205,6 @@ class DefectPredictor :
         - Plot AUC : Precison vs Recall 
     '''
     def predict_and_plot(self, fitted_model: BaseEstimator, X_test:pd.DataFrame, y_test:pd.DataFrame):
-        # print(f"Type:{type(fitted_model)} - {fitted_model}")
         y_pred = fitted_model.predict(X_test)
         #
         print(f"- Model score: {fitted_model.score(X_test, y_test)}")
@@ -185,61 +222,41 @@ class DefectPredictor :
         print(f"- precision_recall_curve: {precision_recall_curve(y_test, y_pred)}")
         print(f"- precision_recall_fscore_support: {precision_recall_fscore_support(y_test, y_pred)}")
         print(f"- roc_curve: {roc_curve(y_test, y_pred)}")
-
-        self.plot_roc(y_test, y_pred)
-        self.plot_precision_recall(y_test, y_pred)
-
-    def plot_roc(self, y_test, y_pred):
-        # Compute ROC curve and ROC area for each class
-        # fpr = dict()
-        # tpr = dict()
-        # roc_auc = dict()
-        # y_test = label_binarize(y_test.values, classes=[0, 1])  # y_test 'Series'
-        # y_pred = label_binarize(y_pred, classes=[0, 1])         # y_pred  'numpy.ndarray'
-        # n_classes = y_test.shape[1]
-        # for i in range(n_classes):
-        #     fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_pred[:, i])
-        #     roc_auc[i] = auc(fpr[i], tpr[i])
         #
-        # # Compute micro-average ROC curve and ROC area
-        # fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_pred.ravel())
-        # roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
+        self.metricPlt.plot_roc(y_test, y_pred)
+        self.metricPlt.plot_precision_recall(y_test, y_pred)
+        # self.plot_roc(y_test, y_pred)
+        # self.plot_precision_recall(y_test, y_pred)
 
-        plt.figure()
-        lw = 2
-        # plt.plot(fpr[0], tpr[0], color='darkorange', lw=lw, label='ROC curve (area = %0.4f)' % roc_auc[0])
-
-        roc = roc_curve(y_test, y_pred)
-        plt.plot(roc[0], roc[1], color='darkorange', lw=lw, label='ROC curve (area = %0.4f)' % roc_auc_score(y_test, y_pred))
-        plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
-        plt.xlim([0.0, 1.0])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver operating characteristic')
-        plt.legend(loc="lower right")
-        plt.show()
-
-    def plot_precision_recall(self, y_test, y_pred):
-        average_precision = average_precision_score(y_test, y_pred)
-        # disp = plot_precision_recall_curve(model, X_test, y_test)
-        # disp.ax_.set_title('2-class Precision-Recall curve: AP={0:0.4f}'.format(average_precision))
-        # plt.show()
-        # plt.figure()
-        # lw = 2
-        # plt.plot(fpr[0], tpr[0], color='darkorange', lw=lw, label='ROC curve (area = %0.4f)' % roc_auc[0])
-        #
-        plt.figure()
-        lw = 2
-        pr = precision_recall_curve(y_test, y_pred)
-        plt.plot(pr[0], pr[1], color='darkorange', lw=lw, label='Precision Recall curve (area = %0.4f)' % average_precision)
-        plt.xlim([0.0, 1.05])
-        plt.ylim([0.0, 1.05])
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title('Precision Recall curve')
-        plt.legend(loc="upper right")
-        plt.show()
+    # def plot_roc(self, y_test, y_pred):
+    #     # y_test = label_binarize(y_test.values, classes=[0, 1])  # y_test 'Series'
+    #     # y_pred = label_binarize(y_pred, classes=[0, 1])         # y_pred  'numpy.ndarray'
+    #     plt.figure()
+    #     lw = 2
+    #     roc = roc_curve(y_test, y_pred)
+    #     plt.plot(roc[0], roc[1], color='darkorange', lw=lw, label='ROC curve (area = %0.4f)' % roc_auc_score(y_test, y_pred))
+    #     plt.plot([0, 1], [0, 1], color='navy', lw=lw, linestyle='--')
+    #     plt.xlim([0.0, 1.0])
+    #     plt.ylim([0.0, 1.05])
+    #     plt.xlabel('False Positive Rate')
+    #     plt.ylabel('True Positive Rate')
+    #     plt.title('Receiver operating characteristic')
+    #     plt.legend(loc="lower right")
+    #     plt.show()
+    #
+    # def plot_precision_recall(self, y_test, y_pred):
+    #     average_precision = average_precision_score(y_test, y_pred)
+    #     plt.figure()
+    #     lw = 2
+    #     pr = precision_recall_curve(y_test, y_pred)
+    #     plt.plot(pr[0], pr[1], color='darkorange', lw=lw, label='Precision Recall curve (area = %0.4f)' % average_precision)
+    #     plt.xlim([0.0, 1.05])
+    #     plt.ylim([0.0, 1.05])
+    #     plt.xlabel('Recall')
+    #     plt.ylabel('Precision')
+    #     plt.title('Precision Recall curve')
+    #     plt.legend(loc="upper right")
+    #     plt.show()
         #
         # for i in range(0, len(pr[0]) ) :
         #     print(f"{i}: ({pr[0][i]},{pr[1][i]})")

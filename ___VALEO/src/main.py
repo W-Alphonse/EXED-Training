@@ -29,7 +29,8 @@ if __name__ == "__main__" :
     # if data is not None:
     #     data.info()
 
-    mt_train = XY_metadata([C.rootData(), 'train','traininginputs.csv'], [C.rootData(), 'train','trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
+    # mt_train = XY_metadata([C.rootData(), 'train','traininginputs.csv'], [C.rootData(), 'train','trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
+    mt_train = XY_metadata([C.rootDataTrain(), 'traininginputs.csv'], [C.rootDataTrain(), 'trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     xy_loader = XY_Loader();
     X_df, y_df = xy_loader.load_XY_df(mt_train)
     X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.25, random_state=48, stratify=y_df)  # shuffle=True,
@@ -50,22 +51,26 @@ if __name__ == "__main__" :
     # Transformer
     # ------------
     pred = DefectPredictor()
-    # _pred = pred.build_transformers_pipeline(X_train.dtypes)
-    # X2 = _pred.fit_transform(X_train)
-    # _pred.get_params()
 
     # ------------
     # Predictor
     # ------------
     # a. Fit and predict on X_train, X_test
     # pred.fit(X_train, y_train, C.smote_over_sampling)
-    pred.fit_and_plot(X_train, y_train, X_test, y_test,C.smote_over_sampling)
+    fitted_model = pred.fit_and_plot(X_train, y_train, X_test, y_test,C.smote_over_sampling)
+    # a.2 - GridSearchCV
+    # pred.fit_grid_search_cv(X_df, y_df, C.smote_over_sampling)
+
     #
-    # b. Fit X and usinf CV
+    # b. Fit X and using CV
     # fitted_model, cv_results = pred.fit_cv(X_df, y_df, C.smote_over_sampling)
-    # X_ens = DfUtil.loadCsvData([C.rootData() , "test", "testinputs.csv"])
-    # y_ens = fitted_model[0].predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
-    # DfUtil.storeCsvTarget(X_ens[C.PROC_TRACEINFO],  y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", f"testoutput{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}.csv"])
+    #
+    # c. Test suning ENS data
+    X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
+    y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
+    # DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", f"testoutput{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}.csv"])
+    # DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootData() , "test", "testoutput.csv"])
+    DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
 
 '''
     vproc = ValeoPreprocessor()
