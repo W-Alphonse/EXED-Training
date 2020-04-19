@@ -14,6 +14,7 @@ from sklearn.linear_model import LogisticRegression, BayesianRidge
 from sklearn.preprocessing import Normalizer
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, label_binarize, StandardScaler
 from sklearn.svm import SVC
+import xgboost as xgb
 
 import pandas as pd
 import numpy as np
@@ -77,8 +78,17 @@ class ValeoModeler :
             cls.HGBC : HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5),
             cls.BBC  : BalancedBaggingClassifier(base_estimator=HistGradientBoostingClassifier(),  n_estimators=50, sampling_strategy='auto', replacement=False, random_state=48),
             #
-            cls.BRFC : BalancedRandomForestClassifier(n_estimators = 50 , max_depth=20),
-            cls.RUSBoost : RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
+            # scale_pos_weight
+            cls.BRFC : BalancedRandomForestClassifier(n_estimators = 100 , max_depth=20),
+            cls.RUSBoost : RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42),
+            cls.XGBC :  xgb.
+                XGBClassifier(base_score=0.5, booster='gbtree', colsample_bylevel=1,
+                              colsample_bynode=1, colsample_bytree=1, gamma=0,
+                              learning_rate=0.1, max_delta_step=0, max_depth=3,
+                              min_child_weight=1, missing=None, n_estimators=100, n_jobs=1,
+                              nthread=None, objective='binary:logistic', random_state=0,
+                              reg_alpha=0, reg_lambda=1, scale_pos_weight=24, seed=42,
+                              silent=None, subsample=1, verbosity=1)
         }
         dbg = DebugPipeline()
         pl= Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,

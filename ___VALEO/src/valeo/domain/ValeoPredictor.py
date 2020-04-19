@@ -12,7 +12,7 @@ import pandas as pd
 
 from valeo.domain.MetricPlotter import MetricPlotter
 from valeo.domain.ValeoModeler import ValeoModeler
-from valeo.infrastructure.tools import DfUtil
+from valeo.infrastructure.tools.DfUtil import DfUtil
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
 
@@ -40,8 +40,8 @@ class ValeoPredictor :
         grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV) # if is_grid else
         grid.fit(X, y)
         df_results = pd.DataFrame(grid.cv_results_)
-        # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
-        # df_results = df_results[columns_to_keep]
+                    # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
+                    # df_results = df_results[columns_to_keep]
         DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_csv']) )
 
     def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
