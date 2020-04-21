@@ -28,21 +28,23 @@ if __name__ == "__main__" :
     # 2 - ValeoPredictor & ValeoModeler
     pred = ValeoPredictor()
 
-    # 2.a - Fit and predict on X_train, X_test
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.25, random_state=48, stratify=y_df)  # shuffle=True,
-    # pred.fit(X_train, y_train, [ValeoModeler.BBC])
+    # #2.a - Fit and predict on X_train, X_test
+    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.3, random_state=48, stratify=y_df)  # shuffle=True,
+       #pred.fit(X_train, y_train, [ValeoModeler.BRFC])
     fitted_model = pred.fit_and_plot(X_train, y_train, X_test, y_test, [ValeoModeler.BRFC])
+    # #3 - Test suning ENS data
+    X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
+    y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
+    DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
+
 
     # 2.b - Fit using GridSearchCV
-    # pred.fit_cv_grid_search(X_df, y_df, [ValeoModeler.BBC])
+    # pred.fit_cv_grid_search(X_df, y_df, [ValeoModeler.BRFC])
 
     # 2.c - Fit using CV
     # fitted_model, cv_results = pred.fit_cv(X_df, y_df, [ValeoModeler.XGBC])
 
-    # 3 - Test suning ENS data
-    X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
-    y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
-    DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
+
 
 
     # logger.debug(f"results.isna(): {results.isna()}" )   # 8001 dont 3641 non-null

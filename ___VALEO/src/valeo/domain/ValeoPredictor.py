@@ -31,28 +31,39 @@ class ValeoPredictor :
     def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X.dtypes, clfTypes) # sampler_type)
         CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
+        # HGBC
+        # param_grid = {
+        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
+        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
+        #     'classifier__base_estimator__max_iter' : [100],
+        #     'classifier__base_estimator__max_depth' : [10,50,10]
+        # }
+        # BRFC
         param_grid = {
-            'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
-            'classifier__n_estimators': [3, 5, 10, 20, 50],
-            'classifier__base_estimator__max_iter' : [100],
-            'classifier__base_estimator__max_depth' : [10,50,10]
+            'classifier__n_estimators': [250,300],
+            'classifier__max_depth': [15,20,25],
+            'classifier__max_features' : ['auto',13]
         }
+
         grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV) # if is_grid else
         grid.fit(X, y)
+        print(f"Best Estimator: {grid.best_estimator_}")
         df_results = pd.DataFrame(grid.cv_results_)
                     # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
                     # df_results = df_results[columns_to_keep]
-        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_csv']) )
+        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_cv.csv']) )
 
     def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X.dtypes, clfTypes) # sampler_type)
         CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
-        param_grid = {
-            'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
-            'classifier__n_estimators': [3, 5, 10, 20, 50],
-            'classifier__base_estimator__max_iter' : [100],
-            'classifier__base_estimator__max_depth' : [10,50,10]
-        }
+        # HGBC
+        # param_grid = {
+        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
+        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
+        #     'classifier__base_estimator__max_iter' : [100],
+        #     'classifier__base_estimator__max_depth' : [10,50,10]
+        # }
+
         grid = RandomizedSearchCV(model, param_distributions=param_grid, n_jobs=-1, cv=CV) # if is_grid else
         grid.fit(X, y)
         df_results = pd.DataFrame(grid.cv_results_)
@@ -64,6 +75,16 @@ class ValeoPredictor :
 
     # 1 - Fit without any Cross Validation
     def fit_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
+        # Q1 = X_train.quantile(0.25)
+        # Q3 = X_train.quantile(0.75)
+        # IQR = Q3 - Q1
+        # # print(IQR)
+        # to_remove = ((X_train < (Q1 - 1.5 * IQR)) |(X_train > (Q3 + 1.5 * IQR))).any(axis=1)
+        # y_train = y_train.drop(axis=0, index=X_train[to_remove].index)
+        # X_train = X_train[~to_remove]
+        #
+
+
         fitted_model = self.fit(X_train, y_train, clfTypes)
         # print(f"Type:{type(fitted_model)} - {fitted_model.get_params()}")
         # self.print_model_params_keys(fitted_model)
@@ -133,12 +154,14 @@ class ValeoPredictor :
         print(f"- Model score: {fitted_model.score(X_test, y_test)}")
         print(f"- Accuracy score: {accuracy_score(y_test, y_pred)}")
         print(f"- Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)} / The balanced accuracy to deal with imbalanced datasets. It is defined as the average of recall obtained on each class.")
-        print(f"- Roc_auc_score: {roc_auc_score(y_test, y_pred)}")
         # print(f"- auc : {auc(y_test, y_pred)}")  # ValueError: x is neither increasing nor decreasing : [0 0 0 ... 0 0 0]
         print(f"- Average_precision_score: {average_precision_score(y_test, y_pred)}")
         print(f"- Precision_score: {precision_score(y_test, y_pred)}")
         print(f"- Recall score: {recall_score(y_test, y_pred)}")
+        print(f"- Roc_auc_score: {roc_auc_score(y_test, y_pred)}")
         print(f"- F1 score: {f1_score(y_test, y_pred)}")
+        m = confusion_matrix(y_test, y_pred)
+        print(f"- {m[0]}/{m[1]} - P:{precision_score(y_test, y_pred):0.4f} - R:{recall_score(y_test, y_pred):0.4f} - roc_auc:{roc_auc_score(y_test, y_pred):0.4f} - f1:{f1_score(y_test, y_pred):0.4f}")
         print(f"- {confusion_matrix(y_test, y_pred)}")
         print(f"- classification_report_imbalanced:\n{classification_report_imbalanced(y_test, y_pred)}")
         print(f"- classification_report:\n{classification_report(y_test, y_pred)}")

@@ -30,7 +30,8 @@ class DfUtil() :
         try :
             df.to_csv( C.ts_pathanme(pathAsStrList,ts_type), index = False)
         except Exception as ex:
-            DfUtil.logger.exception(f"Error while writing 'df' to CSV '{pathAsStrList}'")
+            cls.logger = LogManager.logger("DfUtil")
+            cls.logger.exception(f"Error while writing 'df' to CSV '{pathAsStrList}'")
 
     @classmethod
     def df_imputer(cls, dfToImpute:pd.DataFrame, imputer:BaseEstimator):
