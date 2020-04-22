@@ -24,6 +24,9 @@ if __name__ == "__main__" :
     mt_train = XY_metadata([C.rootDataTrain(), 'traininginputs.csv'], [C.rootDataTrain(), 'trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
     xy_loader = XY_Loader();
     X_df, y_df = xy_loader.load_XY_df(mt_train)
+    # X_df['OP070_V_1_value'] =  X_df['OP070_V_1_torque_value'] / X_df['OP070_V_1_angle_value']
+    # X_df['OP070_V_2_value'] =  X_df['OP070_V_2_torque_value'] / X_df['OP070_V_2_angle_value']
+    # X_df = X_df.drop(axis=1, columns=['OP070_V_1_angle_value','OP070_V_1_torque_value','OP070_V_2_angle_value','OP070_V_2_torque_value'])
 
     # 2 - ValeoPredictor & ValeoModeler
     pred = ValeoPredictor()
