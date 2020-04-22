@@ -41,9 +41,10 @@ class ValeoModeler :
         numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
         # categorical_features = ~numerical_features
         # nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
-        nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
-        zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
-        scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(5.0, 95.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
+        nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(25.0, 75.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
+        # scaler  = Normalizer(norm='l1')
         # NB: When using log tranformer: Adopt this transformation -> log(-2) = -1×(log(abs(-2)+1))
         # dbg = DebugPipeline()
         num_transformers_pipeline = Pipeline([ #('dbg_0', dbg),
