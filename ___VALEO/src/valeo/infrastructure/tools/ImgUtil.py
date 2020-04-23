@@ -11,8 +11,8 @@ class ImgUtil() :
     # https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
     @classmethod
     def save_fig(cls, fig_id:str , tight_layout=True, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
-        path = C.ts_pathanme([C.rootImages() , fig_id + "." + fig_extension], ts_type=ts_type)  
-        cls.logger.debug(f"Saving figure '{fig_id}'")
+        path = C.ts_pathanme([C.rootImages() , fig_id + "." + fig_extension], ts_type=ts_type)
+        # cls.logger.debug(f"Saving figure '{fig_id}'")
         if tight_layout:
             plt.tight_layout()
         # Save "the current figure plot" that is set by "df.hist(...))". @ReferTo: pyplot.py / def gcf()
@@ -39,6 +39,7 @@ class ImgUtil() :
             plt.xlabel(col)
             ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
             ax.clear()
+    # NB:
     # df.hist: => Plot 1 Histo per dfColumn
     # df.plot.hist: => Plot all dfColumns on same Histo
 
@@ -75,6 +76,7 @@ class ImgUtil() :
         cls.save_fig(fig_id=f"{fig_id.replace(' ','_')}_violin_{figsize[0]}x{figsize[1]}", tight_layout=True, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
     @classmethod
+    # SWARM PLOT did not work correctly
     def save_df_swarm_plot(cls, df:pd.DataFrame, fig_id:str, grid_elmt_x:int, figsize=(20,20), cfield=None, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
         cls.logger.debug(f"Generating 'swarm' plot: figsize:{figsize}")
         grid_elmt_y = len(df.columns) // grid_elmt_x if (len(df.columns) % grid_elmt_x) == 0 else (len(df.columns) // grid_elmt_x) + 1
@@ -84,6 +86,18 @@ class ImgUtil() :
             sns.swarmplot(x=df[col], linewidth=1, ax=axs[i//grid_elmt_x, i%grid_elmt_x], hue=df[cfield].values)
         cls.save_fig(fig_id=f"{fig_id.replace(' ','_')}_swarm_{figsize[0]}x{figsize[1]}", tight_layout=True, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
+    # def save_df_swarm_plot(df_XY:pd.DataFrame, fig_id:str, figsize=(5,5), y_target_name=None, fig_extension="png", resolution=300, ts_type=Const.ts_sfix):
+    #     df_X = df_XY.drop(columns=y_target_name, axis=1)
+    #     y    = df_XY[y_target_name]
+    #     fig, ax = plt.subplots(figsize=figsize)
+    #     for i, col in enumerate(sorted(df_X.columns)) :
+    #         for clazz in y.unique() :
+    #             sns.swarmplot(x=col, hue=y_target_name, data=df_XY[y==clazz])
+    #             # sns.swarmplot(x='data', y='feature',  hue='label', data=df)
+    #         plt.legend()
+    #         plt.xlabel(col)
+    #         ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_swarm_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+    #         ax.clear()
 
 
 # NB: Generic way to plot whathever :
