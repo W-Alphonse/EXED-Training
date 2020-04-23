@@ -11,7 +11,7 @@ class ImgUtil() :
     # https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
     @classmethod
     def save_fig(cls, fig_id:str , tight_layout=True, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
-        path = C.ts_pathanme([C.rootImages() , fig_id + "." + fig_extension], ts_type=ts_type)  # os.path.join(C.rootImages() , fig_id + "." + fig_extension)
+        path = C.ts_pathanme([C.rootImages() , fig_id + "." + fig_extension], ts_type=ts_type)  
         cls.logger.debug(f"Saving figure '{fig_id}'")
         if tight_layout:
             plt.tight_layout()
@@ -19,15 +19,37 @@ class ImgUtil() :
         plt.savefig(path, format=fig_extension, dpi=resolution)
 
     @classmethod
-    def save_df_hist_plot(cls, df:pd.DataFrame, fig_id:str , bins=50, figsize=(20,15), tight_layout=True, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
+    def save_df_hist_plot(cls, df:pd.DataFrame, fig_id:str , bins=50, figsize=(20,15), tight_layout=True,
+                          fig_extension="png", resolution=300, ts_type=C.ts_sfix):
         cls.logger.debug(f"Generating 'hist' plot: bins={bins} - figsize={figsize}")
         df.hist(bins=bins, figsize=figsize)
         cls.save_fig(fig_id=f"{fig_id}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
     @classmethod
-    def save_df_scatter_matrix_plot(cls, df:pd.DataFrame, fig_id:str , figsize=(20,15), tight_layout=True, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
+    def save_df_XY_hist_plot(cls, df_XY:pd.DataFrame, fig_id:str, bins=50, figsize=(5, 5), y_target_name=None, tight_layout=True,
+                             fig_extension="png", resolution=300, ts_type=C.ts_sfix):
+        cls.logger.debug(f"Generating 'XY_hist' plot: bins={bins} - figsize={figsize}")
+        df_X = df_XY.drop(columns=y_target_name, axis=1)
+        y    = df_XY[y_target_name]
+        fig, ax = plt.subplots(figsize=figsize)
+        for i, col in enumerate(sorted(df_X.columns)) :
+            for clazz in y.unique() :
+                df_X[y==clazz][col].plot.hist(bins=bins, figsize=figsize, alpha=0.3, label=f'Class #{int(clazz)}')
+            plt.legend()
+            plt.xlabel(col)
+            ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+            ax.clear()
+    # df.hist: => Plot 1 Histo per dfColumn
+    # df.plot.hist: => Plot all dfColumns on same Histo
+
+    @classmethod
+    def save_df_scatter_matrix_plot(cls, df:pd.DataFrame, fig_id:str , figsize=(20,15), cfield=None, tight_layout=True,
+                                    fig_extension="png", resolution=300, ts_type=C.ts_sfix):
         cls.logger.debug(f"Generating 'scatter matrix' plot: figsize:{figsize}")
-        pd.plotting.scatter_matrix(df, figsize=figsize)
+        if cfield == None :
+            pd.plotting.scatter_matrix(df, figsize=figsize)
+        else :
+            pd.plotting.scatter_matrix(df, figsize=figsize,  alpha=0.3, c=df[cfield].values, cmap='RdBu')
         cls.save_fig(fig_id=f"{fig_id}_scatter_matrix_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
     @classmethod
@@ -47,11 +69,20 @@ class ImgUtil() :
         fig, axs = plt.subplots(grid_elmt_y, grid_elmt_x, figsize=figsize)
         for i, col in enumerate(sorted(df.columns)) :
             sns.violinplot(x=df[col], linewidth=1, ax=axs[i//grid_elmt_x, i%grid_elmt_x])
-            # sns.stripplot( x=X_data_transformed[col], color="orange", jitter=0.2, linewidth=1, ax=axs[i//3,i%3])
+            # sns.stripplot( x=df[col], color="orange", jitter=0.2, linewidth=1, ax=axs[i//3,i%3])
             sns.boxplot( x=df[col], linewidth=1, ax=axs[i//grid_elmt_x, i%grid_elmt_x], saturation=0 )
         # axs.set_title(fig_id, fontsize=28)
         cls.save_fig(fig_id=f"{fig_id.replace(' ','_')}_violin_{figsize[0]}x{figsize[1]}", tight_layout=True, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
+    @classmethod
+    def save_df_swarm_plot(cls, df:pd.DataFrame, fig_id:str, grid_elmt_x:int, figsize=(20,20), cfield=None, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
+        cls.logger.debug(f"Generating 'swarm' plot: figsize:{figsize}")
+        grid_elmt_y = len(df.columns) // grid_elmt_x if (len(df.columns) % grid_elmt_x) == 0 else (len(df.columns) // grid_elmt_x) + 1
+        #
+        fig, axs = plt.subplots(grid_elmt_y, grid_elmt_x, figsize=figsize)
+        for i, col in enumerate(sorted(df.columns)) :
+            sns.swarmplot(x=df[col], linewidth=1, ax=axs[i//grid_elmt_x, i%grid_elmt_x], hue=df[cfield].values)
+        cls.save_fig(fig_id=f"{fig_id.replace(' ','_')}_swarm_{figsize[0]}x{figsize[1]}", tight_layout=True, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
 
 
