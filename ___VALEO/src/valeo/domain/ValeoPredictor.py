@@ -83,8 +83,6 @@ class ValeoPredictor :
         # y_train = y_train.drop(axis=0, index=X_train[to_remove].index)
         # X_train = X_train[~to_remove]
         #
-
-
         fitted_model = self.fit(X_train, y_train, clfTypes)
         # print(f"Type:{type(fitted_model)} - {fitted_model.get_params()}")
         # self.print_model_params_keys(fitted_model)
