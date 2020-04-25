@@ -41,7 +41,7 @@ class ImgUtil() :
             ax.clear()
     # NB:
     # df.hist: => Plot 1 Histo per dfColumn
-    # df.plot.hist: => Plot all dfColumns on same Histo
+    # df.plot.hist: => Plot all df-referenced-Columns on same Histo
 
     @classmethod
     def save_df_scatter_matrix_plot(cls, df:pd.DataFrame, fig_id:str , figsize=(20,15), cfield=None, tight_layout=True,

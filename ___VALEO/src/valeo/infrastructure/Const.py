@@ -66,7 +66,9 @@ def rootResources() -> str :
     return  os.path.join(rootProject(), 'src', 'valeo', 'resources')
 
 def ts_pathanme(pathAsStrList : [], ts_type=ts_sfix) -> str:
+    if not isinstance(pathAsStrList,list) :
+        pathAsStrList = [pathAsStrList]
     fname_with_ext = os.path.splitext(pathAsStrList[-1])
-    return os.path.join(pathAsStrList[0], '' if len(pathAsStrList) == 2 else str(*pathAsStrList[1:-1] ),
+    return os.path.join(pathAsStrList[0], '' if len(pathAsStrList) <= 2 else str(*pathAsStrList[1:-1] ),
               f"{fname_with_ext[0]}{datetime.now().strftime('_%Y_%m_%d-%H.%M.%S')}{fname_with_ext[1]}" if ts_type == ts_sfix else \
              (f"{datetime.now().strftime('%Y_%m_%d-%H.%M.%S_')}{pathAsStrList[-1]}" if ts_type == ts_pfix  else pathAsStrList[-1]) )

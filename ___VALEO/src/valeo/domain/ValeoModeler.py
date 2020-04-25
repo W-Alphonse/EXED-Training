@@ -108,7 +108,7 @@ class ValeoModeler :
         }
         dbg = DebugPipeline()
         pl= Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
-                       # ('imbalancer_resampler', self.build_resampler(C.smote_over_sampling,sampling_strategy='not majority')),  # ('dbg_1', dbg),
+                       # ('imbalancer_resampler', self.build_resampler(C.smote_over_sampling,sampling_strategy='minority')),  # ('dbg_1', dbg),
                       ('classifier', clfs[clfTypes[0]])  # ex: bbc : ENS(0.61) without explicit overSampling / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
                       ])
         for i, s in enumerate(pl.steps) :
