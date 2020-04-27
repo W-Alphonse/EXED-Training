@@ -45,7 +45,7 @@ if __name__ == "__main__" :
     # pred.fit_cv_grid_search(X_df, y_df, [ValeoModeler.BRFC])
 
     # 2.c - Fit using CV
-    # fitted_model, cv_results = pred.fit_cv(X_df, y_df, [ValeoModeler.XGBC])
+    fitted_model, cv_results = pred.fit_cv(X_df, y_df, [ValeoModeler.XGBC])
 
 
 

@@ -46,3 +46,12 @@ class DfUtil() :
         # Assign back encoded values to non-null values
         dfToImpute.loc[dfToImpute.notnull()] = np.squeeze(imputer.fit_transform(impute_reshape))  # np.squeeze: Remove single-dimensional entries from the shape of an array.
         return dfToImpute
+
+    @classmethod
+    def outlier_ratio(cls, df:pd.DataFrame) -> float:
+        Q1 = df.quantile(0.25)
+        Q3 = df.quantile(0.75)
+        IQR = Q3 - Q1
+        #
+        outliers = ((df < (Q1 - 1.5 * IQR)) |(df > (Q3 + 1.5 * IQR))).any(axis=1)
+        return len(df[outliers].index)/len(df.index)
