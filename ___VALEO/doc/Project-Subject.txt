@@ -73,10 +73,15 @@ https://machinelearningmastery.com/handle-missing-data-python/
 
 
 /* URL imbalanced data */
-https://www.kdnuggets.com/2017/06/7-techniques-handle-imbalanced-data.html
-https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
-https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18
-https://towardsdatascience.com/handling-imbalanced-datasets-in-machine-learning-7a0e84220f28
+https://www.kdnuggets.com/2017/06/7-techniques-handle-imbalanced-data.html. 1)Explains well evaluation metrics to use 2)Resample the training set
+3)Use K-fold Cross-Validation in the right way
+
+
+
+https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb  Will Badr
+https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18 (Tara Boyle
+) we’ll look at five possible ways to handle an imbalanced class problem - Decision trees frequently perform well on imbalanced data - Always split into test and train sets BEFORE trying oversampling techniques! 
+https://towardsdatascience.com/handling-imbalanced-datasets-in-machine-learning-7a0e84220f28 (Baptiste Rocca Cerise 15min - Excellent)
 https://towardsdatascience.com/imbalanced-data-in-classification-general-solution-case-study-169f2e18b017
 https://machinelearningmastery.com/smote-oversampling-for-imbalanced-classification/
 https://opendatascience.com/strategies-for-addressing-class-imbalance/   It seems that "Random Undersampling" performed the better
@@ -122,7 +127,10 @@ https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics  // 
 
 /* EDA - Visual Data Exploration */
 https://towardsdatascience.com/understanding-the-normal-distribution-with-python-e70bb855b027
+https://medium.com/comet-ml/part-i-conducting-exploratory-data-analysis-eda-for-the-kaggle-home-credit-default-competition-776950733a59
 https://towardsdatascience.com/why-feature-correlation-matters-a-lot-847e8ba439c4
+https://www.kaggle.com/kailex/talkingdata-eda-and-class-imbalance
+https://www.kaggle.com/kshitijyad/eda-and-class-imbalance-explained-novice-level
 
 /* Pandas */
 https://medium.com/dunder-data/selecting-subsets-of-data-in-pandas-6fcd0170be9c
@@ -203,7 +211,10 @@ Remarks:
 ------
 TODOs
 ------   
+- Correlation Matrix (HeatMap)
 - Confusion Matrix 
+- Accuracy Score or F1 Score
+- Feature Importance  --> from sklearn.inspection import permutation_importance
 - SSTic.pdf : p18 Classical evaluation(such Precision) doesn’t take
   into account the Negative Rate, which is very important in imbalanced problems 
 - 3 lignes pour lesquels le min des features "OP090_* / 4 features" est égal à Zéro
@@ -213,8 +224,13 @@ TODOs
  Notes Utiles pour le rapport:  
 ------------------------------ 
 --> Suggestion de trame du rapport:
-1. Look at the big picture.
+1. Look at the big picture : The best way to approach any classification problem is to start by analyzing and exploring the dataset in what we call Exploratory Data Analysis (EDA).  https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
 2. Get the data.
+	>>>>>
+		ALL Classifier works only on Numerical Data
+		ALL Classifier prerequisite that data should be complete => Without Nan, None,  ' '
+		Classifier whose algorithm work on "distance" should be scaled
+	<<<<<
 3. Discover and visualize the data to gain insights.
 4. Prepare the data for Machine Learning algorithms.
 5. Select a model and train it.
@@ -222,9 +238,10 @@ TODOs
 7. Present your solution.
 8. Launch, monitor, and maintain your system
 
-https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
-https://towardsdatascience.com/why-feature-correlation-matters-a-lot-847e8ba439c4
+https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb   // Will Badr - use BalancedBaggingClassifier from imblearn library. It allows the resampling of each subset of the dataset before training each estimator of the ensemble. That way, you can train a classifier that will handle the imbalance without having to undersample or oversample manually before training.
+https://towardsdatascience.com/why-feature-correlation-matters-a-lot-847e8ba439c4  // Will Badr
 https://towardsdatascience.com/understanding-confusion-matrix-a9ad42dcfd62
+https://www.dataschool.io/simple-guide-to-confusion-matrix-terminology/   // Excellent article
 
 - Correlation:
 https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/supporting-topics/basics/a-comparison-of-the-pearson-and-spearman-correlation-methods/
@@ -232,6 +249,25 @@ https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-sta
     
 - Missing Values:
 https://towardsdatascience.com/6-different-ways-to-compensate-for-missing-values-data-imputation-with-examples-6022d9ca0779	
+
+- Scaling:
+https://medium.com/greyatom/why-how-and-when-to-scale-your-features-4b30ab09db5e
+https://towardsdatascience.com/normalization-vs-standardization-quantitative-analysis-a91e8a79cebf
+
+- Feature engineering:
+https://towardsdatascience.com/feature-engineering-for-machine-learning-3a5e293a5114
+
+301025
+- Ensemble Learning:
+  - Bagging  : decrease the model’s variance / Bagging is combining the results of multiple models
+  - Boosting : decreasing the model’s bias   / Bootstrapping is a sampling technique in which we create subsets of observations 
+                                               from the original dataset, with replacement.
+  https://medium.com/swlh/difference-between-bagging-and-boosting-f996253acd22
+  https://medium.com/swlh/boosting-and-bagging-explained-with-examples-5353a36eb78d
+
+- Classification Types:
+https://towardsdatascience.com/classification-an-important-concept-in-machine-learning-af6ff4cb2cfd
+
 
 --> Phrase Clés:
 - Your model should learn from this data and be able to predict the median housing
@@ -254,3 +290,54 @@ very well and is generally preferred.
   or the True Positive Rate. It is a measure of a classifier’s completeness. Low recall indicates a high number of false negatives.
 
 PROC_TRACEINFO,OP070_V_1_angle_value,OP090_SnapRingPeakForce_value,OP070_V_2_angle_value,OP120_Rodage_I_mesure_value,OP090_SnapRingFinalStroke_value,OP110_Vissage_M8_torque_value,OP100_Capuchon_insertion_mesure,OP120_Rodage_U_mesure_value,OP070_V_1_torque_value,OP090_StartLinePeakForce_value,OP110_Vissage_M8_angle_value,OP090_SnapRingMidPointForce_val,OP070_V_2_torque_value  
+
+===========================================================
+   ML Meetup
+   
+https://www.meetup.com/fr-FR/Paris-Machine-Learning-Study-Group-in-English-Meetup/events/269871420/?rv=me1&_xtd=gatlbWFpbF9jbGlja9oAJGYyMDgzM2Q5LWE3YjgtNGI3OS04YzcwLTEyNTNiMDAwMDI1ZQ&_af=event&_af_eid=269871420
+===========================================================
+This session is part of 6 sessions in which we will discuss the production of ML applications from end to end. 
+The sessions are the following:
+1/ Data analysis: we will discuss the primary data analysis that is done on data, allowing us to make feature engineering and selection.
+2/ Feature engineering: we will discuss all the techniques used to engineer/encode features based on data (e.g. one hot encoding, blank values inputation).
+3/ Feature selection: we will discuss all methods allowing to select the right features based on the previous 2 steps. This step is particuarly important when the size of the dataset is limited and the number of features high.
+4/ Model selection:we will discuss the choice of models as well as HP optimization
+5/ Production: we will discuss the use of ML models in production (e.g. through RESTful API or embedded model).
+6/ Deployment and monitoring: we will discuss the deployment of the ML application. The main topics will be economic efficiency, scalability and security
+=============================================================
+
+
+I ) Projet Intro:
+https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
+The best way to approach any classification problem is to start by analyzing and exploring the dataset in what we call Exploratory Data Analysis (EDA).
+
+
+-----------------
+   TODO CODE
+-----------------
+
+1/
+https://medium.com/vickdata/a-simple-guide-to-scikit-learn-pipelines-4ac0d974bdcf   
+
+Essayer cette batterie de Classifieur:
+classifiers = [
+    KNeighborsClassifier(3),
+    SVC(kernel="rbf", C=0.025, probability=True),
+    NuSVC(probability=True),
+    DecisionTreeClassifier(),
+    RandomForestClassifier(),
+    AdaBoostClassifier(),
+    GradientBoostingClassifier()
+    ]
+for classifier in classifiers:
+    pipe = Pipeline(steps=[('preprocessor', preprocessor),
+                      ('classifier', classifier)])
+    pipe.fit(X_train, y_train)   
+    print(classifier)
+    print("model score: %.3f" % pipe.score(X_test, y_test))
+	
+
+2/ https://towardsdatascience.com/4-tips-for-advanced-feature-engineering-and-preprocessing-ec11575c09ea	
+Techniques for creating new features, detecting outliers, handling imbalanced data, and impute missing values
+
+	
