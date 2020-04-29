@@ -55,3 +55,12 @@ class DfUtil() :
         #
         outliers = ((df < (Q1 - 1.5 * IQR)) |(df > (Q3 + 1.5 * IQR))).any(axis=1)
         return len(df[outliers].index)/len(df.index)
+
+
+    # NB: Not used ....
+    @classmethod
+    def complete_df_with_gaussian_data(cls,  df:pd.DataFrame):
+        f = df[C.OP100_Capuchon_insertion_mesure].isna()
+        # df[missing-rows, column-to-feed] = sigma_column * np.random.randn(<occurence-count-to-generate>) + mu_column
+        df.loc[f, C.OP100_Capuchon_insertion_mesure] = 0.024425 * np.random.randn(18627) + 0.388173
+

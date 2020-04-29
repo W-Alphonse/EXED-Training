@@ -1,3 +1,4 @@
+from category_encoders import OneHotEncoder
 from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier, BalancedRandomForestClassifier
 from imblearn.over_sampling import RandomOverSampler, ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE
 from imblearn.over_sampling.base import BaseOverSampler
@@ -11,7 +12,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.experimental import enable_iterative_imputer   # explicitly require this experimental feature
 from sklearn.impute import IterativeImputer
 from sklearn.linear_model import LogisticRegression, BayesianRidge
-from sklearn.preprocessing import Normalizer
+from sklearn.preprocessing import Normalizer, OrdinalEncoder
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, label_binarize, StandardScaler
 from sklearn.svm import SVC
 import xgboost as xgb
@@ -44,6 +45,8 @@ class ValeoModeler :
         nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
         zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
         scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(25.0, 75.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
+        # OrdinalEncoder()
+        # OneHotEncoder()
         # scaler  = Normalizer(norm='l1')
         # NB: When using log tranformer: Adopt this transformation -> log(-2) = -1×(log(abs(-2)+1))
         # dbg = DebugPipeline()
