@@ -27,6 +27,8 @@ class ValeoPredictor :
         self.modeler = ValeoModeler()
         self.metricPlt = MetricPlotter()
 
+    def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
+        return self.modeler.prepare_X_for_test(X_df, add_flds_to_drop)
 
     def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X.dtypes, clfTypes) # sampler_type)
@@ -90,6 +92,7 @@ class ValeoPredictor :
         return fitted_model
 
     def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
+        # model = self.modeler.build_predictor_pipeline(X_train.select_dtypes('number').columns.to_list(), clfTypes)
         model = self.modeler.build_predictor_pipeline(X_train.dtypes, clfTypes)
         return model.fit(X_train, y_train)
 

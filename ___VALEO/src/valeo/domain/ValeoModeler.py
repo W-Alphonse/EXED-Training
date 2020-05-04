@@ -3,6 +3,7 @@ from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier, Bal
 from imblearn.over_sampling import RandomOverSampler, ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline as pline
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.compose import ColumnTransformer
 
@@ -20,6 +21,7 @@ import xgboost as xgb
 import pandas as pd
 import numpy as np
 
+from valeo.domain import Preprocessor as pp
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure.tools.DebugPipeline import DebugPipeline
 from valeo.infrastructure import Const as C
@@ -37,8 +39,59 @@ class ValeoModeler :
     def __init__(self):
         logger = LogManager.logger(__name__)
 
+    def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
+        # date_proc = pp.ProcDateTransformer(X_df)
+        # drop_features = pp.DropUnecessaryFeatures([C.PROC_TRACEINFO] if add_flds_to_drop == None else [C.PROC_TRACEINFO] + add_flds_to_drop )
+        # X_df = date_proc.transform(X_df)
+        # X_df = drop_features.transform(X_df)
+        dt_transf = pp.ProcDateTransformer()
+        X_df = dt_transf.transform(X_df)
+        print(f'X_df:{X_df.head()}')
+        print(f'X_df:{X_df.columns}')
+        return X_df
+
+    # def _build_transformers_pipeline(self, features_dtypes:pd.Series) -> Pipeline:
+    #     rand_state = 48
+    #     # print(type(features_dtypes))
+    #     numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
+    #     return pline([ #('dbg_0', dbg),
+    #         ('nan_imputer', pp.NumericalImputer(IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median', add_indicator=True, random_state=rand_state)) ),   # ('dbg_1', dbg),
+    #         ('zeroes_imputer', pp.NumericalImputer(IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)) ),     # ('dbg_2', dbg),
+    #         ('scaler', pp.NumericalScaler(RobustScaler(with_centering=True, with_scaling=True, quantile_range=(25.0, 75.0))) ),
+    #         ('cat_proc_date', pp.ProcDateTransformer()),
+    #         ('drop_unecessary_features', pp.DropUnecessaryFeatures([C.PROC_TRACEINFO]))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False) )),     # ('dbg_3', dbg)
+    #     ])
+
+
+    def _build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
+        rand_state = 48
+        print(type(features_dtypes))
+        numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
+        # categorical_features = ~numerical_features
+        # nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
+        nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(25.0, 75.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
+        # OrdinalEncoder()
+        # OneHotEncoder()
+        # scaler  = Normalizer(norm='l1')
+        # NB: When using log tranformer: Adopt this transformation -> log(-2) = -1×(log(abs(-2)+1))
+        dbg = DebugPipeline()  # ('dbg_0', dbg),
+        num_transformers_pipeline = Pipeline([ ('nan_imputer', nan_imputer),
+                                               ('zeroes_imputer', zeroes_imputer),
+                                               ('scaler', scaler) ])
+
+        return ColumnTransformer([('num_transformers_pipeline',num_transformers_pipeline, numerical_features),
+                                  ##### ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
+                                  # ('dbg_0', dbg, [C.PROC_TRACEINFO]),
+                                  # ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP070_V_1_angle_value, C.PROC_TRACEINFO]),
+                                  # ('dbg_1', dbg, [C.PROC_TRACEINFO])
+                                  ], remainder='passthrough')
+
+
     def build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
         rand_state = 48
+        print(type(features_dtypes))
         numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
         # categorical_features = ~numerical_features
         # nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
@@ -77,7 +130,8 @@ class ValeoModeler :
     #  ('classification', MultinomialNB())  # 0.523696690978335
     Imbl_Resampler =  "Imbl_Resampler"  # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='not majority'))
 
-    def build_predictor_pipeline(self, features_dtypes:pd.Series, clfTypes:[str]) -> Pipeline:
+    # def build_predictor_pipeline(self, features_dtypes:pd.Series, clfTypes:[str]) -> Pipeline:
+    def build_predictor_pipeline(self, columns_of_type_number: list, clfTypes:[str]) -> Pipeline:
         cls = self.__class__
         clfs = {
             cls.HGBC : HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5),
@@ -109,10 +163,21 @@ class ValeoModeler :
                               reg_alpha=0, reg_lambda=1, scale_pos_weight=100, seed=42,
                               silent=None, subsample=1, verbosity=1)
         }
+        rand_state = 48
         dbg = DebugPipeline()
-        pl= Pipeline([('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
+        # X.select_dtypes('number').columns.to_list()
+        # columns_of_type_number = (columns_of_type_number == 'int64') | (columns_of_type_number == 'float64')
+        pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
+                       ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
+                       ########################
+                        # ('nan_imputer', pp.NumericalImputer(columns_of_type_number, IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median', add_indicator=True, random_state=rand_state)) ),   # ('dbg_1', dbg),
+                        # ('zeroes_imputer', pp.NumericalImputer(columns_of_type_number, IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)) ),     # ('dbg_2', dbg),
+                        # ('scaler', pp.NumericalScaler(columns_of_type_number, RobustScaler(with_centering=True, with_scaling=True, quantile_range=(25.0, 75.0))) ),
+                        # ('cat_proc_date', pp.ProcDateTransformer()),
+                        # ('drop_unecessary_features', pp.DropUnecessaryFeatures([C.PROC_TRACEINFO])),
+                       ########################
                        # ('imbalancer_resampler', self.build_resampler(C.smote_over_sampling,sampling_strategy='minority')),  # ('dbg_1', dbg),
-                      ('classifier', clfs[clfTypes[0]])  # ex: bbc : ENS(0.61) without explicit overSampling / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
+                      ('classifier', clfs[clfTypes[0]])  # ex: bbc : ENS(0.61) without explicit overSampling / test_roc_auc : [0,.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
                       ])
         for i, s in enumerate(pl.steps) :
             # Ex: 0 -> ('preprocessor', ColumnTransformer( ... +  1 -> ('classifier', BalancedBaggingClassifier(base_.....

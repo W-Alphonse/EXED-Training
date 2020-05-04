@@ -17,7 +17,8 @@ class DebugPipeline(BaseEstimator, TransformerMixin):
 
     def transform(self, X, y=None):
         # %f : print micro seconds
-        # np.savetxt(os.path.join(C.rootProject(), 'log', 'dbgPipeline_' + datetime.now().strftime("%Y_%m_%d-%H.%M.%S_") + str(DebugPipeline.counter)) + '.txt', X, delimiter=',')
+        # print(f"X.head() : {X.head()}")
+        # np.savetxt(os.path.join(C.rootProject(), 'log', 'dbgPipeline_' + datetime.now().strftime("%Y_%m_%d-%H.%M.%S_") + str(DebugPipeline.counter)) + '.txt', X.values, delimiter=',')
         DebugPipeline.counter += 1
 
         return X
