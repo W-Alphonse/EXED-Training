@@ -80,12 +80,22 @@ class ValeoModeler :
         num_transformers_pipeline = Pipeline([ ('nan_imputer', nan_imputer),
                                                ('zeroes_imputer', zeroes_imputer),
                                                ('scaler', scaler) ])
+        num_imputer_pipeline = Pipeline([ ('nan_imputer', nan_imputer), ('zeroes_imputer', zeroes_imputer)])
 
-        return ColumnTransformer([('num_transformers_pipeline',num_transformers_pipeline, numerical_features),
-                                  ##### ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
-                                  # ('dbg_0', dbg, [C.PROC_TRACEINFO]),
-                                  # ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP070_V_1_angle_value, C.PROC_TRACEINFO]),
-                                  # ('dbg_1', dbg, [C.PROC_TRACEINFO])
+
+
+        return ColumnTransformer([
+                                  ('num_transformers_pipeline',num_transformers_pipeline, numerical_features),
+                                  # ('num_imputer_pipeline',num_imputer_pipeline, numerical_features),
+                                  # ('num_right_skewed_dist', pp.LogTransformer(True), [C.OP100_Capuchon_insertion_mesure]),
+                                  # ('num_right_skewed_dist', pp.LogTransformer(True), [C.OP070_V_1_angle_value, C.OP070_V_2_angle_value, C.OP110_Vissage_M8_angle_value]),
+                                  # ('num_right_skewed_dist', pp.LogTransformer(False), [C.OP110_Vissage_M8_angle_value]),
+                                  # ('num_left_skewed_dist', pp.SqrtTransformer(), [C.OP090_SnapRingMidPointForce_val]),
+                                  # ('num_left_skewed_dist', pp.SqrtTransformer(), [C.OP090_SnapRingMidPointForce_val]),
+                                  # ('num_scaler',nan_imputer, numerical_features),
+                                  #
+                                  ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
+                                  # ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
                                   ], remainder='passthrough')
 
 

@@ -31,7 +31,7 @@ if __name__ == "__main__" :
 
     # 2 - ValeoPredictor & ValeoModeler
     pred = ValeoPredictor()
-    X_df = pp.ProcDateTransformer().transform(X_df)
+    # HAA X_df = pp.ProcDateTransformer().transform(X_df)
 
     # #2.a - Fit and predict on X_train, X_test
     X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.3, random_state=48, stratify=y_df)  # shuffle=True,
@@ -41,7 +41,8 @@ if __name__ == "__main__" :
     X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
     # y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
     # y_ens = fitted_model.predict( pred.prepare_X_for_test(X_ens, [C.OP120_Rodage_U_mesure_value]) )
-    y_ens = fitted_model.predict( pp.ProcDateTransformer().transform(X_ens) )
+    # HAA y_ens = fitted_model.predict( pp.ProcDateTransformer().transform(X_ens) )
+    y_ens = fitted_model.predict( X_ens )
     DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
 
 

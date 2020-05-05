@@ -48,19 +48,34 @@ class DfUtil() :
         return dfToImpute
 
     @classmethod
-    def outlier_ratio(cls, df:pd.DataFrame) -> float:
-        Q1 = df.quantile(0.25)
-        Q3 = df.quantile(0.75)
+    def outlier_filter(cls, df:pd.DataFrame, qtile1=0.25, qtile3=0.75) -> pd.Series:
+        num_col = cls.numerical_cols(df)
+        Q1 = df[num_col].quantile(qtile1)
+        Q3 = df[num_col].quantile(qtile3)
         IQR = Q3 - Q1
         #
-        outliers = ((df < (Q1 - 1.5 * IQR)) |(df > (Q3 + 1.5 * IQR))).any(axis=1)
-        return len(df[outliers].index)/len(df.index)
+        return ((df[num_col] < (Q1 - 1.5 * IQR)) |(df[num_col] > (Q3 + 1.5 * IQR))).any(axis=1)
 
-
-    # NB: Not used ....
     @classmethod
-    def complete_df_with_gaussian_data(cls,  df:pd.DataFrame):
-        f = df[C.OP100_Capuchon_insertion_mesure].isna()
-        # df[missing-rows, column-to-feed] = sigma_column * np.random.randn(<occurence-count-to-generate>) + mu_column
-        df.loc[f, C.OP100_Capuchon_insertion_mesure] = 0.024425 * np.random.randn(18627) + 0.388173
+    def outlier_ratio(cls, df:pd.DataFrame, qtile1=0.25, qtile3=0.75) -> float:
+        # Q1 = df.quantile(0.25)
+        # IQR = Q3 - Q1
+        # #
+        # outliers = ((df < (Q1 - 1.5 * IQR)) |(df > (Q3 + 1.5 * IQR))).any(axis=1)
+        return len(df[cls.outlier_filter(df, qtile1=qtile1, qtile3=qtile3)].index)/len(df.index)
 
+
+    @classmethod
+    def numerical_cols(cls, df:pd.DataFrame) -> list :
+        return df.select_dtypes('number').columns.to_list()
+
+    @classmethod
+    def categorical_cols(cls, df:pd.DataFrame) -> list :
+        return df.select_dtypes(include=['object', 'bool']).columns.to_list()
+
+    # # NB: Not used ....
+    # @classmethod
+    # def complete_df_with_gaussian_data(cls,  df:pd.DataFrame):
+    #     f = df[C.OP100_Capuchon_insertion_mesure].isna()
+    #     # df[missing-rows, column-to-feed] = sigma_column * np.random.randn(<occurence-count-to-generate>) + mu_column
+    #     df.loc[f, C.OP100_Capuchon_insertion_mesure] = 0.024425 * np.random.randn(18627) + 0.388173
