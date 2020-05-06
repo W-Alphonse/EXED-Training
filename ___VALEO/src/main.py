@@ -40,7 +40,7 @@ if __name__ == "__main__" :
     fitted_model = pred.fit_and_plot(X_train, y_train, X_test, y_test, [ValeoModeler.BRFC])
     # #3 - Test suning ENS data
     X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
-    # X_ens.fillna(0, inplace=True)
+    # X_ens = X_ens.fillna(0)
     # y_ens = fitted_model.predict(X_ens.drop(columns=[C.PROC_TRACEINFO]))
     # y_ens = fitted_model.predict( pred.prepare_X_for_test(X_ens, [C.OP120_Rodage_U_mesure_value]) )
     # HAA y_ens = fitted_model.predict( pp.ProcDateTransformer().transform(X_ens) )

@@ -15,6 +15,7 @@ from sklearn.impute import IterativeImputer
 from sklearn.linear_model import LogisticRegression, BayesianRidge
 from sklearn.preprocessing import Normalizer, OrdinalEncoder
 from sklearn.preprocessing import RobustScaler, MinMaxScaler, label_binarize, StandardScaler
+from sklearn.pipeline import FeatureUnion
 from sklearn.svm import SVC
 import xgboost as xgb
 
@@ -72,7 +73,7 @@ class ValeoModeler :
         # numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
         numerical_features = DfUtil.numerical_cols(X_df)
         # categorical_features = ~numerical_features
-        # nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
+        # nan_imputer    = SimpleImputer(strategy='median', missing_values=np.nan, verbose=False)
         nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
         zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
         scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(5.0, 95.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
@@ -96,13 +97,20 @@ class ValeoModeler :
                                   # ('num_right_skewed_dist', pp.LogTransformer(True), [C.OP100_Capuchon_insertion_mesure]),
                                   # ('num_right_skewed_dist', pp.LogTransformer(True), [C.OP070_V_1_angle_value, C.OP070_V_2_angle_value, C.OP110_Vissage_M8_angle_value]),
                                   # ('num_right_skewed_dist', pp.LogTransformer(False), [C.OP110_Vissage_M8_angle_value]),
-                                  # ('num_left_skewed_dist', pp.SqrtTransformer(), [C.OP090_SnapRingMidPointForce_val]),
+                                  # ('num_left_skewed_dist', pp.SqrtTransformer(), [C.OP090_SnapRingPeakForce_value]),
                                   # ('num_left_skewed_dist', pp.SqrtTransformer(), [C.OP090_SnapRingMidPointForce_val]),
                                   # ('num_scaler',nan_imputer, numerical_features),
                                   #
                                   ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
+                                  # ('ht',OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month]),
                                   # ('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure]),
+                                  # ('OP120U', pp.BucketTransformer((C.OP120_Rodage_U_mesure_value,[-np.inf, 11.975, np.inf],[1,2])), [C.OP120_Rodage_U_mesure_value]),
+                                  # ('V1_Value', pp.BucketTransformer((C.OP070_V_1_torque_value,[-np.inf, 6.5, np.inf],[1,2])), [C.OP070_V_1_torque_value]),
+                                  # ('V2_Value', pp.BucketTransformer((C.OP070_V_2_torque_value,[-np.inf, 6.5, np.inf],[1,2])), [C.OP070_V_2_torque_value]),
+
+                                  #
                                   ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
+                                  # ('num_scaler',scaler, numerical_features),
                                   ], remainder='passthrough')
 
 
@@ -197,10 +205,19 @@ class ValeoModeler :
         dbg = DebugPipeline()
         # X.select_dtypes('number').columns.to_list()
         # columns_of_type_number = (columns_of_type_number == 'int64') | (columns_of_type_number == 'float64')
+        dt = ColumnTransformer([('delete', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value, C.OP100_Capuchon_insertion_mesure])] ,  remainder='passthrough')
         ct = ColumnTransformer([('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure])] ,  remainder='passthrough')
+        ht = ColumnTransformer([('ht',OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month])], remainder='passthrough')
+        feats = FeatureUnion([ ('self', self._build_transformers_pipeline(X_df)),
+                                ('pp_delete',dt),
+                               # ('ht',ht)
+                              ])
         pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
+                        # ('feats',feats),
                         ('preprocessor', self._build_transformers_pipeline(X_df)) ,
+                        # ('pp_delete',dt),
                         # ('pp_cat_OP100',ct),
+                        # ('hotencoder_transformer', ht),
                         ('hotencoder_transformer', OneHotEncoder()),
                        # ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
                        ########################

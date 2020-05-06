@@ -24,6 +24,7 @@ class XY_Loader:
     def load_XY_df(self, mt: XY_metadata, delete_XY_join_cols=True) -> ():
         # X_df = pd.read_csv(mt.X_pathname, na_values='')  # NaN
         X_df = pd.read_csv(mt.X_pathname)  # NaN
+        # X_df = X_df.fillna(0)
         # print(X_df[Const.OP100_Capuchon_insertion_mesure].head(20))
         # X_df[[Const.OP100_Capuchon_insertion_mesure]] = X_df[[Const.OP100_Capuchon_insertion_mesure]].fillna(0.0)
         # print(X_df[Const.OP100_Capuchon_insertion_mesure].head(20))

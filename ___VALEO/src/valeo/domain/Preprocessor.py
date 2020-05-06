@@ -107,7 +107,6 @@ class OP100CapuchonInsertionMesureTransformer(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_new = X.copy()
-        print(type(X_new))
         # Option-1: Supposer que les valeurs Manquants étaient traitées par Imputer
         X_new["OP100_Capuchon_insertion_mesure_cat"] = pd.cut(X_new[C.OP100_Capuchon_insertion_mesure],
                                                       bins = [-np.inf, 0.2925, 0.335, 0.3775, np.inf], labels = [1, 2, 3, 4])
@@ -120,6 +119,24 @@ class OP100CapuchonInsertionMesureTransformer(BaseEstimator, TransformerMixin):
         #
         X_new = X_new.drop([C.OP100_Capuchon_insertion_mesure], axis=1)
         return X_new
+
+
+class BucketTransformer(BaseEstimator, TransformerMixin):
+    def __init__(self, fld_binsList_lblList):
+        self.fld_binsList_lblList = fld_binsList_lblList
+        self.fld_to_bucketize = fld_binsList_lblList[0]
+        self.bins  = fld_binsList_lblList[1]
+        self.label = fld_binsList_lblList[2]
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_new = X.copy()
+        X_new[f"{self.fld_to_bucketize}_cat"] = pd.cut(X_new[self.fld_to_bucketize], bins = self.bins, labels = self.label)
+        X_new = X_new.drop([self.fld_to_bucketize], axis=1)
+        return X_new
+
 
 
 # class CategoricalEncoder(BaseEstimator, TransformerMixin):
