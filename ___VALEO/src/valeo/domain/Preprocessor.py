@@ -87,11 +87,11 @@ class ProcDateTransformer(BaseEstimator, TransformerMixin):
                             bins = [-np.inf,4, 5, 6, 7, 8, np.inf], labels=['Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Sept'])
         X_new[C.proc_week]    = pd.cut( proc_date.dt.week,
                             bins = [-np.inf, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, np.inf],
-                            labels=['<= 21/04', '<= 28/04', '<= 05/05', '<= 12/05', '<= 19/05', '<= 26/05', '<= 02/06', '<= 09/06', '<= 16/06', '<= 23/06',
-                                    '<= 30/06', '<= 07/07', '<= 14/07', '<= 21/07',
-                                    '<= 28/07', '<= 04/08','<= 11/08','<= 18/08','<= 25/08','<= 01/09','<= 08/09'])
+                            labels = ['<= 21/04', '<= 28/04', '<= 05/05', '<= 12/05', '<= 19/05', '<= 26/05', '<= 02/06', '<= 09/06', '<= 16/06', '<= 23/06',
+                                      '<= 30/06', '<= 07/07', '<= 14/07', '<= 21/07',
+                                      '<= 28/07', '<= 04/08','<= 11/08','<= 18/08','<= 25/08','<= 01/09','<= 08/09'])
         X_new[C.proc_weekday] = pd.cut( proc_date.dt.weekday,
-                            bins=[-np.inf, 0, 1, 2, 3, 4, 5, np.inf], labels=['Lundi', 'Mardi', 'Merc', 'Jeudi', 'Vend', 'Samedi', 'Dim'])
+                            bins = [-np.inf, 0, 1, 2, 3, 4, 5, np.inf], labels = ['Lundi', 'Mardi', 'Merc', 'Jeudi', 'Vend', 'Samedi', 'Dim'])
         X_new = X_new.drop([C.PROC_TRACEINFO], axis=1) #, inplace=True)
         return X_new
 
@@ -100,6 +100,27 @@ class ProcDateTransformer(BaseEstimator, TransformerMixin):
 # zz = z[z['Binar OP130_Resultat_Global_v'] == 1][['PROC_TRACEINFO', 'OP100_Capuchon_insertion_mesure', 'proc_date', 'proc_index']].sort_values(by='proc_index')
 # zzz = zz['proc_index'].diff()
 # pd.concat([zz, zzz], axis=1)
+
+class OP100CapuchonInsertionMesureTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X_new = X.copy()
+        print(type(X_new))
+        # Option-1: Supposer que les valeurs Manquants étaient traitées par Imputer
+        X_new["OP100_Capuchon_insertion_mesure_cat"] = pd.cut(X_new[C.OP100_Capuchon_insertion_mesure],
+                                                      bins = [-np.inf, 0.2925, 0.335, 0.3775, np.inf], labels = [1, 2, 3, 4])
+        #
+        # Option-2: Isoler les valeurs manquants dans une catégorie indépendnate, la cat '4'
+        # f = X_new[C.OP100_Capuchon_insertion_mesure].isna()
+        # X_new.loc[f, "OP100_Capuchon_insertion_mesure_cat"] = '4'
+        # X_new.loc[~f, "OP100_Capuchon_insertion_mesure_cat"] =pd.cut(X_new[~f][C.OP100_Capuchon_insertion_mesure],
+        #                                              bins = [-np.inf, 0.32, 0.37, np.inf], labels = ['1', '2', '3'])
+        #
+        X_new = X_new.drop([C.OP100_Capuchon_insertion_mesure], axis=1)
+        return X_new
+
 
 # class CategoricalEncoder(BaseEstimator, TransformerMixin):
 #     """String to numbers categorical encoder."""

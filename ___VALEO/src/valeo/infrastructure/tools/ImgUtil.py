@@ -7,7 +7,21 @@ import pandas as pd
 
 from valeo.infrastructure.tools.DfUtil import DfUtil
 
-
+# http://jonathansoma.com/lede/algorithms-2017/classes/fuzziness-matplotlib/how-pandas-uses-matplotlib-plus-figures-axes-and-subplots/
+'''
+NB:
+1 - 'fig' means 'figure', and it’s your entire graphic.
+2 - The graph is not the 'figure': The figure is the part around the graph.
+    The graph sits on top of the 'figure'. 
+    The graph is what’s called a 'subplot' or 'axis'. Or, technically, an 'AxesSubplot'.
+    
+3 - a - How to select explicitly a 'subplot/axis' or how to let pandas/matplotlib do it ?  
+        Ex: df.groupby('country').plot(x='year', y='unemployment', ax=axis, legend=False)
+    b - When we pass ax=axis to our plot => It means like we’re saying “hey, we already have a graph made up! 
+        => Use it instead” and then pandas/matplotlib does, 
+       instead of letting pandas/matplotlib using a brand-new image for each.  
+    c - 'ax=axis' allow to link a pandas/matplotlib graph to 'subplot/axis' on top of the 'figure'    
+'''
 class ImgUtil() :
     logger = LogManager.logger(__name__)
 
@@ -16,35 +30,30 @@ class ImgUtil() :
     def save_fig(cls, fig_id:str , tight_layout=True, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
         path = C.ts_pathanme([C.rootImages() , fig_id + "." + fig_extension], ts_type=ts_type)
         # cls.logger.debug(f"Saving figure '{fig_id}'")
+        #-- https://matplotlib.org/3.2.1/tutorials/intermediate/tight_layout_guide.html
         if tight_layout:
-            plt.tight_layout()
-        # Save "the current figure plot" that is set by "df.hist(...))". @ReferTo: pyplot.py / def gcf()
+            plt.tight_layout() # tight_layout automatically adjusts subplot params so that the subplot(s) fits in to the figure area
+        #-- Save "the current figure plot" that is set by "df.hist(...))". @ReferTo: pyplot.py / def gcf()
         plt.savefig(path, format=fig_extension, dpi=resolution)
 
     @classmethod
-    def save_df_bar_plot(cls, df:pd.DataFrame, fig_id:str, ncols:int, figsize=(20,15), tight_layout=True,
+    def save_df_bar_plot(cls, df:pd.DataFrame, fig_id:str, ncols:int, figsize=(20,15), use_same_figure=True, tight_layout=True,
                           fig_extension="png", resolution=300, ts_type=C.ts_sfix):
         cls.logger.debug(f"Generating 'bar' plot: figsize={figsize}")
         cat_cols = DfUtil.categorical_cols(df)
         nrows = len(cat_cols) // ncols if (len(cat_cols) % ncols) == 0 else (len(cat_cols) // ncols) + 1
         #
-        # --Case where each 'plot' is on a different 'figure'--
-        # fig, axs = plt.subplots(figsize=figsize)
-        # for i, col in enumerate(sorted(cat_cols)) :
-        #     df_bar = df.groupby([col]).size()
-        #     df_bar.plot(kind='bar', figsize=figsize)
-        #     cls.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
-        #
-        # --Case where all the 'plots' are on the same 'figure'--
-        fig, axs = plt.subplots(nrows, ncols, figsize=figsize)
-
-        # df_bar.plot.bar(x=col, y = df.groupby([col]).size())
-        for i, col in enumerate(sorted(cat_cols)) :
-            df_bar = df.groupby([col]).size()
-            df.plot.bar(x=df[col], y = df.groupby([col]).size()) #  ax=axs[i//ncols, i%ncols])
-            # df.groupby(DfUtil.categorical_cols(df)).size().plot.bar( figsize=figsize)
-            # df.groupby(DfUtil.categorical_cols(df)).size().plot.bar( figsize=figsize)
-        cls.save_fig(fig_id=f"{fig_id}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+        if use_same_figure :  #--Case where all the 'plots' are on the same 'figure'--
+            fig, axs = plt.subplots(nrows, ncols, figsize=figsize)
+            for i, col in enumerate(sorted(cat_cols)) :
+                df_bar = df.groupby([col]).size()
+                df_bar.plot(kind='bar', x = df[col], rot=0, figsize=figsize, ax= axs[i])
+            ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+        else :               #--Case where each 'plot' is on a different 'figure'--
+            for i, col in enumerate(sorted(cat_cols)) :
+                df_bar = df.groupby([col]).size()
+                df_bar.plot.bar(x = df[col], rot=0, figsize=figsize)  # same-as:  # df_bar.plot(kind='bar', x = df[col], rot=0, figsize=figsize)
+                cls.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
 
     @classmethod

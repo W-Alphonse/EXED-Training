@@ -83,7 +83,8 @@ class ValeoModeler :
         dbg = DebugPipeline()  # ('dbg_0', dbg),
         num_transformers_pipeline = Pipeline([ ('nan_imputer', nan_imputer),
                                                ('zeroes_imputer', zeroes_imputer),
-                                               ('scaler', scaler) ])
+                                               ('scaler', scaler)
+                                               ])
         num_imputer_pipeline = Pipeline([ ('nan_imputer', nan_imputer), ('zeroes_imputer', zeroes_imputer)])
 
 
@@ -100,17 +101,22 @@ class ValeoModeler :
                                   # ('num_scaler',nan_imputer, numerical_features),
                                   #
                                   ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
+                                  # ('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure]),
                                   ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
                                   ], remainder='passthrough')
 
 
+# -----Option-1
 #     ('num_transformers_pipeline',num_transformers_pipeline, numerical_features), + quantile_range=(25.0, 75.0)) OR quantile_range=(5.0, 95.0)
 #     ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO])
 #     le même score Avec-ou-Sans-Ceci: ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
 #     - [7074 3189]/[32 60] - P:0.0185 - R:0.6522 - roc_auc:0.6707 - f1:0.0359
 #     - [[7074 3189]
 #       [  32   60]]
-
+# -----Option-2 : Option-1  + Rajout de ('hotencoder_transformer', OneHotEncoder()),
+#     - [7198 3065]/[32 60] - P:0.0192 - R:0.6522 - roc_auc:0.6768 - f1:0.0373
+#     - [[7198 3065]
+#        [  32   60]]
 
     def build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
         rand_state = 48
@@ -191,8 +197,11 @@ class ValeoModeler :
         dbg = DebugPipeline()
         # X.select_dtypes('number').columns.to_list()
         # columns_of_type_number = (columns_of_type_number == 'int64') | (columns_of_type_number == 'float64')
+        ct = ColumnTransformer([('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure])] ,  remainder='passthrough')
         pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
                         ('preprocessor', self._build_transformers_pipeline(X_df)) ,
+                        # ('pp_cat_OP100',ct),
+                        ('hotencoder_transformer', OneHotEncoder()),
                        # ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
                        ########################
                         # ('nan_imputer', pp.NumericalImputer(columns_of_type_number, IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median', add_indicator=True, random_state=rand_state)) ),   # ('dbg_1', dbg),
