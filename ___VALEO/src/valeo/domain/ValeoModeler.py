@@ -25,6 +25,7 @@ from valeo.domain import Preprocessor as pp
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure.tools.DebugPipeline import DebugPipeline
 from valeo.infrastructure import Const as C
+from valeo.infrastructure.tools.DfUtil import DfUtil
 
 '''
 https://github.com/scikit-learn-contrib/imbalanced-learn/tree/master/examples
@@ -63,15 +64,18 @@ class ValeoModeler :
     #     ])
 
 
-    def _build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
+    # def _build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
+    def _build_transformers_pipeline(self, X_df: pd.DataFrame) -> ColumnTransformer:
+
         rand_state = 48
-        print(type(features_dtypes))
-        numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
+        # print(type(features_dtypes))
+        # numerical_features = (features_dtypes == 'int64') | (features_dtypes == 'float64')
+        numerical_features = DfUtil.numerical_cols(X_df)
         # categorical_features = ~numerical_features
         # nan_imputer    = SimpleImputer(strategy='mean', missing_values=np.nan, verbose=False)
         nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
         zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
-        scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(25.0, 75.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
+        scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(5.0, 95.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
         # OrdinalEncoder()
         # OneHotEncoder()
         # scaler  = Normalizer(norm='l1')
@@ -87,6 +91,7 @@ class ValeoModeler :
         return ColumnTransformer([
                                   ('num_transformers_pipeline',num_transformers_pipeline, numerical_features),
                                   # ('num_imputer_pipeline',num_imputer_pipeline, numerical_features),
+                                  # ('dbg_0', dbg, [C.OP100_Capuchon_insertion_mesure]),
                                   # ('num_right_skewed_dist', pp.LogTransformer(True), [C.OP100_Capuchon_insertion_mesure]),
                                   # ('num_right_skewed_dist', pp.LogTransformer(True), [C.OP070_V_1_angle_value, C.OP070_V_2_angle_value, C.OP110_Vissage_M8_angle_value]),
                                   # ('num_right_skewed_dist', pp.LogTransformer(False), [C.OP110_Vissage_M8_angle_value]),
@@ -95,8 +100,16 @@ class ValeoModeler :
                                   # ('num_scaler',nan_imputer, numerical_features),
                                   #
                                   ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
-                                  # ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
+                                  ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
                                   ], remainder='passthrough')
+
+
+#     ('num_transformers_pipeline',num_transformers_pipeline, numerical_features), + quantile_range=(25.0, 75.0)) OR quantile_range=(5.0, 95.0)
+#     ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO])
+#     le même score Avec-ou-Sans-Ceci: ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
+#     - [7074 3189]/[32 60] - P:0.0185 - R:0.6522 - roc_auc:0.6707 - f1:0.0359
+#     - [[7074 3189]
+#       [  32   60]]
 
 
     def build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
@@ -141,7 +154,8 @@ class ValeoModeler :
     Imbl_Resampler =  "Imbl_Resampler"  # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='not majority'))
 
     # def build_predictor_pipeline(self, features_dtypes:pd.Series, clfTypes:[str]) -> Pipeline:
-    def build_predictor_pipeline(self, columns_of_type_number: list, clfTypes:[str]) -> Pipeline:
+    # def build_predictor_pipeline(self, columns_of_type_number: list, clfTypes:[str]) -> Pipeline:
+    def build_predictor_pipeline(self, X_df: pd.DataFrame, clfTypes:[str]) -> Pipeline:
         cls = self.__class__
         clfs = {
             cls.HGBC : HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5),
@@ -178,7 +192,8 @@ class ValeoModeler :
         # X.select_dtypes('number').columns.to_list()
         # columns_of_type_number = (columns_of_type_number == 'int64') | (columns_of_type_number == 'float64')
         pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
-                       ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
+                        ('preprocessor', self._build_transformers_pipeline(X_df)) ,
+                       # ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
                        ########################
                         # ('nan_imputer', pp.NumericalImputer(columns_of_type_number, IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median', add_indicator=True, random_state=rand_state)) ),   # ('dbg_1', dbg),
                         # ('zeroes_imputer', pp.NumericalImputer(columns_of_type_number, IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)) ),     # ('dbg_2', dbg),

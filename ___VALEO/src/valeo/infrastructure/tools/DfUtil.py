@@ -58,20 +58,22 @@ class DfUtil() :
 
     @classmethod
     def outlier_ratio(cls, df:pd.DataFrame, qtile1=0.25, qtile3=0.75) -> float:
-        # Q1 = df.quantile(0.25)
-        # IQR = Q3 - Q1
-        # #
-        # outliers = ((df < (Q1 - 1.5 * IQR)) |(df > (Q3 + 1.5 * IQR))).any(axis=1)
         return len(df[cls.outlier_filter(df, qtile1=qtile1, qtile3=qtile3)].index)/len(df.index)
 
 
+    # https://docs.scipy.org/doc/numpy/reference/arrays.scalars.html
+    # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.select_dtypes.html
     @classmethod
     def numerical_cols(cls, df:pd.DataFrame) -> list :
         return df.select_dtypes('number').columns.to_list()
 
     @classmethod
-    def categorical_cols(cls, df:pd.DataFrame) -> list :
+    def object_or_bool_cols(cls, df:pd.DataFrame) -> list :
         return df.select_dtypes(include=['object', 'bool']).columns.to_list()
+
+    @classmethod
+    def categorical_cols(cls, df:pd.DataFrame) -> list :
+        return df.select_dtypes('category').columns.to_list()
 
     # # NB: Not used ....
     # @classmethod
