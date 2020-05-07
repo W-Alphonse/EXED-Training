@@ -1,4 +1,5 @@
 from category_encoders import OneHotEncoder
+# from sklearn.preprocessing import OneHotEncoder
 from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier, BalancedRandomForestClassifier
 from imblearn.over_sampling import RandomOverSampler, ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE
 from imblearn.over_sampling.base import BaseOverSampler
@@ -207,7 +208,7 @@ class ValeoModeler :
         # columns_of_type_number = (columns_of_type_number == 'int64') | (columns_of_type_number == 'float64')
         dt = ColumnTransformer([('delete', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value, C.OP100_Capuchon_insertion_mesure])] ,  remainder='passthrough')
         ct = ColumnTransformer([('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure])] ,  remainder='passthrough')
-        ht = ColumnTransformer([('ht',OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month])], remainder='passthrough')
+        # ht = ColumnTransformer([('ht',OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month])], remainder='passthrough')
         feats = FeatureUnion([ ('self', self._build_transformers_pipeline(X_df)),
                                 ('pp_delete',dt),
                                # ('ht',ht)

@@ -48,11 +48,38 @@ class ImgUtil() :
             for i, col in enumerate(sorted(cat_cols)) :
                 df_bar = df.groupby([col]).size()
                 df_bar.plot(kind='bar', x = df[col], rot=0, figsize=figsize, ax= axs[i])
-            ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+            cls.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
         else :               #--Case where each 'plot' is on a different 'figure'--
             for i, col in enumerate(sorted(cat_cols)) :
                 df_bar = df.groupby([col]).size()
                 df_bar.plot.bar(x = df[col], rot=0, figsize=figsize)  # same-as:  # df_bar.plot(kind='bar', x = df[col], rot=0, figsize=figsize)
+                cls.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+
+    @classmethod
+    def save_df_XY_bar_plot(cls, df_XY:pd.DataFrame, fig_id:str, ncols:int, figsize=(20,15), y_target_name=None,
+                            use_same_figure=True, tight_layout=True, fig_extension="png", resolution=300, ts_type=C.ts_sfix):
+        cls.logger.debug(f"Generating 'XY_bar' plot: figsize={figsize}")
+        df_X = df_XY.drop(columns=y_target_name, axis=1)
+        y    = df_XY[y_target_name]
+        cat_cols = DfUtil.categorical_cols(df_X)
+        nrows = len(cat_cols) // ncols if (len(cat_cols) % ncols) == 0 else (len(cat_cols) // ncols) + 1
+        #
+        if use_same_figure :  #--Case where all the 'plots' are on the same 'figure'--
+            fig, axs = plt.subplots(nrows, ncols, figsize=figsize)
+            for i, col in enumerate(sorted(cat_cols)) :
+                for clazz in y.unique() :
+                    df_bar = df_X[y==clazz].groupby([col]).size()
+                    df_bar.plot(kind='bar', x = df_X[col], rot=0, figsize=figsize, ax= axs[i], alpha=0.3,
+                                label=f'Class #{int(clazz)}', color= 'blue' if int(clazz) == 0 else 'orange')
+            plt.legend()
+            ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+        else :  #--Case where each 'plot' is on a different 'figure'--
+            for i, col in enumerate(sorted(cat_cols)) :
+                for clazz in y.unique() :
+                    df_bar = df_X[y==clazz].groupby([col]).size()
+                    df_bar.plot.bar(x = df_X[col], y = y, rot=0, figsize=figsize, alpha=0.3,
+                                    label=f'Class #{int(clazz)}', color= 'blue' if int(clazz) == 0 else 'orange')
+                plt.legend()
                 cls.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
 
@@ -70,7 +97,8 @@ class ImgUtil() :
         df_X = df_XY.drop(columns=y_target_name, axis=1)
         y    = df_XY[y_target_name]
         fig, ax = plt.subplots(figsize=figsize)
-        for i, col in enumerate(sorted(df_X.columns)) :
+        # for i, col in enumerate(sorted(df_X.columns)) :
+        for i, col in enumerate(sorted(DfUtil.numerical_cols(df_X))) :
             for clazz in y.unique() :
                 df_X[y==clazz][col].plot.hist(bins=bins, figsize=figsize, alpha=0.3, label=f'Class #{int(clazz)}')
             plt.legend()
