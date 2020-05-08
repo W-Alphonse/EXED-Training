@@ -20,7 +20,28 @@ NB:
     b - When we pass ax=axis to our plot => It means like we’re saying “hey, we already have a graph made up! 
         => Use it instead” and then pandas/matplotlib does, 
        instead of letting pandas/matplotlib using a brand-new image for each.  
-    c - 'ax=axis' allow to link a pandas/matplotlib graph to 'subplot/axis' on top of the 'figure'    
+    c - 'ax=axis' allow to link a pandas/matplotlib graph to 'subplot/axis' on top of the 'figure'  
+    
+4 - fig, axs = plt.subplots(nrows, ncols, figsize=figsize)
+    'axs' est un 'ndarray' de 2 dimensions ayant pour le shape(nrows, ncols)
+    Ex:  axs:[ [<matplotlib.axes._subplots.AxesSubplot object at 0x000001787B2AF808>
+                <matplotlib.axes._subplots.AxesSubplot object at 0x00000178786B8B08>
+                ]
+               [<matplotlib.axes._subplots.AxesSubplot object at 0x00000178786D4148>
+                <matplotlib.axes._subplots.AxesSubplot object at 0x00000178786F1788>
+                ] 
+  
+5 - Pour chaque PLOT qu'il soit un 'subplot' ou 'plot' on distingue les propriétés suivantes:
+    xlabel: plt.xlabel('...') / axs[i_row, i_col].set_xlabel('..')
+    ylabel: plt.ylabel('...') / axs[i_row, i_col].set_ylabel('...')
+    legend: plt.legend()      / axs[i_row, i_col].legend()           => Affiche une légende pour : Class#0 Class#1
+    title : plt.title('....') / axs[i_row, i_col]..set_title('....') => Affiche un grand titre en haut au milieu du Plot 
+    axis[i,j].clear() : clear 'remet-a-blanc' un subplot
+
+6 - plt.hist(df[y==clazz][col], linewidth=1, label=f'Class #{int(clazz)}', alpha=0.3)
+    df[y==clazz][col].hist(linewidth=1, label=f'Class #{int(clazz)}', alpha=0.3)
+    df[y==clazz][col].plot(kind='hist', .....)
+    => Ces instructions font la même chose     
 '''
 class ImgUtil() :
     logger = LogManager.logger(__name__)
@@ -91,23 +112,25 @@ class ImgUtil() :
         cls.save_fig(fig_id=f"{fig_id}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
     @classmethod
-    def save_df_XY_hist_plot(cls, df_XY:pd.DataFrame, fig_id:str, bins=50, figsize=(5, 5), y_target_name=None, tight_layout=True,
+    def save_df_XY_hist_plot(cls, df_XY:pd.DataFrame, fig_id:str, ncols:int, bins=50, figsize=(20, 50), y_target_name=None, tight_layout=True,
                              fig_extension="png", resolution=300, ts_type=C.ts_sfix):
         cls.logger.debug(f"Generating 'XY_hist' plot: bins={bins} - figsize={figsize}")
         df_X = df_XY.drop(columns=y_target_name, axis=1)
         y    = df_XY[y_target_name]
-        fig, ax = plt.subplots(figsize=figsize)
-        # for i, col in enumerate(sorted(df_X.columns)) :
-        for i, col in enumerate(sorted(DfUtil.numerical_cols(df_X))) :
+        #
+        num_cols = DfUtil.numerical_cols(df_X)
+        nrows = len(num_cols) // ncols if (len(num_cols) % ncols) == 0 else (len(num_cols) // ncols) + 1
+        fig, axs = plt.subplots(nrows, ncols, figsize=figsize) # axs:<class 'matplotlib.axes._subplots.AxesSubplot'>
+        #
+        for i, col in enumerate(sorted(num_cols)) :
+            i_row, i_col = i//ncols, i%ncols
             for clazz in y.unique() :
-                df_X[y==clazz][col].plot.hist(bins=bins, figsize=figsize, alpha=0.3, label=f'Class #{int(clazz)}')
-            plt.legend()
-            plt.xlabel(col)
-            ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
-            ax.clear()
-    # NB:
-    # df.hist: => Plot 1 Histo per dfColumn
-    # df.plot.hist: => Plot all df-referenced-Columns on same Histo
+                df_X[y==clazz][col].plot.hist(bins=bins, figsize=figsize, ax= axs[i_row, i_col], alpha=0.3, label=f'Class #{int(clazz)}')
+            axs[i_row, i_col].legend()
+            axs[i_row, i_col].set_xlabel(col)
+            axs[i_row, i_col].set_ylabel('Fréquence')
+        ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+
 
     @classmethod
     def save_df_scatter_matrix_plot(cls, df:pd.DataFrame, fig_id:str , figsize=(20,15), cfield=None, tight_layout=True,
