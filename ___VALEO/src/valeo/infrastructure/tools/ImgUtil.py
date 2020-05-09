@@ -4,6 +4,7 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import numpy as np
 
 from valeo.infrastructure.tools.DfUtil import DfUtil
 
@@ -121,6 +122,8 @@ class ImgUtil() :
         num_cols = DfUtil.numerical_cols(df_X)
         nrows = len(num_cols) // ncols if (len(num_cols) % ncols) == 0 else (len(num_cols) // ncols) + 1
         fig, axs = plt.subplots(nrows, ncols, figsize=figsize) # axs:<class 'matplotlib.axes._subplots.AxesSubplot'>
+        if not isinstance(axs, np.ndarray) :
+            axs = np.array([axs]).reshape(nrows, 1)
         #
         for i, col in enumerate(sorted(num_cols)) :
             i_row, i_col = i//ncols, i%ncols
@@ -129,7 +132,7 @@ class ImgUtil() :
             axs[i_row, i_col].legend()
             axs[i_row, i_col].set_xlabel(col)
             axs[i_row, i_col].set_ylabel('Fréquence')
-        ImgUtil.save_fig(fig_id=f"{fig_id}_{col}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+        ImgUtil.save_fig(fig_id=f"{fig_id}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
 
     @classmethod
