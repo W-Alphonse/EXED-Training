@@ -138,6 +138,11 @@ class BucketTransformer(BaseEstimator, TransformerMixin):
         return X_new
 
 
+class EmtpyTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+    def transform(self, X):
+        return X
 
 # class CategoricalEncoder(BaseEstimator, TransformerMixin):
 #     """String to numbers categorical encoder."""

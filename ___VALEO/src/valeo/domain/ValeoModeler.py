@@ -4,6 +4,7 @@ from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier, Bal
 from imblearn.over_sampling import RandomOverSampler, ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.pipeline import Pipeline
+from imblearn.under_sampling import RandomUnderSampler
 from sklearn.pipeline import Pipeline as pline
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.compose import ColumnTransformer
@@ -129,6 +130,40 @@ class ValeoModeler :
 #     - [[7198 3065]
 #        [  32   60]]
 
+
+    def _build_transformers_pipeline_for_smote(self, X_df: pd.DataFrame) -> ColumnTransformer:
+        rand_state = 48
+        numerical_features = DfUtil.numerical_cols(X_df)
+        nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(5.0, 95.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
+        num_transformers_pipeline = Pipeline([ ('nan_imputer', nan_imputer),
+                                               ('zeroes_imputer', zeroes_imputer),
+                                               ('scaler', scaler)
+                                               ])
+        num_imputer_pipeline = Pipeline([ ('nan_imputer', nan_imputer), ('zeroes_imputer', zeroes_imputer)])
+
+
+
+        return ColumnTransformer([
+            # ('num_transformers_pipeline',num_transformers_pipeline, numerical_features),
+            ('num_imputer_pipeline',num_imputer_pipeline, numerical_features),
+            ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
+            # ('ht',OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month]),
+            # ('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure]),
+            # ('OP120U', pp.BucketTransformer((C.OP120_Rodage_U_mesure_value,[-np.inf, 11.975, np.inf],[1,2])), [C.OP120_Rodage_U_mesure_value]),
+            # ('V1_Value', pp.BucketTransformer((C.OP070_V_1_torque_value,[-np.inf, 6.5, np.inf],[1,2])), [C.OP070_V_1_torque_value]),
+            # ('V2_Value', pp.BucketTransformer((C.OP070_V_2_torque_value,[-np.inf, 6.5, np.inf],[1,2])), [C.OP070_V_2_torque_value]),
+            #
+            ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
+            # ('smote', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5)),
+            # ('undersampler', RandomUnderSampler(sampling_strategy=0.5)),
+            # ('num_scaler',scaler, numerical_features),
+        ], remainder='passthrough')
+
+
+
+
     def build_transformers_pipeline(self, features_dtypes:pd.Series) -> ColumnTransformer:
         rand_state = 48
         print(type(features_dtypes))
@@ -192,9 +227,10 @@ class ValeoModeler :
             #.ESTIM:200 depth:10 [6236 4027]/[39 53] - P:0.0130 - R:0.5761 - roc_auc:0.5919 - f1:0.0254
             # ESTIM:200 depth:20 [6104 4159]/[34 58] - P:0.0138 - R:0.6304 - roc_auc:0.6126 - f1:0.0269
             # ESTIM:200 depth:40 [6227 4036]/[37 55] - P:0.0134 - R:0.5978 - roc_auc:0.6023 - f1:0.0263
-            cls.BRFC : BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0),
+            cls.BRFC : BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0) , # sampling_strategy=0.5),
+            cls.LRC  : LogisticRegression(max_iter=500),
 
-            cls.RUSBoost : RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42),
+        cls.RUSBoost : RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42),
             cls.XGBC :  xgb.
                 XGBClassifier(base_score=0.5, booster='gbtree', colsample_bylevel=1,
                               colsample_bynode=1, colsample_bytree=1, gamma=0,
@@ -217,11 +253,14 @@ class ValeoModeler :
                               ])
         pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
                         # ('feats',feats),
-                        ('preprocessor', self._build_transformers_pipeline(X_df)) ,
+                        ('preprocessor', self._build_transformers_pipeline(X_df) ) ,
+
                         # ('pp_delete',dt),
                         # ('pp_cat_OP100',ct),
                         # ('hotencoder_transformer', ht),
                         ('hotencoder_transformer', OneHotEncoder()),
+                        ('smote', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5) if clfTypes[0] == cls.LRC else pp.EmtpyTransformer() ),
+                        ('undersampler', RandomUnderSampler(sampling_strategy=0.5)  if clfTypes[0] == cls.LRC else pp.EmtpyTransformer() ),
                        # ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
                        ########################
                         # ('nan_imputer', pp.NumericalImputer(columns_of_type_number, IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median', add_indicator=True, random_state=rand_state)) ),   # ('dbg_1', dbg),

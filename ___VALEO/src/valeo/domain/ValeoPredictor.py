@@ -148,7 +148,8 @@ class ValeoPredictor :
         best_model = cv_results["estimator"][np.argmax(cv_results["test_roc_auc"])]
         return best_model
 
-    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
+    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> ([BaseEstimator], dict):
+        ValeoPredictor.logger.info(f'Cross validation : {n_splits} folds')
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
         cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
@@ -156,7 +157,7 @@ class ValeoPredictor :
         for key in cv_results.keys() :
             if str(key) !=  "estimator" :
                 # print(f"{key} : {cv_results[key]}")
-                ValeoPredictor.logger.debug(f"{key} : {cv_results[key]}")
+                ValeoPredictor.logger.debug(f"{key} : min/mean/max/std -> {cv_results[key].min()} / {cv_results[key].mean()} / {cv_results[key].max()}  / {cv_results[key].std()}")
             fitted_estimators.append(cv_results[key])
         return fitted_estimators, cv_results
 
