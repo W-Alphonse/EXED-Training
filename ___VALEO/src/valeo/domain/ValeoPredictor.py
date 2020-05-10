@@ -9,6 +9,7 @@ from sklearn.metrics import f1_score, auc, roc_auc_score, confusion_matrix, clas
 from sklearn.model_selection import cross_validate, StratifiedKFold, GridSearchCV, RandomizedSearchCV
 
 import pandas as pd
+import numpy as np
 
 from valeo.domain.MetricPlotter import MetricPlotter
 from valeo.domain.ValeoModeler import ValeoModeler
@@ -27,12 +28,17 @@ class ValeoPredictor :
         self.modeler = ValeoModeler()
         self.metricPlt = MetricPlotter()
 
-    def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
-        return self.modeler.prepare_X_for_test(X_df, add_flds_to_drop)
+    # Cette fct doit etre supprimer car obsolete
+    # def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
+    #     return self.modeler.prepare_X_for_test(X_df, add_flds_to_drop)
 
+    ''' ========================================
+        1/ fit_cv_grid_search
+        ========================================
+    '''
     def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
-        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
+        CV = StratifiedKFold(n_splits=n_splits, random_state=48) # , random_state=48, shuffle=True
         # HGBC
         # param_grid = {
         #     'classifier__n_estimators': [3, 5, 10, 20, 50],
@@ -55,6 +61,11 @@ class ValeoPredictor :
                     # df_results = df_results[columns_to_keep]
         DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_cv.csv']) )
 
+
+    ''' ========================================
+        4/ fit_cv_randomized_search
+        ========================================
+    '''
     def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
         CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
@@ -75,29 +86,25 @@ class ValeoPredictor :
         for param in model.get_params().keys():
             print(param)
 
+
+    ''' ========================================
+        1/ Train / Test split : Fit and then Plot
+        ========================================
+    '''
     # 1 - Fit without any Cross Validation
-    def fit_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
-        # Q1 = X_train.quantile(0.25)
-        # Q3 = X_train.quantile(0.75)
-        # IQR = Q3 - Q1
-        # # print(IQR)
-        # to_remove = ((X_train < (Q1 - 1.5 * IQR)) |(X_train > (Q3 + 1.5 * IQR))).any(axis=1)
-        # y_train = y_train.drop(axis=0, index=X_train[to_remove].index)
-        # X_train = X_train[~to_remove]
-        #
-        fitted_model = self.fit(X_train, y_train, clfTypes)
-        # print(f"Type:{type(fitted_model)} - {fitted_model.get_params()}")
-        # self.print_model_params_keys(fitted_model)
-        self.predict_and_plot(fitted_model, X_test, y_test)
-        return fitted_model
-
-    def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
+    def fit_predict_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
+        # model = self.fit(X_train, y_train, clfTypes)
         model = self.modeler.build_predictor_pipeline(X_train, clfTypes)
-        # model = self.modeler.build_predictor_pipeline(X_train.select_dtypes('number').columns.to_list(), clfTypes)
-        # model = self.modeler.build_predictor_pipeline(X_train.dtypes, clfTypes)
-        return model.fit(X_train, y_train)
+        model.fit(X_train, y_train)
+        self.predict_and_plot(model, X_test, y_test)
+        return model
+    # def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
+    #     model = self.modeler.build_predictor_pipeline(X_train, clfTypes)
+    #     return model.fit(X_train, y_train)
 
-    ''' 2 - Fit with Cross Validation
+
+    ''' ================================================================================================================
+        2/ Fit with Cross Validation
         NB :
         a - roc-auc-avo + roc-auc-ovr : 
             https://stackoverflow.com/questions/59453363/what-is-the-difference-of-roc-auc-values-in-sklearn
@@ -131,16 +138,25 @@ class ValeoPredictor :
                    conf_matrix_list_of_arrays .append(conf_matrix)
                    
                 On the end you can calculate your mean of list of numpy arrays (confusion matrices) with:
-                mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays, axis=0)                               
+                mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays, axis=0)   
+        ================================================================================================================                            
     '''
-    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
+    def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=10) -> BaseEstimator :
+        fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits)
+        # print(f'- np.argmax(cv_results[test_roc_auc]:{np.argmax(cv_results["test_roc_auc"])} => test_roc_auc : {cv_results["test_roc_auc"][np.argmax(cv_results["test_roc_auc"])]}')
+        ValeoPredictor.logger.info(f'- np.argmax(cv_results[test_roc_auc]:{np.argmax(cv_results["test_roc_auc"])} => test_roc_auc : {cv_results["test_roc_auc"][np.argmax(cv_results["test_roc_auc"])]}')
+        best_model = cv_results["estimator"][np.argmax(cv_results["test_roc_auc"])]
+        return best_model
+
+    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
         cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
         fitted_estimators = []
         for key in cv_results.keys() :
             if str(key) !=  "estimator" :
-                print(f"{key} : {cv_results[key]}")
+                # print(f"{key} : {cv_results[key]}")
+                ValeoPredictor.logger.debug(f"{key} : {cv_results[key]}")
             fitted_estimators.append(cv_results[key])
         return fitted_estimators, cv_results
 

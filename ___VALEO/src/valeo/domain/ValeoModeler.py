@@ -40,18 +40,20 @@ class ValeoModeler :
     logger = None
 
     def __init__(self):
-        logger = LogManager.logger(__name__)
+        ValeoModeler.logger = LogManager.logger(__name__)
 
-    def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
-        # date_proc = pp.ProcDateTransformer(X_df)
-        # drop_features = pp.DropUnecessaryFeatures([C.PROC_TRACEINFO] if add_flds_to_drop == None else [C.PROC_TRACEINFO] + add_flds_to_drop )
-        # X_df = date_proc.transform(X_df)
-        # X_df = drop_features.transform(X_df)
-        dt_transf = pp.ProcDateTransformer()
-        X_df = dt_transf.transform(X_df)
-        print(f'X_df:{X_df.head()}')
-        print(f'X_df:{X_df.columns}')
-        return X_df
+    # Cette fct doit etre supprimer car obsolete
+    # def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
+    #     # date_proc = pp.ProcDateTransformer(X_df)
+    #     # drop_features = pp.DropUnecessaryFeatures([C.PROC_TRACEINFO] if add_flds_to_drop == None else [C.PROC_TRACEINFO] + add_flds_to_drop )
+    #     # X_df = date_proc.transform(X_df)
+    #     # X_df = drop_features.transform(X_df)
+    #
+    #     dt_transf = pp.ProcDateTransformer()
+    #     X_df = dt_transf.transform(X_df)
+    #     print(f'X_df:{X_df.head()}')
+    #     print(f'X_df:{X_df.columns}')
+    #     return X_df
 
     # def _build_transformers_pipeline(self, features_dtypes:pd.Series) -> Pipeline:
     #     rand_state = 48
