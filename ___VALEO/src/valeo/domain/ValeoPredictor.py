@@ -37,16 +37,20 @@ class ValeoPredictor :
         ==========================================
     '''
     def fit_predict_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
-        model = self.modeler.build_predictor_pipeline(X_train, clfTypes)
-        model.fit(X_train, y_train)
+        model = self.fit(X_train, y_train, clfTypes)
         self.predict_and_plot(model, X_test, y_test)
         self.print_model_params_keys(model)
         return model
 
+    def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
+        model = self.modeler.build_predictor_pipeline(X_train, clfTypes)
+        model.fit(X_train, y_train)
+        return model
 
     def print_model_params_keys(self, model:BaseEstimator):
-        for param in model.get_params().keys():
-            ValeoPredictor.logger.info(param)
+        pass
+    #     for param in model.get_params().keys():
+    #         ValeoPredictor.logger.info(param)
 
     ''' =================================
         2/ Fit with Cross Validation
@@ -103,7 +107,8 @@ class ValeoPredictor :
         for key in cv_results.keys() :
             if str(key) !=  "estimator" :
                 # print(f"{key} : {cv_results[key]}")
-                ValeoPredictor.logger.debug(f"{key} : min/mean/max/std -> {cv_results[key].min()} / {cv_results[key].mean()} / {cv_results[key].max()}  / {cv_results[key].std()}")
+                # ValeoPredictor.logger.debug(f"{key} : min/mean/max/std -> {cv_results[key].min()} / {cv_results[key].mean()} / {cv_results[key].max()}  / {cv_results[key].std()}")
+                ValeoPredictor.logger.debug(f"{key} -> mean:{cv_results[key].mean()} - {cv_results[key]}")
             fitted_estimators.append(cv_results[key])
         return fitted_estimators, cv_results
 
@@ -154,11 +159,59 @@ class ValeoPredictor :
         #     'classifier__base_estimator__max_iter' : [100],
         #     'classifier__base_estimator__max_depth' : [10,50,10]
         # }
-        # BRFC
-        param_grid = {
-            'classifier__n_estimators': [250,300],
-            'classifier__max_depth': [15,20,25],
-            'classifier__max_features' : ['auto',13]
+        # for BRFC read this link: https://machinelearningmastery.com/bagging-and-random-forest-for-imbalanced-classification/
+        # BRFC : BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0)
+        # param_grid_0 = {                                                #param_grid_0
+        #     'classifier__n_estimators': [250,300],    # 300
+        #     'classifier__max_depth': [15,20,25],      # 20
+        #     'classifier__max_features' : ['auto',13], # auto C'est le nombre de features selectionnées
+        #     'classifier__min_samples_split' : [5, 8], # 8
+        #     'classifier__min_samples_leaf' : [3, 5],  # 5
+        #     'classifier__oob_score': [True, False],   # False
+        #     'classifier__class_weight' : ['balanced', None] # None
+        # }
+        # param_grid_1 = {                                                  #param_grid=1  better than param_grid_0
+        #     'classifier__n_estimators': [250,300],     # 300
+        #     'classifier__max_depth': [20],             # 20
+        #     'classifier__max_features' : ['auto'],     # auto C'est le nombre de features selectionnées
+        #     'classifier__min_samples_split' : [8, 12], # 8 ou 12
+        #     'classifier__min_samples_leaf' : [5, 10],  # 10
+        #     'classifier__oob_score': [False],          # False
+        #     'classifier__class_weight' : [None]        # None
+        # } NB: test_roc_auc  : [0.65268942 0.71165229 0.65813965 0.73303875 0.74815986 0.69392817 0.70467358 0.69323889]  / Split 8
+        #       train_roc_auc : [0.78869075 0.78907625 0.78553331 0.78299062 0.78295546 0.78258473  0.78412007 0.78626762]
+        # param_grid_2 = {                                                  #param_grid=2   better than param_grid_1
+        #     'classifier__n_estimators': [250, 300, 350],   # 300
+        #     'classifier__max_depth': [20],                 # 20
+        #     'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
+        #     'classifier__min_samples_split' : [8, 12],     # 8 ou 12
+        #     'classifier__min_samples_leaf' : [10, 15],     # 15
+        #     'classifier__oob_score': [False],  # False
+        #     'classifier__class_weight' : [None]            # None
+        # } # NB: test_roc_auc  : [0.65268942 0.71165229 0.65813965 0.73303875 0.74815986 0.69392817 0.70467358 0.69323889]  / Split 8
+        #       train_roc_auc : [0.78869075 0.78907625 0.78553331 0.78299062 0.78295546 0.78258473  0.78412007 0.78626762]
+        #       test_roc_auc  : [0.65268942 0.71165229 0.65813965 0.73303875 0.74815986 0.69392817  0.70467358 0.69323889]  / Split 12
+        #       train_roc_auc : [0.78869075 0.78907625 0.78553331 0.78299062 0.78295546 0.78258473  0.78412007 0.78626762]
+        # param_grid_3 = {                                  #param_grid_3
+        #     'classifier__n_estimators': [300],             # 300
+        #     'classifier__max_depth': [20],                 # 20
+        #     'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
+        #     'classifier__min_samples_split' : [8, 12],     # 8 ou 12. Ils sont tjrs execau
+        #     'classifier__min_samples_leaf' : [15],         # 15
+        #     'classifier__oob_score': [False],              # False
+        #     'classifier__class_weight' : [None],           # None
+        #     'classifier__sampling_strategy' : [0.1 , 0.25, 0.5]  # 0.1 le meilleur ds la liste
+        # }
+        param_grid = {                                                  #param_grid_4
+            'classifier__n_estimators': [300],             # 300
+            'classifier__max_depth': [20],                 # 20
+            'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
+            'classifier__min_samples_split' : [8, 12],     # 8 ou 12. Ils sont tjrs execau
+            'classifier__min_samples_leaf' : [15],         # 15
+            'classifier__oob_score': [False],              # False
+            'classifier__class_weight' : [None],           # None
+            'classifier__criterion' : ['entropy', 'gini'],
+            'classifier__sampling_strategy' : [ 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
         }
 
         grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV) # if is_grid else
@@ -167,7 +220,7 @@ class ValeoPredictor :
         df_results = pd.DataFrame(grid.cv_results_)
         # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
         # df_results = df_results[columns_to_keep]
-        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_cv.csv']) )
+        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), f'grid_search_cv-{clfTypes[0]}.csv']) )
 
 
     ''' ========================================
