@@ -32,79 +32,25 @@ class ValeoPredictor :
     # def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
     #     return self.modeler.prepare_X_for_test(X_df, add_flds_to_drop)
 
-    ''' ========================================
-        1/ fit_cv_grid_search
-        ========================================
-    '''
-    def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
-        model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
-        CV = StratifiedKFold(n_splits=n_splits, random_state=48) # , random_state=48, shuffle=True
-        # HGBC
-        # param_grid = {
-        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
-        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
-        #     'classifier__base_estimator__max_iter' : [100],
-        #     'classifier__base_estimator__max_depth' : [10,50,10]
-        # }
-        # BRFC
-        param_grid = {
-            'classifier__n_estimators': [250,300],
-            'classifier__max_depth': [15,20,25],
-            'classifier__max_features' : ['auto',13]
-        }
-
-        grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV) # if is_grid else
-        grid.fit(X, y)
-        print(f"Best Estimator: {grid.best_estimator_}")
-        df_results = pd.DataFrame(grid.cv_results_)
-                    # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
-                    # df_results = df_results[columns_to_keep]
-        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_cv.csv']) )
-
-
-    ''' ========================================
-        4/ fit_cv_randomized_search
-        ========================================
-    '''
-    def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
-        model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
-        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
-        # HGBC
-        # param_grid = {
-        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
-        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
-        #     'classifier__base_estimator__max_iter' : [100],
-        #     'classifier__base_estimator__max_depth' : [10,50,10]
-        # }
-
-        grid = RandomizedSearchCV(model, param_distributions=param_grid, n_jobs=-1, cv=CV) # if is_grid else
-        grid.fit(X, y)
-        df_results = pd.DataFrame(grid.cv_results_)
-        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_csv']) )
-
-    def print_model_params_keys(self, model:BaseEstimator):
-        for param in model.get_params().keys():
-            print(param)
-
-
-    ''' ========================================
+    ''' ==========================================
         1/ Train / Test split : Fit and then Plot
-        ========================================
+        ==========================================
     '''
-    # 1 - Fit without any Cross Validation
     def fit_predict_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
-        # model = self.fit(X_train, y_train, clfTypes)
         model = self.modeler.build_predictor_pipeline(X_train, clfTypes)
         model.fit(X_train, y_train)
         self.predict_and_plot(model, X_test, y_test)
+        self.print_model_params_keys(model)
         return model
-    # def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
-    #     model = self.modeler.build_predictor_pipeline(X_train, clfTypes)
-    #     return model.fit(X_train, y_train)
 
 
-    ''' ================================================================================================================
+    def print_model_params_keys(self, model:BaseEstimator):
+        for param in model.get_params().keys():
+            ValeoPredictor.logger.info(param)
+
+    ''' =================================
         2/ Fit with Cross Validation
+        =================================
         NB :
         a - roc-auc-avo + roc-auc-ovr : 
             https://stackoverflow.com/questions/59453363/what-is-the-difference-of-roc-auc-values-in-sklearn
@@ -193,6 +139,56 @@ class ValeoPredictor :
         # self.plot_roc(y_test, y_pred)
         # self.plot_precision_recall(y_test, y_pred)
 
+
+    ''' ========================================
+        3/ fit_cv_grid_search
+        ========================================
+    '''
+    def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
+        model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
+        CV = StratifiedKFold(n_splits=n_splits, random_state=48) # , random_state=48, shuffle=True
+        # HGBC
+        # param_grid = {
+        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
+        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
+        #     'classifier__base_estimator__max_iter' : [100],
+        #     'classifier__base_estimator__max_depth' : [10,50,10]
+        # }
+        # BRFC
+        param_grid = {
+            'classifier__n_estimators': [250,300],
+            'classifier__max_depth': [15,20,25],
+            'classifier__max_features' : ['auto',13]
+        }
+
+        grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV) # if is_grid else
+        grid.fit(X, y)
+        print(f"Best Estimator: {grid.best_estimator_}")
+        df_results = pd.DataFrame(grid.cv_results_)
+        # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
+        # df_results = df_results[columns_to_keep]
+        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_cv.csv']) )
+
+
+    ''' ========================================
+        4/ fit_cv_randomized_search
+        ========================================
+    '''
+    def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
+        model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
+        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
+        # HGBC
+        # param_grid = {
+        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
+        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
+        #     'classifier__base_estimator__max_iter' : [100],
+        #     'classifier__base_estimator__max_depth' : [10,50,10]
+        # }
+
+        grid = RandomizedSearchCV(model, param_distributions=param_grid, n_jobs=-1, cv=CV) # if is_grid else
+        grid.fit(X, y)
+        df_results = pd.DataFrame(grid.cv_results_)
+        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_csv']) )
 
 
 # https://medium.com/towards-artificial-intelligence/application-of-synthetic-minority-over-sampling-technique-smote-for-imbalanced-data-sets-509ab55cfdaf

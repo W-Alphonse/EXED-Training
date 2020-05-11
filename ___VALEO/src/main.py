@@ -28,11 +28,11 @@ if __name__ == "__main__" :
 
     # 2.a - Fit and predict on X_train, X_test
     X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.3, random_state=48, stratify=y_df)  # shuffle=True,
-    # fitted_model = pred.fit_predict_and_plot(X_train, y_train, X_test, y_test, [ValeoModeler.LRC])
+    fitted_model = pred.fit_predict_and_plot(X_train, y_train, X_test, y_test, [ValeoModeler.BRFC])
 
     # 2.b - Fit using CV
-    fitted_model = pred.fit_cv_best_score(X_df, y_df, [ValeoModeler.BRFC], n_splits=8)  #XGBC  BRFC LRC
-    pred.predict_and_plot(fitted_model, X_test, y_test)  # **cette instruction doit etre supprimer**
+    # fitted_model = pred.fit_cv_best_score(X_df, y_df, [ValeoModeler.BRFC], n_splits=8)  #XGBC  BRFC LRC
+    # pred.predict_and_plot(fitted_model, X_test, y_test)  # **cette instruction doit etre supprimer**
 
     # 2.c - Fit using GridSearchCV
     # pred.fit_cv_grid_search(X_df, y_df, [ValeoModeler.BRFC])
