@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pandas import Series
 from sklearn.base import BaseEstimator
+from sklearn.model_selection._search import BaseSearchCV
 
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
@@ -33,6 +34,17 @@ class DfUtil() :
         except Exception as ex:
             cls.logger = LogManager.logger("DfUtil")
             cls.logger.exception(f"Error while writing 'df' to CSV '{pathAsStrList}'")
+
+    @classmethod
+    def write_cv_search_result(cls, search_type:[str], df_cv_result:pd.DataFrame, base_search_cv: BaseSearchCV) :
+        df = pd.DataFrame({'Type'       : [ search_type],
+                           'Date'       : [ datetime.now().strftime('%m%d-%H:%M')],
+                           'Score Test' : [ float( '%.4f' % base_search_cv.best_score_) ],
+                           'Score Train': [ float( '%.4f' % df_cv_result.iloc[base_search_cv.best_index_]['mean_train_score'] ) ],   # df_cv_result['mean_train_score'].mean()
+                           'Params'    :  [ base_search_cv.best_params_ ],
+                           # 'Estimator' :  [ base_search_cv.best_estimator_]
+                           })
+        df.to_csv( C.ts_pathanme([C.rootReports(), '__cv_search.csv'], ts_type=C.ts_none) , mode = 'a',  header=False)
 
     @classmethod
     def df_imputer(cls, dfToImpute:pd.DataFrame, imputer:BaseEstimator):

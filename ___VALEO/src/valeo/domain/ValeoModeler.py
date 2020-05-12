@@ -228,9 +228,21 @@ class ValeoModeler :
             # ESTIM:200 depth:20 [6104 4159]/[34 58] - P:0.0138 - R:0.6304 - roc_auc:0.6126 - f1:0.0269
             # ESTIM:200 depth:40 [6227 4036]/[37 55] - P:0.0134 - R:0.5978 - roc_auc:0.6023 - f1:0.0263
 
-            # Cette config a obtenue le roc_auc le plus haut, mais il avait beaucoup de overfitting
+            # Cette config a obtenue le roc_auc le plus haut, score 0.67 ENS. mais il avait beaucoup de overfitting
             # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0) , # sampling_strategy=0.5),
-            cls.BRFC : BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, min_samples_split=12, min_samples_leaf=15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
+
+            # Cette config a été selectionné en se basant sur GridSearchCV, mais elle a obtenue un score ENS de 0.65 seulement. Elle ameliore l overfitting par rapport au cas precedent
+            # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, min_samples_split=12, min_samples_leaf=15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
+
+            # Cette config a été selectionné en se basant sur RandomizedSearchCV, mais elle genere lerreur:
+            # UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples
+            # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 61 , max_depth=8, min_samples_split=8, min_samples_leaf=9,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
+            # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 102 , max_depth=6, min_samples_split=18, min_samples_leaf=13,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
+
+            # Cette config a obtenue .....
+            cls.BRFC : BalancedRandomForestClassifier(n_estimators = 102 ,  min_samples_split=12,   random_state=0) , # sampling_strategy=0.5),
+
+
             cls.LRC  : LogisticRegression(max_iter=500),
             cls.SVC  : SVC(kernel="rbf", C=0.025, probability=True),
 

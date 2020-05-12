@@ -1,3 +1,8 @@
+# from random import randint
+from datetime import datetime
+
+import sklearn
+from scipy.stats import randint
 
 from imblearn.metrics._classification import classification_report_imbalanced
 # https://imbalanced-learn.readthedocs.io/en/stable/api.html#module-imblearn.pipeline
@@ -93,7 +98,6 @@ class ValeoPredictor :
     '''
     def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=10) -> BaseEstimator :
         fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits)
-        # print(f'- np.argmax(cv_results[test_roc_auc]:{np.argmax(cv_results["test_roc_auc"])} => test_roc_auc : {cv_results["test_roc_auc"][np.argmax(cv_results["test_roc_auc"])]}')
         ValeoPredictor.logger.info(f'- np.argmax(cv_results[test_roc_auc]:{np.argmax(cv_results["test_roc_auc"])} => test_roc_auc : {cv_results["test_roc_auc"][np.argmax(cv_results["test_roc_auc"])]}')
         best_model = cv_results["estimator"][np.argmax(cv_results["test_roc_auc"])]
         return best_model
@@ -102,11 +106,11 @@ class ValeoPredictor :
         ValeoPredictor.logger.info(f'Cross validation : {n_splits} folds')
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
-        cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+        # cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+        cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'recall', 'precision', 'roc_auc'), return_train_score=True, return_estimator=True)
         fitted_estimators = []
         for key in cv_results.keys() :
             if str(key) !=  "estimator" :
-                # print(f"{key} : {cv_results[key]}")
                 # ValeoPredictor.logger.debug(f"{key} : min/mean/max/std -> {cv_results[key].min()} / {cv_results[key].mean()} / {cv_results[key].max()}  / {cv_results[key].std()}")
                 ValeoPredictor.logger.debug(f"{key} -> mean:{cv_results[key].mean()} - {cv_results[key]}")
             fitted_estimators.append(cv_results[key])
@@ -149,7 +153,7 @@ class ValeoPredictor :
         3/ fit_cv_grid_search
         ========================================
     '''
-    def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
+    def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
         CV = StratifiedKFold(n_splits=n_splits, random_state=48) # , random_state=48, shuffle=True
         # HGBC
@@ -214,6 +218,23 @@ class ValeoPredictor :
             'classifier__sampling_strategy' : [ 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
         }
 
+        # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 61 , max_depth=8, min_samples_split=8, min_samples_leaf=9,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
+        # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 102 , max_depth=6, min_samples_split=18, min_samples_leaf=13,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
+        param_grid = {                                                  #param_grid_4
+            'classifier__n_estimators': [61,102, 300],             # 300
+            'classifier__max_depth': [6,8, 15, 20],                 # 20
+            'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
+            'classifier__min_samples_split' : [8, 12, 18],     # 8 ou 12. Ils sont tjrs execau
+            'classifier__min_samples_leaf' : [9,13, 15],         # 15
+            # 'classifier__oob_score': [False],              # False
+            # 'classifier__class_weight' : [None],           # None
+            # 'classifier__criterion' : ['entropy', 'gini'],
+            'classifier__sampling_strategy' : [ 0.15, 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
+        }
+
+
+
+
         grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV) # if is_grid else
         grid.fit(X, y)
         print(f"Best Estimator: {grid.best_estimator_}")
@@ -227,9 +248,9 @@ class ValeoPredictor :
         4/ fit_cv_randomized_search
         ========================================
     '''
-    def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=5) -> ([BaseEstimator], dict): # (estimator, cv_results)
+    def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
-        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
+        CV = StratifiedKFold(n_splits=n_splits, random_state=48) #  shuffle=True
         # HGBC
         # param_grid = {
         #     'classifier__n_estimators': [3, 5, 10, 20, 50],
@@ -238,10 +259,37 @@ class ValeoPredictor :
         #     'classifier__base_estimator__max_depth' : [10,50,10]
         # }
 
-        grid = RandomizedSearchCV(model, param_distributions=param_grid, n_jobs=-1, cv=CV) # if is_grid else
-        grid.fit(X, y)
-        df_results = pd.DataFrame(grid.cv_results_)
-        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), 'grid_search_csv']) )
+        # random_search_cv-BRFC_2020_05_12-14.18.33_2020_05_12-14.18.33.csv
+        param_distributions = { # n_iter=20
+            'classifier__n_estimators': randint(10, 300),         # 38
+            'classifier__max_depth': randint(5, 20),              # 7
+            'classifier__min_samples_split' : randint(5, 20),     # 13
+            'classifier__min_samples_leaf' : randint(5, 20),      # 15
+            'classifier__criterion' : ['entropy', 'gini'],        # gin
+            # 'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 'auto']
+            'classifier__sampling_strategy' : [ 0.3, 0.25, 0.2, 'auto']  # 0.2
+        }
+
+        #
+        param_distributions = { # n_iter=10
+            'classifier__n_estimators': randint(30, 50),         # 38
+            'classifier__max_depth': randint(5, 15),              # 7
+            'classifier__min_samples_split' : randint(10, 20),     # 13
+            'classifier__min_samples_leaf' : randint(10, 20),      # 15
+            'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2]  # 0.2
+        }
+
+        randomized = RandomizedSearchCV(model, param_distributions=param_distributions, n_iter=10, scoring='roc_auc', n_jobs=-1, cv=CV, return_train_score=True)
+        randomized.fit(X, y)
+        #
+        df_cv_results = pd.DataFrame(randomized.cv_results_)
+        DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'random_search_cv-{clfTypes[0]}.csv'] )
+        DfUtil.write_cv_search_result( clfTypes + ['Random'] , df_cv_results, randomized)
+        #
+        # randomized.best_score_ ; randomized.best_params_ ; randomized.best_estimator_;  randomized.best_index_ ; sklearn.metrics.SCORERS.keys()
+        ValeoPredictor.logger.info(f"- Best Score: {'%.4f' % randomized.best_score_} (Train {'%.4f' %  df_cv_results.iloc[randomized.best_index_] ['mean_train_score']}) / Best Params: {randomized.best_params_}")
+        # ValeoPredictor.logger.info(f"- Best Score: {'%.4f' % randomized.best_score_} (Train {'%.4f' %  df_cv_results['mean_train_score'].mean()}) / Best Params: {randomized.best_params_}")
+
 
 
 # https://medium.com/towards-artificial-intelligence/application-of-synthetic-minority-over-sampling-technique-smote-for-imbalanced-data-sets-509ab55cfdaf
