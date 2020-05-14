@@ -1,33 +1,51 @@
-# ENVIRONMENT keys used to refer to configuration files
+# 1 - ENVIRONMENT keys used to refer to configuration files
 ENV_KEY_CONFIG_FILE_PATHNAME = '__VALEO__APP_CONFIG_FILE_PATHNAME' # ex: SET __VALEO__APP_CONFIG_FILE_PATHNAME=...../valeo.yaml'
 ENV_KEY_LOG_FILE_PATHNAME    = '__VALEO__APP_LOG_FILE_PATHNAME'    # ex: SET __VALEO__APP_LOG_FILE_PATHNAME=...../logging.yaml'
 #
-# Symbolic name of configuration files
+# 2 - Symbolic name of configuration files
 APP_DEFAULT_CONFIG_FILE = 'valeo.yaml'
 APP_DEFAULT_LOG_FILE    = 'logging.yaml'
 #
-# Valeo Dataset columns names
+# 3 - Valeo Dataset columns names
 PROC_TRACEINFO         = 'PROC_TRACEINFO'
 OP070_V_1_angle_value  = 'OP070_V_1_angle_value'
 OP070_V_1_torque_value = 'OP070_V_1_torque_value'
 OP070_V_2_angle_value  = 'OP070_V_2_angle_value'
 OP070_V_2_torque_value = 'OP070_V_2_torque_value'
-OP090_StartLinePeakForce_value = 'OP090_StartLinePeakForce_value'
+OP090_StartLinePeakForce_value  = 'OP090_StartLinePeakForce_value'
 OP090_SnapRingMidPointForce_val = 'OP090_SnapRingMidPointForce_val'
-OP090_SnapRingPeakForce_value     = 'OP090_SnapRingPeakForce_value'
-OP090_SnapRingFinalStroke_value   = 'OP090_SnapRingFinalStroke_value'
-OP100_Capuchon_insertion_mesure   = 'OP100_Capuchon_insertion_mesure'
+OP090_SnapRingPeakForce_value   = 'OP090_SnapRingPeakForce_value'
+OP090_SnapRingFinalStroke_value = 'OP090_SnapRingFinalStroke_value'
+OP100_Capuchon_insertion_mesure = 'OP100_Capuchon_insertion_mesure'
 OP110_Vissage_M8_angle_value  = 'OP110_Vissage_M8_angle_value'
 OP110_Vissage_M8_torque_value = 'OP110_Vissage_M8_torque_value'
 OP120_Rodage_I_mesure_value   = 'OP120_Rodage_I_mesure_value'
 OP120_Rodage_U_mesure_value   = 'OP120_Rodage_U_mesure_value'
 Binar_OP130_Resultat_Global_v = 'Binar OP130_Resultat_Global_v'
-F_Manuf_day_count = 'F_Manuf_day_count'
+# F_Manuf_day_count = 'F_Manuf_day_count'
 proc_month = 'proc_month'
 proc_week  = 'proc_week'
 proc_weekday = 'proc_weekday'
-
 #
+# 4 - Algorithm Classifiers keys
+BBC  = "BBC"          # BalancedBaggingClassifier(base_estimator=HGBR,  sampling_strategy=1.0, replacement=False, random_state=48)
+HGBC = "HGBR"         # HistGradientBoostingClassifier(max_iter = 8 , max_depth=8,learning_rate=0.35, l2_regularization=500)
+BRFC = "BRFC"         # BalancedRandomForestClassifier(n_estimators = 50 , max_depth=20)
+RUSBoost = "RUSBoost" # RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
+KNN = "KNN"           # KNeighborsClassifier(3),
+SVC = "SVC"           # SVC(kernel="rbf", C=0.025, probability=True)
+NuSVC = "NuSVC"       # NuSVC(probability=True),
+RFC = "RFC"           # RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
+DTC = "DTC"           # DecisionTreeClassifier())  # so bad
+ADABoost = "ADABoost" # AdaBoostClassifier()
+GBC  = "GBC"          # GradientBoostingClassifier()
+LRC  = "LRC"          # LogisticRegression(max_iter=500))  # Best for Recall 1
+XGBC = "XGBC"         # xgb.XGBClassifier()
+#  ('classification', GaussianNB())  # 0.5881085402220386
+#  ('classification', ComplementNB())  # 0.523696690978335
+#  ('classification', MultinomialNB())  # 0.523696690978335
+Imbl_Resampler =  "Imbl_Resampler"
+
 # Imbalanced resampling type
 random_over_sampler = 'random_over_sampler' # The most naive strategy is to generate new samples by randomly sampling with replacement the current available samples.
 adasyn_over_sampling = 'adasyn_over_sampling' # Adaptive Synthetic: focuses on generating samples next to the original samples which are wrongly classified using a k-Nearest Neighbors classifier

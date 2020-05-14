@@ -16,8 +16,9 @@ from sklearn.model_selection import cross_validate, StratifiedKFold, GridSearchC
 import pandas as pd
 import numpy as np
 
-from valeo.domain.MetricPlotter import MetricPlotter
-from valeo.domain.ValeoModeler import ValeoModeler
+from valeo.domain.MetricPlotter   import MetricPlotter
+from valeo.domain.ValeoModeler    import ValeoModeler
+from valeo.domain.ClassifierParam import ClassifierParam
 from valeo.infrastructure.tools.DfUtil import DfUtil
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
@@ -32,6 +33,7 @@ class ValeoPredictor :
         ValeoPredictor.logger = LogManager.logger(__name__)
         self.modeler = ValeoModeler()
         self.metricPlt = MetricPlotter()
+        self.param = ClassifierParam()
 
     # Cette fct doit etre supprimer car obsolete
     # def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
@@ -96,22 +98,16 @@ class ValeoPredictor :
                 mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays, axis=0)   
         ================================================================================================================                            
     '''
-    def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8, classifier_params = None) -> BaseEstimator :
-        fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits, classifier_params=classifier_params)
+    def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> BaseEstimator :
+        fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits)
         ValeoPredictor.logger.info(f'- np.argmax(cv_results[test_roc_auc]:{np.argmax(cv_results["test_roc_auc"])} => test_roc_auc : {cv_results["test_roc_auc"][np.argmax(cv_results["test_roc_auc"])]}')
         best_model = cv_results["estimator"][np.argmax(cv_results["test_roc_auc"])]
         return best_model
 
-    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8, classifier_params = None) -> ([BaseEstimator], dict):
+    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> ([BaseEstimator], dict):
         ValeoPredictor.logger.info(f'Cross validation : {n_splits} folds')
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
-        if classifier_params != None :
-            # print(f'1_ {type(model[-1])}')
-            # print(f'2_ {model[-1]}')
-            # print(f'7_ {classifier_params}')
-            # model[-1].set_params(**classifier_params)
-            model = classifier_params
-        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
+        CV = StratifiedKFold(n_splits=n_splits, random_state=48) # , shuffle=True
 
         # The cross_validate function differs from cross_val_score in two ways:
         # It allows specifying multiple metrics for evaluation + It returns a dict containing fit-times, score-times ...
@@ -134,6 +130,7 @@ class ValeoPredictor :
     def predict_and_plot(self, fitted_model: BaseEstimator, X_test:pd.DataFrame, y_test:pd.DataFrame):
         y_pred = fitted_model.predict(X_test)
         #
+        print("*** Predict and Plot on Test DataSet ***")
         print(f"- Model score: {fitted_model.score(X_test, y_test)}")
         print(f"- Accuracy score: {accuracy_score(y_test, y_pred)}")
         print(f"- Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)} / The balanced accuracy to deal with imbalanced datasets. It is defined as the average of recall obtained on each class.")
@@ -163,8 +160,6 @@ class ValeoPredictor :
         ========================================
     '''
     def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
-        model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
-        CV = StratifiedKFold(n_splits=n_splits, random_state=48) # , random_state=48, shuffle=True
         # HGBC
         # param_grid = {
         #     'classifier__n_estimators': [3, 5, 10, 20, 50],
@@ -241,10 +236,9 @@ class ValeoPredictor :
             'classifier__sampling_strategy' : [ 0.15, 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
         }
 
-
-
-
-        grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV) # if is_grid else
+        model = self.modeler.build_predictor_pipeline(X, clfTypes)
+        CV = StratifiedKFold(n_splits=n_splits, random_state=48)   # shuffle=True
+        grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV)
         grid.fit(X, y)
         print(f"Best Estimator: {grid.best_estimator_}")
         df_results = pd.DataFrame(grid.cv_results_)
@@ -255,61 +249,30 @@ class ValeoPredictor :
 
     ''' ========================================
         4/ fit_cv_randomized_search
+        if n_iter == 0 or None => Grid Search Else RandomSearch 
         ========================================
     '''
-    def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> BaseEstimator: # (estimator, cv_results)
-        model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
-        CV = StratifiedKFold(n_splits=n_splits, random_state=48) #  shuffle=True
-        # HGBC
-        # param_grid = {
-        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
-        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
-        #     'classifier__base_estimator__max_iter' : [100],
-        #     'classifier__base_estimator__max_depth' : [10,50,10]
-        # }
+    def fit_cv_grid_or_random_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_random_iter=None, n_splits=8) -> BaseEstimator:
+        is_grid = (n_random_iter == None) or (n_random_iter == 0)
+        model = self.modeler.build_predictor_pipeline(X, clfTypes)
+        CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
 
-        # random_search_cv-BRFC_2020_05_12-14.18.33_2020_05_12-14.18.33.csv
-        param_distributions = { # n_iter=20
-            'classifier__n_estimators': randint(10, 300),         # 38
-            'classifier__max_depth': randint(5, 20),              # 7
-            'classifier__min_samples_split' : randint(5, 20),     # 13
-            'classifier__min_samples_leaf' : randint(5, 20),      # 15
-            'classifier__criterion' : ['entropy', 'gini'],        # gin
-            # 'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 'auto']
-            'classifier__sampling_strategy' : [ 0.3, 0.25, 0.2, 'auto']  # 0.2
-        }
-
-        #
-        param_distributions = { # n_iter=10
-            'classifier__n_estimators': randint(30, 50),         # 38
-            'classifier__max_depth': randint(5, 15),              # 7
-            'classifier__min_samples_split' : randint(10, 20),     # 13
-            'classifier__min_samples_leaf' : randint(10, 20),      # 15
-            'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2]  # 0.2
-        }
-
-        param_distributions = { # n_iter=10
-            'classifier__n_estimators': randint(30, 300),         # 38
-            'classifier__max_depth': randint(5, 25),              # 7
-            # 'classifier__min_samples_split' : randint(10, 20),     # 13
-            'classifier__min_samples_leaf' : randint(5, 15),      # 15
-            'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # 0.2
-        }
-
-        # https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search
-        # NB: When specifying multiple metrics, the refit parameter must be set to the metric (string) for which the best_params_
-        #      will be found and used to build the best_estimator_ on the whole dataset.
-        randomized = RandomizedSearchCV(model, param_distributions=param_distributions, n_iter=20,
-                                        scoring='roc_auc', n_jobs=-1, cv=CV, return_train_score=True)
-        randomized.fit(X, y)
+        #  refit=True => Refit an estimator using the best found parameters on the whole dataset
+        #  NB: For multiple metric evaluation, this needs to be a str denoting the scorer that would be used to find the best parameters
+        #      for refitting the estimator at the end.
+        # The refitted estimator is made available at the best_estimator_ attribute and permits using predict directly on this RandomizedSearchCV instance.
+        search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
+                 if is_grid else  RandomizedSearchCV(model, param_distributions=self.param.distrib_param(clfTypes[0]), n_iter=n_random_iter,
+                                                     scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)
+        search.fit(X, y)
         # 1 - Write down the SearchCV result
-        df_cv_results = pd.DataFrame(randomized.cv_results_)
+        df_cv_results = pd.DataFrame(search.cv_results_)
         DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'random_search_cv-{clfTypes[0]}.csv'] )
-        DfUtil.write_cv_search_result( clfTypes + ['Random'] , df_cv_results, randomized)
+        DfUtil.write_cv_search_result( clfTypes + ['Grid' if is_grid else 'Random'] , df_cv_results, search)
 
         # 2 - Check whether there is a difference between the best_classifier (rank=1) and the best_classifier that can generalize
-        # randomized.best_score_ ; randomized.best_params_ (short param list); randomized.best_estimator_ (long estimator list) ;  randomized.best_index_ ; sklearn.metrics.SCORERS.keys()
-        ValeoPredictor.logger.info(f"- Best Score: {'%.4f' % randomized.best_score_} (Train {'%.4f' %  df_cv_results.iloc[randomized.best_index_] ['mean_train_score']}) / Best Params: {randomized.best_params_}")
+        # randomized : best_score_,  best_params_ (short), best_estimator_ (long), best_index_ ; sklearn.metrics.SCORERS.keys()
+        ValeoPredictor.logger.info(f"- Best Score: {'%.4f' % search.best_score_} (Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) / Best Params: {search.best_params_}")
         bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
         ValeoPredictor.logger.info(f"- Generalized Score: {'%.4f' % bg_dict[C.bg_score_test_set]} (Train {'%.4f' %  bg_dict[C.bg_score_train_set]}, rank {'%.4f' %  bg_dict[C.bg_rank]}) / Best Generalized Params: {bg_dict[C.bg_params]}")
 
@@ -325,8 +288,47 @@ class ValeoPredictor :
         #
         # return best_rank_model, best_generalized_model
 
-        fitted_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = randomized.best_estimator_)
-        return fitted_model  , None
+        # fitted_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = search.best_estimator_)
+        return search.best_estimator_
+
+
+        # HGBC
+        # param_grid = {
+        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
+        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
+        #     'classifier__base_estimator__max_iter' : [100],
+        #     'classifier__base_estimator__max_depth' : [10,50,10]
+        # }
+
+        # random_search_cv-BRFC_2020_05_12-14.18.33_2020_05_12-14.18.33.csv
+        # param_distributions = { # n_iter=20
+        #     'classifier__n_estimators': randint(10, 300),         # 38
+        #     'classifier__max_depth': randint(5, 20),              # 7
+        #     'classifier__min_samples_split' : randint(5, 20),     # 13
+        #     'classifier__min_samples_leaf' : randint(5, 20),      # 15
+        #     'classifier__criterion' : ['entropy', 'gini'],        # gin
+        #     # 'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 'auto']
+        #     'classifier__sampling_strategy' : [ 0.3, 0.25, 0.2, 'auto']  # 0.2
+        # }
+        #
+        # #
+        # param_distributions = { # n_iter=10
+        #     'classifier__n_estimators': randint(30, 50),         # 38
+        #     'classifier__max_depth': randint(5, 15),              # 7
+        #     'classifier__min_samples_split' : randint(10, 20),     # 13
+        #     'classifier__min_samples_leaf' : randint(10, 20),      # 15
+        #     'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2]  # 0.2
+        # }
+        #
+        # param_distributions = { # n_iter=10
+        #     'classifier__n_estimators': randint(30, 300),         # 38
+        #     'classifier__max_depth': randint(5, 25),              # 7
+        #     # 'classifier__min_samples_split' : randint(10, 20),     # 13
+        #     'classifier__min_samples_leaf' : randint(5, 15),      # 15
+        #     'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # 0.2
+        # }
+
+        # return fitted_model  , None
 
 # https://medium.com/towards-artificial-intelligence/application-of-synthetic-minority-over-sampling-technique-smote-for-imbalanced-data-sets-509ab55cfdaf
 # from sklearn.ensemble import GradientBoostingClassifier
