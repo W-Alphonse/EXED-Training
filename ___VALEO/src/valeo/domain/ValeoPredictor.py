@@ -96,17 +96,26 @@ class ValeoPredictor :
                 mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays, axis=0)   
         ================================================================================================================                            
     '''
-    def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=10) -> BaseEstimator :
-        fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits)
+    def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8, classifier_params = None) -> BaseEstimator :
+        fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits, classifier_params=classifier_params)
         ValeoPredictor.logger.info(f'- np.argmax(cv_results[test_roc_auc]:{np.argmax(cv_results["test_roc_auc"])} => test_roc_auc : {cv_results["test_roc_auc"][np.argmax(cv_results["test_roc_auc"])]}')
         best_model = cv_results["estimator"][np.argmax(cv_results["test_roc_auc"])]
         return best_model
 
-    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> ([BaseEstimator], dict):
+    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8, classifier_params = None) -> ([BaseEstimator], dict):
         ValeoPredictor.logger.info(f'Cross validation : {n_splits} folds')
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
+        if classifier_params != None :
+            # print(f'1_ {type(model[-1])}')
+            # print(f'2_ {model[-1]}')
+            # print(f'7_ {classifier_params}')
+            # model[-1].set_params(**classifier_params)
+            model = classifier_params
         CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
-        # cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+
+        # The cross_validate function differs from cross_val_score in two ways:
+        # It allows specifying multiple metrics for evaluation + It returns a dict containing fit-times, score-times ...
+        #cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
         cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'recall', 'precision', 'roc_auc'), return_train_score=True, return_estimator=True)
         fitted_estimators = []
         for key in cv_results.keys() :
@@ -248,7 +257,7 @@ class ValeoPredictor :
         4/ fit_cv_randomized_search
         ========================================
     '''
-    def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
+    def fit_cv_randomized_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> BaseEstimator: # (estimator, cv_results)
         model = self.modeler.build_predictor_pipeline(X, clfTypes) # sampler_type)
         CV = StratifiedKFold(n_splits=n_splits, random_state=48) #  shuffle=True
         # HGBC
@@ -279,18 +288,45 @@ class ValeoPredictor :
             'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2]  # 0.2
         }
 
-        randomized = RandomizedSearchCV(model, param_distributions=param_distributions, n_iter=10, scoring='roc_auc', n_jobs=-1, cv=CV, return_train_score=True)
+        param_distributions = { # n_iter=10
+            'classifier__n_estimators': randint(30, 300),         # 38
+            'classifier__max_depth': randint(5, 25),              # 7
+            # 'classifier__min_samples_split' : randint(10, 20),     # 13
+            'classifier__min_samples_leaf' : randint(5, 15),      # 15
+            'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # 0.2
+        }
+
+        # https://scikit-learn.org/stable/modules/grid_search.html#multimetric-grid-search
+        # NB: When specifying multiple metrics, the refit parameter must be set to the metric (string) for which the best_params_
+        #      will be found and used to build the best_estimator_ on the whole dataset.
+        randomized = RandomizedSearchCV(model, param_distributions=param_distributions, n_iter=20,
+                                        scoring='roc_auc', n_jobs=-1, cv=CV, return_train_score=True)
         randomized.fit(X, y)
-        #
+        # 1 - Write down the SearchCV result
         df_cv_results = pd.DataFrame(randomized.cv_results_)
         DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'random_search_cv-{clfTypes[0]}.csv'] )
         DfUtil.write_cv_search_result( clfTypes + ['Random'] , df_cv_results, randomized)
-        #
-        # randomized.best_score_ ; randomized.best_params_ ; randomized.best_estimator_;  randomized.best_index_ ; sklearn.metrics.SCORERS.keys()
+
+        # 2 - Check whether there is a difference between the best_classifier (rank=1) and the best_classifier that can generalize
+        # randomized.best_score_ ; randomized.best_params_ (short param list); randomized.best_estimator_ (long estimator list) ;  randomized.best_index_ ; sklearn.metrics.SCORERS.keys()
         ValeoPredictor.logger.info(f"- Best Score: {'%.4f' % randomized.best_score_} (Train {'%.4f' %  df_cv_results.iloc[randomized.best_index_] ['mean_train_score']}) / Best Params: {randomized.best_params_}")
-        # ValeoPredictor.logger.info(f"- Best Score: {'%.4f' % randomized.best_score_} (Train {'%.4f' %  df_cv_results['mean_train_score'].mean()}) / Best Params: {randomized.best_params_}")
+        bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
+        ValeoPredictor.logger.info(f"- Generalized Score: {'%.4f' % bg_dict[C.bg_score_test_set]} (Train {'%.4f' %  bg_dict[C.bg_score_train_set]}, rank {'%.4f' %  bg_dict[C.bg_rank]}) / Best Generalized Params: {bg_dict[C.bg_params]}")
 
+        # print(f'best_estimator_:{randomized.best_estimator_}')
+        # print(f'best_params_:{randomized.best_params_}')
+        #
+        # # 3 - Fit the CV model according to the identified best_params
+        # best_generalized_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = bg_dict[C.bg_params])
+        # if randomized.best_params_ != bg_dict[C.bg_params] :
+        #     best_rank_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = randomized.best_params_)
+        # else :
+        #     best_rank_model = best_generalized_model
+        #
+        # return best_rank_model, best_generalized_model
 
+        fitted_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = randomized.best_estimator_)
+        return fitted_model  , None
 
 # https://medium.com/towards-artificial-intelligence/application-of-synthetic-minority-over-sampling-technique-smote-for-imbalanced-data-sets-509ab55cfdaf
 # from sklearn.ensemble import GradientBoostingClassifier

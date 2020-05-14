@@ -2,6 +2,7 @@ from datetime import datetime
 
 from pandas import Series
 from sklearn.base import BaseEstimator
+from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.model_selection._search import BaseSearchCV
 
 from valeo.infrastructure.LogManager import LogManager
@@ -17,9 +18,9 @@ class DfUtil() :
 
     # https://stackabuse.com/pythons-classmethod-and-staticmethod-explained/
     @classmethod
-    def read_csv(cls, pathAsStrList : []) -> pd.DataFrame:
+    def read_csv(cls, pathAsStrList : [], sep=',') -> pd.DataFrame:
         try:
-            return pd.read_csv(os.path.join(pathAsStrList[0], *pathAsStrList[1:]) )
+            return pd.read_csv(os.path.join(pathAsStrList[0], *pathAsStrList[1:]), sep=sep )
         except Exception as ex :
             cls.logger.exception("Error while load data from %s", "/".join(pathAsStrList))
 
@@ -45,6 +46,24 @@ class DfUtil() :
                            # 'Estimator' :  [ base_search_cv.best_estimator_]
                            })
         df.to_csv( C.ts_pathanme([C.rootReports(), '__cv_search.csv'], ts_type=C.ts_none) , mode = 'a',  header=False)
+
+    @classmethod
+    def cv_best_generalized_score_and_param(cls, df_cv_result:pd.DataFrame) -> (int, int, dict) :
+        # (int, int, dict) -> (rank_of_the_best_generalized_score, score_difference_between_this_rank_and_the_1st_one, classifier_params)
+        df = pd.concat([ df_cv_result['rank_test_score'],
+                         df_cv_result['mean_train_score'] - df_cv_result['mean_test_score'],
+                         df_cv_result['mean_train_score'] , df_cv_result['mean_test_score'],
+                         df_cv_result['params'] ],
+                         axis = 1)
+        sorted_df = df.sort_values(by=0) # sort by the newly created column = mean_train_score - mean_test_score
+        # return sorted_df.iloc[0]['rank_test_score'], sorted_df.iloc[0][0], sorted_df.iloc[0]['params']
+        return  { C.bg_score_test_set : sorted_df.iloc[0]['mean_test_score'],
+                  C.bg_score_train_set: sorted_df.iloc[0]['mean_train_score'],
+                  C.bg_rank: sorted_df.iloc[0]['rank_test_score'],
+                  C.bg_score_diff: sorted_df.iloc[0][0],
+                  # C.bg_estimator : sorted_df.iloc[0]['params'],
+                  C.bg_params: sorted_df.iloc[0]['params']  }
+
 
     @classmethod
     def df_imputer(cls, dfToImpute:pd.DataFrame, imputer:BaseEstimator):
@@ -93,3 +112,21 @@ class DfUtil() :
     #     f = df[C.OP100_Capuchon_insertion_mesure].isna()
     #     # df[missing-rows, column-to-feed] = sigma_column * np.random.randn(<occurence-count-to-generate>) + mu_column
     #     df.loc[f, C.OP100_Capuchon_insertion_mesure] = 0.024425 * np.random.randn(18627) + 0.388173
+
+    # return : X_train, X_test, y_train, y_test
+    @classmethod
+    def stratified_shuffle_split(cls, X_df:pd.DataFrame, y_df:pd.DataFrame, stratification_column:str, test_size:float, nsplit=10)  -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame) :
+        split = StratifiedShuffleSplit(n_splits=nsplit, test_size=test_size, random_state=42)
+        yield cls.stratified_split(split, X_df, y_df, stratification_column, test_size, nsplit=nsplit)
+
+
+    @classmethod
+    def stratified_split(cls, split, X_df:pd.DataFrame, y_df:pd.DataFrame, stratification_column:str, test_size:float, nsplit=10)  -> (pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame) :
+        for train_index, test_index in split.split(X_df, X_df[stratification_column]) : # arg2 de 'split.split(...)' est le critère de stratification
+            # print(f'train_index:{train_index} - {len(train_index)}')
+            # print(f'test_index:{test_index} - {len(test_index)} ')
+            X_train = X_df.iloc[train_index]
+            X_test = X_df.iloc[test_index]
+            y_train = y_df.iloc[train_index]
+            y_test = y_df.iloc[test_index]
+        yield X_train, X_test, y_train, y_test
