@@ -5,6 +5,7 @@ from imblearn.over_sampling import RandomOverSampler, ADASYN, SMOTE, SVMSMOTE, K
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.pipeline import Pipeline
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.pipeline import Pipeline as pline
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.compose import ColumnTransformer
@@ -210,7 +211,8 @@ class ValeoModeler :
     def build_predictor_pipeline(self, X_df: pd.DataFrame, clfTypes:[str]) -> Pipeline:
         cls = self.__class__
         clfs = {
-            cls.HGBC : HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5),
+            C.HGBC : HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5),
+            C.GBC  : GradientBoostingClassifier(),
             cls.BBC  : BalancedBaggingClassifier(base_estimator=HistGradientBoostingClassifier(),  n_estimators=50, sampling_strategy='auto', replacement=False, random_state=48),
 
             # scale_pos_weight
@@ -240,11 +242,11 @@ class ValeoModeler :
             # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 102 , max_depth=6, min_samples_split=18, min_samples_leaf=13,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
 
             # Cette config a obtenue .....
-            cls.BRFC : BalancedRandomForestClassifier(max_depth=15, min_samples_leaf=5, n_estimators=260,  random_state=0) , # sampling_strategy=0.5),
+            C.BRFC : BalancedRandomForestClassifier(max_depth=15, min_samples_leaf=5, n_estimators=260,  random_state=0) , # sampling_strategy=0.5),
             # - Best Score: 0.7124 (Train 0.8869) / Best Params: {'classifier__max_depth': 11, 'classifier__min_samples_leaf': 5, 'classifier__n_estimators': 113, 'classifier__sampling_strategy': 0.4}
             # - Generalized Score: 0.7086 (Train 0.8143, rank 11.0000) / Best Generalized Params: {'classifier__max_depth': 5, 'classifier__min_samples_leaf': 5, 'classifier__n_estimators': 260, 'classifier__sampling_strategy': 0.4}
 
-            cls.LRC  : LogisticRegression(max_iter=500),
+            C.LRC  : LogisticRegression(max_iter=500),
             cls.SVC  : SVC(kernel="rbf", C=0.025, probability=True),
 
             # 'classifier__min_samples_split' : [8, 12], # 8 ou 12
@@ -271,7 +273,7 @@ class ValeoModeler :
                                 ('pp_delete',dt),
                                # ('ht',ht)
                               ])
-        use_smote = clfTypes[0] in {cls.LRC, cls.SVC}
+        use_smote = clfTypes[0] in {C.LRC, C.GBC, C.HGBC}   # C.SVC,
         pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
                         # ('feats',feats),
                         ('preprocessor', self._build_transformers_pipeline(X_df) ) ,

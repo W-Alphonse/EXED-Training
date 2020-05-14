@@ -98,16 +98,18 @@ class ValeoPredictor :
                 mean_of_conf_matrix_arrays = np.mean(conf_matrix_list_of_arrays, axis=0)   
         ================================================================================================================                            
     '''
-    def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> BaseEstimator :
-        fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits)
+    def fit_cv_best_score(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8, classifier_params=None) -> BaseEstimator :
+        fitted_estimators, cv_results = self.fit_cv(X, y, clfTypes, n_splits=n_splits, classifier_params=classifier_params)
         ValeoPredictor.logger.info(f'- np.argmax(cv_results[test_roc_auc]:{np.argmax(cv_results["test_roc_auc"])} => test_roc_auc : {cv_results["test_roc_auc"][np.argmax(cv_results["test_roc_auc"])]}')
         best_model = cv_results["estimator"][np.argmax(cv_results["test_roc_auc"])]
         return best_model
 
-    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8) -> ([BaseEstimator], dict):
+    def fit_cv(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_splits=8, classifier_params = None) -> ([BaseEstimator], dict):
         ValeoPredictor.logger.info(f'Cross validation : {n_splits} folds')
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
-        CV = StratifiedKFold(n_splits=n_splits, random_state=48) # , shuffle=True
+        if classifier_params != None :
+            model = classifier_params
+        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
 
         # The cross_validate function differs from cross_val_score in two ways:
         # It allows specifying multiple metrics for evaluation + It returns a dict containing fit-times, score-times ...
@@ -276,20 +278,9 @@ class ValeoPredictor :
         bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
         ValeoPredictor.logger.info(f"- Generalized Score: {'%.4f' % bg_dict[C.bg_score_test_set]} (Train {'%.4f' %  bg_dict[C.bg_score_train_set]}, rank {'%.4f' %  bg_dict[C.bg_rank]}) / Best Generalized Params: {bg_dict[C.bg_params]}")
 
-        # print(f'best_estimator_:{randomized.best_estimator_}')
-        # print(f'best_params_:{randomized.best_params_}')
-        #
-        # # 3 - Fit the CV model according to the identified best_params
-        # best_generalized_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = bg_dict[C.bg_params])
-        # if randomized.best_params_ != bg_dict[C.bg_params] :
-        #     best_rank_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = randomized.best_params_)
-        # else :
-        #     best_rank_model = best_generalized_model
-        #
-        # return best_rank_model, best_generalized_model
-
-        # fitted_model = self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = search.best_estimator_)
+        # return  self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = search.best_estimator_)
         return search.best_estimator_
+        # return search
 
 
         # HGBC
