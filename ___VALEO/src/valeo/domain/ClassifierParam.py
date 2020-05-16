@@ -20,7 +20,7 @@ class ClassifierParam :
     # https://stackoverflow.com/questions/49036853/scipy-randint-vs-numpy-randint
     def _initialize_param(self):
         # BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0) , # sampling_strategy=0.5),
-        self.g_param[C.BRFC] =  {
+        self.g_param[C.BRFC] =  { #Search_02
             'classifier__n_estimators': [100, 200, 300],
             'classifier__max_depth': [10, 15, 20],
             'classifier__max_features' : ['sqrt', 'log2'],
@@ -31,7 +31,7 @@ class ClassifierParam :
             'classifier__criterion' : ['entropy', 'gini'], # default: gini
             'classifier__sampling_strategy' : [ 0.15, 0.2, 0.25, 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
          }
-        self.d_param[C.BRFC]  =  {
+        self.d_param[C.BRFC]  =  { #Search_01
             'classifier__n_estimators': randint(50,500),
             'classifier__max_depth': randint(6, 20),
             'classifier__max_features' : ['sqrt', 'log2', None, 12, 15],
@@ -47,7 +47,7 @@ class ClassifierParam :
         #                           'classifier__min_samples_leaf' : [5]
         #  }
         # ========================   LogisticRegression(max_iter=500)
-        self.g_param[C.LRC]  = {
+        self.g_param[C.LRC]  = { #Search_02
             'classifier__penalty': ['l2'],
             'classifier__C': [1, 10, 100, 1000],
             'classifier__fit_intercept' : [True, False],
@@ -55,7 +55,7 @@ class ClassifierParam :
             'classifier__max_iter' : [500]
             # 'classifier__l1_ratio' : uniform(0, 1)
         }
-        self.d_param[C.LRC]  = [ {
+        self.d_param[C.LRC]  = [ { #Search_01
                 'classifier__penalty': ['l2', 'elasticnet'],
                 'classifier__C': [1, 10, 100, 1000],
                 'classifier__fit_intercept' : [True, False],
@@ -85,26 +85,47 @@ class ClassifierParam :
 # max_leaf_nodes with integer values ranging from 5 to 30 following a uniform distribution.
 # min_samples_leaf with integer values ranging from 5 to 30 following a uniform distribution.
         # =======================  GBC : GradientBoostingClassifier(n_estimators=100, max_depth=5, learning_rate=.2)
-        self.g_param[C.GBC]  = { # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
+        # self.g_param[C.GBC]  = {  #Search_02 - Not Retaine
+        #     # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
+        #     'classifier__loss' : ['deviance', 'exponential'],  #https://stackoverflow.com/questions/53533942/loss-parameter-explanation-for-sklearn-ensemble-gradientboostingclassifier
+        #     'classifier__learning_rate'   : [0.05, 0.1, 0.2], #uniform(0.001, 0.5),
+        #     'classifier__n_estimators' : [500, 300],
+        #     # 'classifier__l2_regularization' :  random.uniform(0.0, 0.5),
+        #     'classifier__subsample' : [0.7, 0.8],
+        #     'classifier__min_samples_split' :  [8, 12, 18],
+        #      'classifier__max_depth'   : [10, 15, 20],
+        #     'classifier__max_features' : ['sqrt', 'log2'],
+        # }
+        self.g_param[C.GBC]  = {  #Search_03 - Retained
+            # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
             'classifier__loss' : ['deviance', 'exponential'],  #https://stackoverflow.com/questions/53533942/loss-parameter-explanation-for-sklearn-ensemble-gradientboostingclassifier
-            'classifier__learning_rate'   : [0.07, 0.2, 0.5], #uniform(0.001, 0.5),
-            'classifier__n_estimators' : [500, 300],
-            # 'classifier__l2_regularization' :  random.uniform(0.0, 0.5),
-            'classifier__subsample' : [0.7, 0.8],
-            'classifier__min_samples_split' :  [8, 12, 18],
-             'classifier__max_depth'   : [10, 15, 20],
-            'classifier__max_features' : ['sqrt', 'log2'],
+            'classifier__learning_rate'   : [0.05, 0.1, 0.2],
+            'classifier__n_estimators' : [100, 200,300],
+            'classifier__min_samples_split' : [12, 18],
+            'classifier__subsample' : [0.6, 0.7, 0.8, 0.9],
+            'classifier__min_samples_split' :  [12, 18],
+            'classifier__max_depth'   : [10, 15],
+            'classifier__max_features' : ['log2'],
         }
-        self.d_param[C.GBC]  = {
-            'classifier__loss' : ['deviance', 'exponential'],
-            'classifier__learning_rate'   : uniform(0.001, 0.5),
-            'classifier__n_estimators' : randint(100, 1000),
+        self.d_param[C.GBC]  = { # didn't try
+            'classifier__learning_rate'   : uniform(0.001, 0.2),
+            'classifier__n_estimators' : [60, 80],
             # 'classifier__l2_regularization' :  random.uniform(0.0, 0.5),
-            'classifier__subsample' : uniform(0, 1),
-            'classifier__min_samples_split' : randint(5, 15),
-            'classifier__max_depth'   : randint(6, 20),
-            'classifier__max_features' : ['sqrt', 'log2', None],
+            'classifier__subsample' : [0.6,0.7,0.75,0.8,0.85,0.9],
+            'classifier__min_samples_split' : range(5,18,2),
+            'classifier__max_depth'   : range(5,16,2),
+            'classifier__max_features' : ['log2'],
         }
+        # self.d_param[C.GBC]  = {  #Search_01 - Not Retained
+        #     'classifier__loss' : ['deviance', 'exponential'],
+        #     'classifier__learning_rate'   : uniform(0.001, 0.5),
+        #     'classifier__n_estimators' : randint(100, 1000),
+        #     # 'classifier__l2_regularization' :  random.uniform(0.0, 0.5),
+        #     'classifier__subsample' : uniform(0, 1),
+        #     'classifier__min_samples_split' : randint(5, 15),
+        #     'classifier__max_depth'   : randint(6, 20),
+        #     'classifier__max_features' : ['sqrt', 'log2', None],
+        # }
 
 
 # param_distributions: 'dict' or 'list of dicts'

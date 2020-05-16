@@ -256,6 +256,8 @@ class ValeoPredictor :
     '''
     def fit_cv_grid_or_random_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_random_iter=None, n_splits=8) -> BaseEstimator:
         is_grid = (n_random_iter == None) or (n_random_iter == 0)
+        grid_or_random = "grid" if is_grid else "random"
+        #
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
 
@@ -269,8 +271,8 @@ class ValeoPredictor :
         search.fit(X, y)
         # 1 - Write down the SearchCV result
         df_cv_results = pd.DataFrame(search.cv_results_)
-        DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'random_search_cv-{clfTypes[0]}.csv'] )
-        DfUtil.write_cv_search_result( clfTypes + ['Grid' if is_grid else 'Random'] , df_cv_results, search)
+        DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'{grid_or_random}_search_cv-{clfTypes[0]}.csv'] )
+        DfUtil.write_cv_search_result( clfTypes + [grid_or_random] , df_cv_results, search)
 
         # 2 - Check whether there is a difference between the best_classifier (rank=1) and the best_classifier that can generalize
         # randomized : best_score_,  best_params_ (short), best_estimator_ (long), best_index_ ; sklearn.metrics.SCORERS.keys()
