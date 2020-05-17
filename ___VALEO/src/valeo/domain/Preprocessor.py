@@ -1,4 +1,6 @@
+from category_encoders import OneHotEncoder
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.decomposition import PCA
 from sklearn.impute._base import _BaseImputer
 import numpy as np
 import pandas as pd
@@ -93,6 +95,37 @@ class ProcDateTransformer(BaseEstimator, TransformerMixin):
         X_new[C.proc_weekday] = pd.cut( proc_date.dt.weekday,
                             bins = [-np.inf, 0, 1, 2, 3, 4, 5, np.inf], labels = ['Lundi', 'Mardi', 'Merc', 'Jeudi', 'Vend', 'Samedi', 'Dim'])
         X_new = X_new.drop([C.PROC_TRACEINFO], axis=1) #, inplace=True)
+        return X_new
+
+class ProcDatePcaTransformer(ProcDateTransformer):
+    def fit(self, X, y=None):
+        return super().fit(X)
+
+    def transform(self, X):
+        X_new = super().transform(X)
+        print(f'X_new.type:{type(X_new)}')
+        #
+        m = OneHotEncoder().fit_transform(X_new[C.proc_month])
+        pca = PCA(n_components = 0.90).fit_transform(m)
+        print(f'X_new[C.proc_month]:{type(pca)} - {pca.shape}')
+        #
+        month_pca = PCA(n_components = 0.90).fit_transform( OneHotEncoder().fit_transform(X_new[C.proc_month]) )
+        print(f'month_pca:{month_pca.shape}')
+        week_pca = PCA(n_components = 0.90).fit_transform( OneHotEncoder().fit_transform(X_new[C.proc_week]) )
+        print(f'week_pca:{week_pca.shape}')
+        weekday_pca = PCA(n_components = 0.90).fit_transform( OneHotEncoder().fit_transform(X_new[C.proc_weekday]) )
+        print(f'weekday_pca:{weekday_pca.shape}')
+        #
+        X_new = X_new.drop([C.proc_month], axis=1)
+        X_new = X_new.drop([C.proc_week], axis=1)
+        X_new = X_new.drop([C.proc_weekday], axis=1)
+        #
+        # X_new = pd.concat([X_new, month_pca, week_pca, weekday_pca], axis = 1)
+        date_pca = pd.DataFrame.from_records([month_pca, week_pca, weekday_pca])
+        print(date_pca.head())
+        print(date_pca.info())
+        print(date_pca.describe())
+        X_new = pd.concat([X_new, date_pca], axis = 1)
         return X_new
 
 # Générer un nombre de jour à partir du numéro de série

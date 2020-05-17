@@ -5,6 +5,7 @@ from imblearn.over_sampling import RandomOverSampler, ADASYN, SMOTE, SVMSMOTE, K
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.pipeline import Pipeline
 from imblearn.under_sampling import RandomUnderSampler
+from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, AdaBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline as pline
@@ -108,7 +109,7 @@ class ValeoModeler :
                                   # ('num_scaler',nan_imputer, numerical_features),
                                   #
                                   ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
-                                  # ('ht',OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month]),
+                                  # ('ht', OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month]),
                                   # ('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure]),
                                   # ('OP120U', pp.BucketTransformer((C.OP120_Rodage_U_mesure_value,[-np.inf, 11.975, np.inf],[1,2])), [C.OP120_Rodage_U_mesure_value]),
                                   # ('V1_Value', pp.BucketTransformer((C.OP070_V_1_torque_value,[-np.inf, 6.5, np.inf],[1,2])), [C.OP070_V_1_torque_value]),
@@ -256,7 +257,7 @@ class ValeoModeler :
             # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 8, max_features= None, min_samples_split= 15, n_estimators= 152, oob_score= True, sampling_strategy= 0.15),
             #
             # Best Generalized - SearchCV_02 - 0.67207 ENS
-            # A balanced random forest randomly under-samples each boostrap sample to balance it.
+            # A balanced random forest randomly under-samples each boostrap sample to balance it. sqrt
             C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 18, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
 
             # https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/ensemble/plot_comparison_ensemble_classifier.html
@@ -321,6 +322,7 @@ class ValeoModeler :
                         # ('pp_cat_OP100',ct),
                         # ('hotencoder_transformer', ht),
                         ('hotencoder_transformer', OneHotEncoder()),
+                        # ('pca_transformer', PCA(n_components=0.9)),
                         ('smote', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5) if use_smote else pp.EmtpyTransformer() ),
                         ('undersampler', RandomUnderSampler(sampling_strategy=0.5)  if use_smote else pp.EmtpyTransformer() ),
                        # ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
