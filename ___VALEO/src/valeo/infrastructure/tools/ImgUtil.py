@@ -105,11 +105,21 @@ class ImgUtil() :
                 cls.save_fig(fig_id=f"{fig_id}_{col}_bar_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
 
+    # @classmethod
+    # def save_df_hist_plot(cls, df:pd.DataFrame, fig_id:str , bins=50, figsize=(20,15), tight_layout=True,
+    #                       fig_extension="png", resolution=300, ts_type=C.ts_sfix):
+    #     cls.logger.debug(f"Generating 'hist' plot: bins={bins} - figsize={figsize}")
+    #     df[DfUtil.numerical_cols(df)].hist(bins=bins, figsize=figsize)
+    #     cls.save_fig(fig_id=f"{fig_id}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
+
     @classmethod
-    def save_df_hist_plot(cls, df:pd.DataFrame, fig_id:str , bins=50, figsize=(20,15), tight_layout=True,
+    def save_df_hist_plot(cls, df:pd.DataFrame, fig_id:str , ncols=4, bins=50, figsize=(20,15), tight_layout=True,
                           fig_extension="png", resolution=300, ts_type=C.ts_sfix):
-        cls.logger.debug(f"Generating 'hist' plot: bins={bins} - figsize={figsize}")
-        df[DfUtil.numerical_cols(df)].hist(bins=bins, figsize=figsize)
+        cls.logger.debug(f"Generating 'hist' plot: bins={bins} - ncols={ncols} - figsize={figsize}")
+        num_cols = DfUtil.numerical_cols(df)
+        nrows = len(num_cols) // ncols if (len(num_cols) % ncols) == 0 else (len(num_cols) // ncols) + 1
+        #
+        df[DfUtil.numerical_cols(df)].hist(bins=bins, figsize=figsize, layout=(nrows,ncols))
         cls.save_fig(fig_id=f"{fig_id}_histogram_{figsize[0]}x{figsize[1]}", tight_layout=tight_layout, fig_extension=fig_extension, resolution=resolution, ts_type=ts_type)
 
     @classmethod
