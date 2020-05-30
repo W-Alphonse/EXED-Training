@@ -336,9 +336,8 @@ class ValeoModeler :
                        # ('imbalancer_resampler', self.build_resampler(C.smote_over_sampling,sampling_strategy='minority')),  # ('dbg_1', dbg),
                       ('classifier', clfs[clfTypes[0]])  # ex: bbc : ENS(0.61) without explicit overSampling / test_roc_auc : [0,.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
                       ])
-        for i, s in enumerate(pl.steps) :
-            # Ex: 0 -> ('preprocessor', ColumnTransformer( ... +  1 -> ('classifier', BalancedBaggingClassifier(base_.....
-            print(f"{i} -> {s[0]} / {str(s[1])[:70]}")
+        # for i, s in enumerate(pl.steps) :
+        #     print(f"{i} -> {s[0]} / {str(s[1])[:70]}")
         return pl
 
 

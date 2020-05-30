@@ -13,6 +13,7 @@ from sklearn.metrics import f1_score, auc, roc_auc_score, confusion_matrix, clas
 # from sklearn.impute import SimpleImputer
 from sklearn.model_selection import cross_validate, StratifiedKFold, GridSearchCV, RandomizedSearchCV
 
+
 import pandas as pd
 import numpy as np
 
@@ -45,7 +46,7 @@ class ValeoPredictor :
     '''
     def fit_predict_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
         model = self.fit(X_train, y_train, clfTypes)
-        self.predict_and_plot(model, X_test, y_test)
+        self.predict_and_plot(model, X_test, y_test, clfTypes)
         self.print_model_params_keys(model)
         return model
 
@@ -109,19 +110,37 @@ class ValeoPredictor :
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         if classifier_params != None :
             model = classifier_params
-        CV = StratifiedKFold(n_splits=n_splits) # , random_state=48, shuffle=True
+        CV = StratifiedKFold(n_splits=n_splits) #   n_splits    , random_state=48, shuffle=True
 
         # The cross_validate function differs from cross_val_score in two ways:
         # It allows specifying multiple metrics for evaluation + It returns a dict containing fit-times, score-times ...
-        #cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+        # cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
         cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'recall', 'precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+        return self.print_cv_result_and_extract_fitted_estimators(cv_results), cv_results
+
+    def print_cv_result_and_extract_fitted_estimators(self, cv_results :dict, html_fmt=True) -> [BaseEstimator]:
         fitted_estimators = []
+        mesures = []
+        d = { 0: 'Temps consommé', 1: 'F1', 2:'Recall', 3:'Precision', 4:'ROC_AUC' }
+        #
         for key in cv_results.keys() :
             if str(key) !=  "estimator" :
                 # ValeoPredictor.logger.debug(f"{key} : min/mean/max/std -> {cv_results[key].min()} / {cv_results[key].mean()} / {cv_results[key].max()}  / {cv_results[key].std()}")
-                ValeoPredictor.logger.debug(f"{key} -> mean:{cv_results[key].mean()} - {cv_results[key]}")
+                ValeoPredictor.logger.debug(f"- {key} moyen :{self.fmt(cv_results[key].mean())}")
+                mesures.append(cv_results[key].mean())
             fitted_estimators.append(cv_results[key])
-        return fitted_estimators, cv_results
+        if html_fmt:
+            ValeoPredictor.logger.debug('<table> <tr> <th>Moyenne par folds de CV</th> <th>Validation Set</th> <th>Train Set</th> </tr>')
+            for i, mes in enumerate(mesures) :
+                if i%2 == 0 :
+                    s1 = f'\t<tr> <td>{d[i//2]}</td> <td>{self.fmt(mes)}</td>'
+                else :
+                    ValeoPredictor.logger.debug((f'{s1} <td>{self.fmt(mes)}</td></tr>'))
+            arg_max_test = np.argmax(cv_results["test_roc_auc"])
+            ValeoPredictor.logger.info(f'\t<tr> <td>Best ROC_AUC on Validation Set (fold {arg_max_test}) </td>'
+                                       f' <td>{self.fmt(cv_results["test_roc_auc"][arg_max_test])} </td> <td>{self.fmt(cv_results["train_roc_auc"][arg_max_test])}</td></tr>')
+            ValeoPredictor.logger.debug('</table>')
+        return fitted_estimators
 
     '''
         - Print metrics
@@ -129,32 +148,40 @@ class ValeoPredictor :
         - Plot ROC : TP vs FP
         - Plot AUC : Precison vs Recall 
     '''
-    def predict_and_plot(self, fitted_model: BaseEstimator, X_test:pd.DataFrame, y_test:pd.DataFrame):
+    def predict_and_plot(self, fitted_model: BaseEstimator, X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str], fmt_html=True):
         y_pred = fitted_model.predict(X_test)
         #
-        print("*** Predict and Plot on Test DataSet ***")
-        print(f"- Model score: {fitted_model.score(X_test, y_test)}")
-        print(f"- Accuracy score: {accuracy_score(y_test, y_pred)}")
-        print(f"- Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)} / The balanced accuracy to deal with imbalanced datasets. It is defined as the average of recall obtained on each class.")
-        # print(f"- auc : {auc(y_test, y_pred)}")  # ValueError: x is neither increasing nor decreasing : [0 0 0 ... 0 0 0]
-        print(f"- Average_precision_score: {average_precision_score(y_test, y_pred)}")
-        print(f"- Precision_score: {precision_score(y_test, y_pred)}")
-        print(f"- Recall score: {recall_score(y_test, y_pred)}")
-        print(f"- Roc_auc_score: {roc_auc_score(y_test, y_pred)}")
-        print(f"- F1 score: {f1_score(y_test, y_pred)}")
+        print(f"- ROC_AUC: {self.fmt(roc_auc_score(y_test, y_pred))}")
+        print(f"- Recall : {self.fmt(recall_score(y_test, y_pred))}")
+        print(f"- Precision : {self.fmt(precision_score(y_test, y_pred))}")
+        print(f"- F1 : {self.fmt(f1_score(y_test, y_pred))}")
         m = confusion_matrix(y_test, y_pred)
-        print(f"- {m[0]}/{m[1]} - P:{precision_score(y_test, y_pred):0.4f} - R:{recall_score(y_test, y_pred):0.4f} - roc_auc:{roc_auc_score(y_test, y_pred):0.4f} - f1:{f1_score(y_test, y_pred):0.4f}")
-        print(f"- {confusion_matrix(y_test, y_pred)}")
-        print(f"- classification_report_imbalanced:\n{classification_report_imbalanced(y_test, y_pred)}")
-        print(f"- classification_report:\n{classification_report(y_test, y_pred)}")
-        print(f"- precision_recall_curve: {precision_recall_curve(y_test, y_pred)}")
-        print(f"- precision_recall_fscore_support: {precision_recall_fscore_support(y_test, y_pred)}")
-        print(f"- roc_curve: {roc_curve(y_test, y_pred)}")
+        print(f"- Matrice de confusion:\n{confusion_matrix(y_test, y_pred)}")
+        if fmt_html :
+            ValeoPredictor.logger.debug('<table><tr><th colspan="2">Résultat de la prédiction sur Test Set</th> </tr>')
+            ValeoPredictor.logger.debug((f'\t<tr><td>ROC_AUC</td><td>{self.fmt(roc_auc_score(y_test, y_pred))}</td></tr>'))
+            ValeoPredictor.logger.debug((f'\t<tr><td>Recall</td><td>{self.fmt(recall_score(y_test, y_pred))}</td></tr>'))
+            ValeoPredictor.logger.debug((f'\t<tr><td>Precision</td><td>{self.fmt(precision_score(y_test, y_pred))}</td></tr>'))
+            ValeoPredictor.logger.debug((f'\t<tr><td>F1</td><td>{self.fmt(f1_score(y_test, y_pred))}</td></tr>'))
+            ValeoPredictor.logger.debug((f'\t<tr><td rowspan="2">Matrice de confusion</td><td>{confusion_matrix(y_test, y_pred)[0,:]}</td></tr>'))
+            ValeoPredictor.logger.debug((f'\t<tr><td>{confusion_matrix(y_test, y_pred)[1,:]}</td></tr>'))
+            ValeoPredictor.logger.debug('</table>')
+
+        # print("*** Predict and Plot on Test DataSet ***")
+        # print(f"- Model score: {fitted_model.score(X_test, y_test)}")
+        # print(f"- Accuracy score: {accuracy_score(y_test, y_pred)}")
+        # print(f"- Balanced accuracy score: {balanced_accuracy_score(y_test, y_pred)} / The balanced accuracy to deal with imbalanced datasets. It is defined as the average of recall obtained on each class.")
+        # print(f"- auc : {auc(y_test, y_pred)}")  # ValueError: x is neither increasing nor decreasing : [0 0 0 ... 0 0 0]
+        # print(f"- {m[0]}/{m[1]} - P:{precision_score(y_test, y_pred):0.4f} - R:{recall_score(y_test, y_pred):0.4f} - roc_auc:{roc_auc_score(y_test, y_pred):0.4f} - f1:{f1_score(y_test, y_pred):0.4f}")
+        # print(f"- Average_precision_score: {average_precision_score(y_test, y_pred)}")
+        # print(f"- classification_report_imbalanced:\n{classification_report_imbalanced(y_test, y_pred)}")
+        # print(f"- classification_report:\n{classification_report(y_test, y_pred)}")
+        # print(f"- precision_recall_curve: {precision_recall_curve(y_test, y_pred)}")
+        # print(f"- precision_recall_fscore_support: {precision_recall_fscore_support(y_test, y_pred)}")
+        # print(f"- roc_curve: {roc_curve(y_test, y_pred)}")
         #
-        self.metricPlt.plot_roc(y_test, y_pred)
-        self.metricPlt.plot_precision_recall(y_test, y_pred)
-        # self.plot_roc(y_test, y_pred)
-        # self.plot_precision_recall(y_test, y_pred)
+        self.metricPlt.plot_roc(y_test, y_pred, clfTypes)
+        self.metricPlt.plot_precision_recall(y_test, y_pred, clfTypes)
 
 
     ''' ========================================
@@ -283,6 +310,11 @@ class ValeoPredictor :
         # return  self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = search.best_estimator_)
         return search.best_estimator_
         # return search
+
+    def fmt(self, float_to_format:float, format=4 ) -> str:
+        f_format = '%.' + str(format) + 'f'
+        return f"{f_format % float_to_format}"
+
 
 
         # HGBC
