@@ -9,12 +9,12 @@ class AppConfigManager():
         cl = AppConfigLoader()
         self.app_config = cl.load()
 
-    def getValue(self, nested_dict:{}, keys:[]) -> str :
-        return nested_dict[keys[0]] if len(keys) ==  1 else self.getValue(nested_dict[keys[0]] , keys[1:])
+    # def getValue(self, nested_dict:{}, keys:[]) -> str :
+    #     return nested_dict[keys[0]] if len(keys) ==  1 else self.getValue(nested_dict[keys[0]] , keys[1:])
 
     # UTILISER CETTE METHODE au LIEU de CELLE EN DESSUS - YOTTA
-    # def getValue(self, keys_path:[]) -> str :
-    #     return self.app_config[keys_path[0]] if len(keys_path) ==  1 else self.getValue(self.app_config[keys_path[0]] , keys_path[1:])
+    def getValue(self, keys_path:[]) -> str :
+        return self.app_config[keys_path[0]] if len(keys_path) ==  1 else self.getValue(self.app_config[keys_path[0]] , keys_path[1:])
 
 
 class AppConfigLoader(ConfigLoader) :

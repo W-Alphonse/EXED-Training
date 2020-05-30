@@ -262,7 +262,13 @@ class ValeoModeler :
 
             # https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/ensemble/plot_comparison_ensemble_classifier.html
             # This implementation of Bagging is similar to the scikit-learn implementation. It includes an additional step to balance the training set at fit time using a RandomUnderSampler
-            C.BBC  : BalancedBaggingClassifier(n_estimators= 300, max_samples=0.9, max_features= 12,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+            # C.BBC  : BalancedBaggingClassifier(n_estimators= 300, max_samples=0.9, max_features= 12,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+            C.BBC  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 300, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+
+            C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+            C.BBC_GBC : BalancedBaggingClassifier(
+                base_estimator=GradientBoostingClassifier(learning_rate= 0.1,  max_depth= 10, max_features= 'log2', min_samples_split= 18),
+                n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
 
             C.RFC : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=300,  oob_score= True, n_jobs=-1),
 

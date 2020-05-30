@@ -115,24 +115,31 @@ class ValeoPredictor :
         # The cross_validate function differs from cross_val_score in two ways:
         # It allows specifying multiple metrics for evaluation + It returns a dict containing fit-times, score-times ...
         # cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'f1_micro', 'f1_macro', 'f1_weighted', 'recall', 'precision', 'average_precision', 'roc_auc'), return_train_score=True, return_estimator=True)
-        cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'recall', 'precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+        # cv_results =  cross_validate(model, X, y, cv=CV, scoring=('f1', 'recall', 'precision', 'roc_auc'), return_train_score=True, return_estimator=True)
+        cv_results =  cross_validate(model, X, y, cv=CV, scoring=('roc_auc', 'recall', 'precision', 'f1'), return_train_score=True, return_estimator=True)
         return self.print_cv_result_and_extract_fitted_estimators(cv_results), cv_results
 
     def print_cv_result_and_extract_fitted_estimators(self, cv_results :dict, html_fmt=True) -> [BaseEstimator]:
         fitted_estimators = []
         mesures = []
-        d = { 0: 'Temps consommé', 1: 'F1', 2:'Recall', 3:'Precision', 4:'ROC_AUC' }
+        d = { 0: 'Temps consommé', 1: 'ROC_AUC', 2:'Recall', 3:'Precision', 4:'F1' }
         #
-        for key in cv_results.keys() :
+        for key in list(cv_results.keys()) : # it seems that cv_results.keys() was filled according to the request order: ('roc_auc', 'recall', 'precision', 'f1')
             if str(key) !=  "estimator" :
                 # ValeoPredictor.logger.debug(f"{key} : min/mean/max/std -> {cv_results[key].min()} / {cv_results[key].mean()} / {cv_results[key].max()}  / {cv_results[key].std()}")
                 ValeoPredictor.logger.debug(f"- {key} moyen :{self.fmt(cv_results[key].mean())}")
+                if key in ['test_roc_auc', 'train_roc_auc'] :
+                    ValeoPredictor.logger.debug(f"- {key} folds :{self.fmt(cv_results[key])}")
                 mesures.append(cv_results[key].mean())
             fitted_estimators.append(cv_results[key])
         if html_fmt:
             ValeoPredictor.logger.debug('<table> <tr> <th>Moyenne par folds de CV</th> <th>Validation Set</th> <th>Train Set</th> </tr>')
             for i, mes in enumerate(mesures) :
-                if i%2 == 0 :
+                if i == 0 :
+                    train_time = mes
+                elif i == 1 :
+                    ValeoPredictor.logger.debug((f'\t<tr> <td>{d[i//2]}</td> <td>{self.fmt(mes)}</td> <td>{self.fmt(train_time)}</td></tr>'))
+                elif i%2 == 0 :
                     s1 = f'\t<tr> <td>{d[i//2]}</td> <td>{self.fmt(mes)}</td>'
                 else :
                     ValeoPredictor.logger.debug((f'{s1} <td>{self.fmt(mes)}</td></tr>'))

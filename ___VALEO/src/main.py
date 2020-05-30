@@ -28,7 +28,7 @@ def generate_y_ens(fitted_model : BaseEstimator) :
     DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
 
 if __name__ == "__main__" :
-    clfTypes = [C.BRFC] # BRFC RFC / BBC / RUSBoost ADABoost /  GBC HGBC SVC KNN / LR
+    clfTypes = [C.BBC_GBC] # BRFC BBC BBC_ADABoost BBC_GBC / RFC / RUSBoost ADABoost /  GBC HGBC SVC KNN / LR
     logger.info(f"Début ***{clfTypes[0]}*** .....")
 
     # 1 - Load the data
@@ -41,11 +41,17 @@ if __name__ == "__main__" :
     best_generalized_model = None
 
     # 2.a - Fit and predict on X_train, X_test
-    # X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2, random_state=48, stratify=y_df)  # shuffle=True,
-                                        # A SUPPRIMER (remplacer vers #3): fitted_model = pred.fit_predict_and_plot(X_train, y_train, X_test, y_test, [ValeoModeler.BRFC])
+    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2, random_state=48, stratify=y_df)  # shuffle=True,
+            # A SUPPRIMER (remplacer vers #3):
+    # fitted_model = pred.fit_predict_and_plot(X_train, y_train, X_test, y_test, [ValeoModeler.BRFC])
 
     # 2.b - Fit using CV
-    # fitted_model = pred.fit_cv_best_score(X_df, y_df, clfTypes, n_splits=8)  #XGBC  BRFC LRC  criterion:string
+    fitted_model = pred.fit_cv_best_score(X_df, y_df, clfTypes, n_splits=8)  #XGBC  BRFC LRC  criterion:string
+
+    # # Extract feature importances
+    # import pandas as pd
+    # fi = pd.DataFrame({'feature': list(X_train.columns), 'importance': fitted_model.feature_importances_}).sort_values('importance', ascending = False)
+    # print(fi.head())
 
     # 2.c - Fit using GridSearchCV or RandomizedSearchCV
     # fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.BRFC], n_random_iter=None, n_splits=8)
@@ -53,7 +59,7 @@ if __name__ == "__main__" :
     # fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.GBC], n_random_iter=None, n_splits=8)
 
     # 3 - Predit and Plot For ALL using the TestSet
-    # pred.predict_and_plot(fitted_model, X_test, y_test)
+    pred.predict_and_plot(fitted_model, X_test, y_test, clfTypes)
 
                                         # 2.e - Fit on the tuned parameters - ll faut SUPPRIMER PEUT ETRE car NOT USED ?
                                         # fitted_model =  pred.fit(X_df, y_df, [ValeoModeler.BRFC])
