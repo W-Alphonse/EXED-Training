@@ -35,6 +35,7 @@ BBC_GBC      = "BBC_GBC"
 BBC_HGBC     = "BBC_HGBC"
 RFC_SMOTEEN  = "RFC_SMOTEEN"
 RFC_SMOTETOMEK  = "RFC_SMOTETOMEK"
+RFC = "RFC" # (RFC, BorderLineSmote, RandomUnderSample)
 
 HGBC = "HGBR"         # HistGradientBoostingClassifier(max_iter = 8 , max_depth=8,learning_rate=0.35, l2_regularization=500)
 RUSBoost = "RUSBoost" # RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)

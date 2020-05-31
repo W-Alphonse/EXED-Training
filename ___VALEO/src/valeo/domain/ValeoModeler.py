@@ -276,6 +276,7 @@ class ValeoModeler :
                 n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
 
 
+            C.RFC : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
             C.RFC_SMOTEEN : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
             C.RFC_SMOTETOMEK : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
 
@@ -302,8 +303,15 @@ class ValeoModeler :
             # n_neighbors=7 better than 5
             C.KNN : KNeighborsClassifier(n_neighbors=9, weights='uniform', n_jobs=-1, leaf_size=10), # esssayer entre n_neighbors=9 et 7
 
+
+
+
             # cls.RUSBoost : RUSBoostClassifier( n_estimators = 50 , algorithm='SAMME.R', random_state=42),
-            C.RUSBoost : RUSBoostClassifier(base_estimator = AdaBoostClassifier(n_estimators=10), n_estimators = 50 , algorithm='SAMME.R', random_state=42),
+            # C.RUSBoost : RUSBoostClassifier(base_estimator = AdaBoostClassifier(n_estimators=10), n_estimators = 50 , algorithm='SAMME.R', random_state=42),
+            C.RUSBoost : RUSBoostClassifier(base_estimator = AdaBoostClassifier(), n_estimators = 50 , algorithm='SAMME.R', random_state=42),
+            C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+
+
             C.ADABoost : AdaBoostClassifier(n_estimators = 500, learning_rate= 0.05, algorithm='SAMME.R', random_state=42),
 
             cls.XGBC :  xgb.
@@ -336,11 +344,15 @@ class ValeoModeler :
                         # ('hotencoder_transformer', ht),
                         ('hotencoder_transformer', OneHotEncoder()),
                         # ('pca_transformer', PCA(n_components=0.9)),
+                        # ('smote', SMOTE(sampling_strategy=0.1) if use_smote else pp.EmtpyTransformer() ),
                         # ('smote', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5) if use_smote else pp.EmtpyTransformer() ),
                         # ('undersampler', RandomUnderSampler(sampling_strategy=0.5)  if use_smote else pp.EmtpyTransformer() ),
                         # ('undersampler', SMOTETomek(sampling_strategy='auto')  if use_smote else pp.EmtpyTransformer() ),
                         # ('undersampler', SMOTEENN(sampling_strategy='auto')  if use_smote else pp.EmtpyTransformer() ),
                         *self.compute_first_level_classifier(clfTypes) ,
+
+
+
             # SMOTETomek SMOTEENN
                        # ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
                        ########################
@@ -358,11 +370,14 @@ class ValeoModeler :
         return pl
 
     def compute_first_level_classifier(self, clfTypes:[str]) -> [(str, BaseEstimator)]:
-        # use_smote = clfTypes[0] in {C.LRC, C.GBC, C.HGBC, C.SVC, C.RFC, C.KNN, C.ADABoost}
-        # return [('undersampler', SMOTEENN(sampling_strategy='auto')]  if clfTypes[0] in { C.RFC_SMOTEEN} else  [pp.EmtpyTransformer()]
-        return [('undersampler', SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN} else
-                                 SMOTETomek(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTETOMEK}
-                                 else pp.EmtpyTransformer() )]
+        if clfTypes[0] in { C.RFC} :
+            return  [('over_sampler', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5)),
+                    ('under_sampler', RandomUnderSampler(sampling_strategy=0.5))]
+        else :
+            return [('combined_over_and_under_sampler',
+                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN} else
+                     SMOTETomek(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTETOMEK} else
+                     pp.EmtpyTransformer() )]
 
     '''
     SMOTe is a technique based on nearest neighbors judged by Euclidean Distance between data points in feature space.
