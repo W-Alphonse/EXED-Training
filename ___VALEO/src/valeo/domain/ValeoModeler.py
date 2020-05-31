@@ -280,8 +280,6 @@ class ValeoModeler :
                 n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
             C.HGBC : HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=15, scoring='roc_auc'),
 
-
-
             C.RFC : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
             C.RFC_SMOTEEN : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
             C.RFC_SMOTETOMEK : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
@@ -381,7 +379,7 @@ class ValeoModeler :
                      ('under_sampler', RandomUnderSampler(sampling_strategy=0.5))]
         else :
             return [('combined_over_and_under_sampler',
-                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN} else
+                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN, C.LRC, C.SVC} else
                      SMOTETomek(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTETOMEK} else
                      pp.EmtpyTransformer() )]
 
