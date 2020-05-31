@@ -4,7 +4,9 @@ from imblearn.ensemble import BalancedBaggingClassifier, RUSBoostClassifier, Bal
 from imblearn.over_sampling import RandomOverSampler, ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE, BorderlineSMOTE
 from imblearn.over_sampling.base import BaseOverSampler
 from imblearn.pipeline import Pipeline
-from imblearn.under_sampling import RandomUnderSampler
+from imblearn.under_sampling import RandomUnderSampler, TomekLinks
+from imblearn.combine import SMOTETomek, SMOTEENN
+from sklearn.base import BaseEstimator
 from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, AdaBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -225,6 +227,9 @@ class ValeoModeler :
 
             # local test roc = 0.6
             C.HGBC : HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=1.5, scoring='roc_auc'),
+            # emble.HistGradientBoostingClassifier(loss='auto', *, learning_rate=0.1, max_iter=100, max_leaf_nodes=31, max_depth=None, min_samples_leaf=20,
+            # l2_regularization=0.0, max_bins=255, monotonic_cst=None, warm_start=False, early_stopping='auto', scoring='loss', validation_fraction=0.1,
+            # n_iter_no_change=10, tol=1e-07, verbose=0, random_state=None)
 
             # Search_3 - Retained
             # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
@@ -270,7 +275,9 @@ class ValeoModeler :
                 base_estimator=GradientBoostingClassifier(learning_rate= 0.1,  max_depth= 10, max_features= 'log2', min_samples_split= 18),
                 n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
 
-            C.RFC : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=300,  oob_score= True, n_jobs=-1),
+
+            C.RFC_SMOTEEN : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
+            C.RFC_SMOTETOMEK : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
 
             # Best Score - SearchCV_02
             # https://medium.com/@venali/conventional-guide-to-supervised-learning-with-scikit-learn-logistic-regression-generalized-e9783c414588
@@ -329,8 +336,12 @@ class ValeoModeler :
                         # ('hotencoder_transformer', ht),
                         ('hotencoder_transformer', OneHotEncoder()),
                         # ('pca_transformer', PCA(n_components=0.9)),
-                        ('smote', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5) if use_smote else pp.EmtpyTransformer() ),
-                        ('undersampler', RandomUnderSampler(sampling_strategy=0.5)  if use_smote else pp.EmtpyTransformer() ),
+                        # ('smote', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5) if use_smote else pp.EmtpyTransformer() ),
+                        # ('undersampler', RandomUnderSampler(sampling_strategy=0.5)  if use_smote else pp.EmtpyTransformer() ),
+                        # ('undersampler', SMOTETomek(sampling_strategy='auto')  if use_smote else pp.EmtpyTransformer() ),
+                        # ('undersampler', SMOTEENN(sampling_strategy='auto')  if use_smote else pp.EmtpyTransformer() ),
+                        *self.compute_first_level_classifier(clfTypes) ,
+            # SMOTETomek SMOTEENN
                        # ('preprocessor', self._build_transformers_pipeline(columns_of_type_number)) ,
                        ########################
                         # ('nan_imputer', pp.NumericalImputer(columns_of_type_number, IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median', add_indicator=True, random_state=rand_state)) ),   # ('dbg_1', dbg),
@@ -346,6 +357,12 @@ class ValeoModeler :
         #     print(f"{i} -> {s[0]} / {str(s[1])[:70]}")
         return pl
 
+    def compute_first_level_classifier(self, clfTypes:[str]) -> [(str, BaseEstimator)]:
+        # use_smote = clfTypes[0] in {C.LRC, C.GBC, C.HGBC, C.SVC, C.RFC, C.KNN, C.ADABoost}
+        # return [('undersampler', SMOTEENN(sampling_strategy='auto')]  if clfTypes[0] in { C.RFC_SMOTEEN} else  [pp.EmtpyTransformer()]
+        return [('undersampler', SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN} else
+                                 SMOTETomek(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTETOMEK}
+                                 else pp.EmtpyTransformer() )]
 
     '''
     SMOTe is a technique based on nearest neighbors judged by Euclidean Distance between data points in feature space.

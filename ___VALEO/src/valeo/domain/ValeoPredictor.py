@@ -320,8 +320,10 @@ class ValeoPredictor :
 
     def fmt(self, float_to_format:float, format=4 ) -> str:
         f_format = '%.' + str(format) + 'f'
-        return f"{f_format % float_to_format}"
-
+        if isinstance(float_to_format, float) :
+            return f"{f_format % float_to_format}"
+        else :
+            return [ f"{f_format % f}" for f in float_to_format]
 
 
         # HGBC
