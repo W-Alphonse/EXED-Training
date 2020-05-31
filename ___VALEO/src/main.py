@@ -28,7 +28,9 @@ def generate_y_ens(fitted_model : BaseEstimator) :
     DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
 
 if __name__ == "__main__" :
-    clfTypes = [C.RUSBoost] # BRFC BBC_ADABoost BBC_GBC RFC_SMOTEENN RFC_SMOTETOMEK (RFC,SMOTEENN) / BBC  / RUSBoost ADABoost /  GBC HGBC SVC KNN / LR / HGBC:pas su l'optimiser
+    clfTypes = [C.BBC_HGBC] # BRFC BBC_ADABoost BBC_GBC RFC_SMOTEENN RFC_SMOTETOMEK (RFC,SMOTEENN) / RUSBoost ADABoost
+                        # BBC  GBC HGBC  #NotRetained
+                        # SVC KNN / LR / HGBC:pas su l'optimiser
     logger.info(f"Début ***{clfTypes[0]}*** .....")
 
     # 1 - Load the data

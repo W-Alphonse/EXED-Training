@@ -226,7 +226,7 @@ class ValeoModeler :
             # 'classifier__max_features' : ['sqrt', 'log2'],
 
             # local test roc = 0.6
-            C.HGBC : HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=1.5, scoring='roc_auc'),
+            C.HGBC : HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=15, scoring='roc_auc'),
             # emble.HistGradientBoostingClassifier(loss='auto', *, learning_rate=0.1, max_iter=100, max_leaf_nodes=31, max_depth=None, min_samples_leaf=20,
             # l2_regularization=0.0, max_bins=255, monotonic_cst=None, warm_start=False, early_stopping='auto', scoring='loss', validation_fraction=0.1,
             # n_iter_no_change=10, tol=1e-07, verbose=0, random_state=None)
@@ -275,6 +275,12 @@ class ValeoModeler :
                 base_estimator=GradientBoostingClassifier(learning_rate= 0.1,  max_depth= 10, max_features= 'log2', min_samples_split= 18),
                 n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
 
+            C.BBC_HGBC : BalancedBaggingClassifier(
+                base_estimator=HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=15, scoring='roc_auc'),
+                n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+            C.HGBC : HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=15, scoring='roc_auc'),
+
+
 
             C.RFC : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
             C.RFC_SMOTEEN : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
@@ -312,7 +318,7 @@ class ValeoModeler :
             C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
 
 
-            C.ADABoost : AdaBoostClassifier(n_estimators = 500, learning_rate= 0.05, algorithm='SAMME.R', random_state=42),
+            # C.ADABoost : AdaBoostClassifier(n_estimators = 500, learning_rate= 0.05, algorithm='SAMME.R', random_state=42),
 
             cls.XGBC :  xgb.
                 XGBClassifier(base_score=0.5, booster='gbtree', colsample_bylevel=1,
@@ -334,7 +340,7 @@ class ValeoModeler :
                                 ('pp_delete',dt),
                                # ('ht',ht)
                               ])
-        use_smote = clfTypes[0] in {C.LRC, C.GBC, C.HGBC, C.SVC, C.RFC, C.KNN, C.ADABoost}
+        # use_smote = clfTypes[0] in {C.LRC, C.GBC, C.HGBC, C.SVC, C.RFC, C.KNN, C.ADABoost}
         pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
                         # ('feats',feats),
                         ('preprocessor', self._build_transformers_pipeline(X_df) ) ,
@@ -370,9 +376,9 @@ class ValeoModeler :
         return pl
 
     def compute_first_level_classifier(self, clfTypes:[str]) -> [(str, BaseEstimator)]:
-        if clfTypes[0] in { C.RFC} :
+        if clfTypes[0] in { C.RFC, C.HGBC} :
             return  [('over_sampler', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5)),
-                    ('under_sampler', RandomUnderSampler(sampling_strategy=0.5))]
+                     ('under_sampler', RandomUnderSampler(sampling_strategy=0.5))]
         else :
             return [('combined_over_and_under_sampler',
                      SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN} else
