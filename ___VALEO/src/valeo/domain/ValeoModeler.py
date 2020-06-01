@@ -305,7 +305,7 @@ class ValeoModeler :
             # https://ashokharnal.wordpress.com/tag/kneighborsclassifier-explained/
             # https://ashokharnal.wordpress.com/2015/01/20/a-working-example-of-k-d-tree-formation-and-k-nearest-neighbor-algorithms/
             # n_neighbors=7 better than 5
-            C.KNN : KNeighborsClassifier(n_neighbors=9, weights='uniform', n_jobs=-1, leaf_size=10), # esssayer entre n_neighbors=9 et 7
+            C.KNN : KNeighborsClassifier(n_neighbors=7, weights='uniform'), # esssayer entre n_neighbors=9 et 7
 
 
 
@@ -379,7 +379,7 @@ class ValeoModeler :
                      ('under_sampler', RandomUnderSampler(sampling_strategy=0.5))]
         else :
             return [('combined_over_and_under_sampler',
-                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN, C.LRC, C.SVC} else
+                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN, C.LRC, C.SVC, C.KNN} else
                      SMOTETomek(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTETOMEK} else
                      pp.EmtpyTransformer() )]
 
