@@ -41,6 +41,7 @@ RUSBoost        = "RUSBoost_ADABoost"
 
 KNN = "KNN"           # KNeighborsClassifier(3),
 SVC = "SVC"           # SVC(kernel="rbf", C=0.025, probability=True)
+GNB = "GNB"
 NuSVC = "NuSVC"       # NuSVC(probability=True),
 
 GBC  = "GBC"          # GradientBoostingClassifier()

@@ -215,6 +215,7 @@ class ValeoModeler :
     # def build_predictor_pipeline(self, columns_of_type_number: list, clfTypes:[str]) -> Pipeline:
     def build_predictor_pipeline(self, X_df: pd.DataFrame, clfTypes:[str]) -> Pipeline:
         cls = self.__class__
+        from sklearn.naive_bayes import GaussianNB
         clfs = {
             # 'classifier__loss' : ['deviance', 'exponential'],  #https://stackoverflow.com/questions/53533942/loss-parameter-explanation-for-sklearn-ensemble-gradientboostingclassifier
             # 'classifier__learning_rate'   : [0.07, 0.2, 0.5], #uniform(0.001, 0.5),
@@ -305,7 +306,9 @@ class ValeoModeler :
             # https://ashokharnal.wordpress.com/tag/kneighborsclassifier-explained/
             # https://ashokharnal.wordpress.com/2015/01/20/a-working-example-of-k-d-tree-formation-and-k-nearest-neighbor-algorithms/
             # n_neighbors=7 better than 5
-            C.KNN : KNeighborsClassifier(n_neighbors=7, weights='uniform'), # esssayer entre n_neighbors=9 et 7
+            C.KNN : KNeighborsClassifier(n_neighbors=7, weights='uniform'),
+
+            C.GNB: GaussianNB(),
 
 
 
@@ -379,7 +382,7 @@ class ValeoModeler :
                      ('under_sampler', RandomUnderSampler(sampling_strategy=0.5))]
         else :
             return [('combined_over_and_under_sampler',
-                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN, C.LRC, C.SVC, C.KNN} else
+                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN, C.LRC, C.SVC, C.KNN, C.GNB} else
                      SMOTETomek(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTETOMEK} else
                      pp.EmtpyTransformer() )]
 
