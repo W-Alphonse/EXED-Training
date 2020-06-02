@@ -28,7 +28,7 @@ def generate_y_ens(fitted_model : BaseEstimator,  clfTypes) :
     DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , f"testoutput_{clfTypes[0]}.csv"])
 
 if __name__ == "__main__" :
-    clfTypes = [C.GNB] # BRFC BBC_ADABoost BBC_GBC BBC_HGBC RUSBoost(ADABoost) /  RFC_SMOTEENN RFC_SMOTETOMEK RFC( BorderLineSmote, RandomUnderSample)
+    clfTypes = [C.BBC_GBC] # BRFC BBC_ADABoost BBC_GBC BBC_HGBC RUSBoost(ADABoost) /  RFC_SMOTEENN RFC_SMOTETOMEK RFC( BorderLineSmote, RandomUnderSample)
                         # BBC  GBC HGBC  #NotRetained
                         # SVC KNN / LR
     logger.info(f"Début ***{clfTypes[0]}*** .....")
