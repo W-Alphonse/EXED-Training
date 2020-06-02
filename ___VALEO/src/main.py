@@ -22,10 +22,10 @@ from valeo.infrastructure.XY_metadata import XY_metadata as XY_metadata
 # TODO : Select_kbest
 # TODO : https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
 
-def generate_y_ens(fitted_model : BaseEstimator) :
+def generate_y_ens(fitted_model : BaseEstimator,  clfTypes) :
     X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
     y_ens = fitted_model.predict( X_ens )
-    DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , "testoutput.csv"])
+    DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , f"testoutput_{clfTypes[0]}.csv"])
 
 if __name__ == "__main__" :
     clfTypes = [C.GNB] # BRFC BBC_ADABoost BBC_GBC BBC_HGBC RUSBoost(ADABoost) /  RFC_SMOTEENN RFC_SMOTETOMEK RFC( BorderLineSmote, RandomUnderSample)
@@ -68,7 +68,7 @@ if __name__ == "__main__" :
 
     # 4 - Fit on all available DATA and THEN Test using ENS dataset. https://machinelearningmastery.com/train-final-machine-learning-model/
     # generate_y_ens(fitted_model)
-    generate_y_ens(pred.fit(X_df, y_df, clfTypes))
+    generate_y_ens(pred.fit(X_df, y_df, clfTypes),  clfTypes)
 
 
 
