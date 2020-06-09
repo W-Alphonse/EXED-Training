@@ -28,24 +28,23 @@ proc_week  = 'proc_week'
 proc_weekday = 'proc_weekday'
 #
 # 4 - Algorithm Classifiers keys
-BRFC = "BRFC"
-BBC  = "BBC"
-HGBC         = "HGBC" # (RFC, BorderLineSmote, RandomUnderSample): pas retenu - Split_Test : ROC_AUC: 0.6168
+BRFC         = "BRFC"
 BBC_ADABoost = "BBC_ADABoost"
 BBC_GBC      = "BBC_GBC"
 BBC_HGBC     = "BBC_HGBC"
 RFC_SMOTEEN  = "RFC_SMOTEEN"
-RFC_SMOTETOMEK  = "RFC_SMOTETOMEK"
-RFC             = "RFC" # (RFC, BorderLineSmote, RandomUnderSample)
-RUSBoost        = "RUSBoost_ADABoost"
+RFC_SMOTETOMEK    = "RFC_SMOTETOMEK"
+RFC_BLINESMT_RUS  = "RFC_BLINESMT_RUS"
+RUSBoost_ADABoost = "RUSBoost_ADABoost"
+LRC_SMOTEEN  = "LRC_SMOTEEN"
+KNN_SMOTEEN  = "KNN_SMOTEEN"
+SVC_SMOTEEN  = "SVC_SMOTEEN"
+GNB_SMOTENN  = "GNB_SMOTENN"
 
-KNN = "KNN"           # KNeighborsClassifier(3),
-SVC = "SVC"           # SVC(kernel="rbf", C=0.025, probability=True)
-GNB = "GNB"
+BBC  = "BBC"
+HGBC         = "HGBC" # (RFC, BorderLineSmote, RandomUnderSample): pas retenu - Split_Test : ROC_AUC: 0.6168
 NuSVC = "NuSVC"       # NuSVC(probability=True),
-
 GBC  = "GBC"          # GradientBoostingClassifier()
-LRC  = "LRC"          # LogisticRegression(max_iter=500))  # Best for Recall 1
 XGBC = "XGBC"         # xgb.XGBClassifier()
 #  ('classification', GaussianNB())  # 0.5881085402220386
 #  ('classification', ComplementNB())  # 0.523696690978335

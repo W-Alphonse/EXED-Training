@@ -281,13 +281,13 @@ class ValeoModeler :
                 n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
             C.HGBC : HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=15, scoring='roc_auc'),
 
-            C.RFC : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
+            C.RFC_BLINESMT_RUS : RandomForestClassifier(criterion='gini', max_depth= 8, max_features='log2', min_samples_split= 25, n_estimators=100, oob_score= True, n_jobs=-1),
             C.RFC_SMOTEEN : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
             C.RFC_SMOTETOMEK : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
 
             # Best Score - SearchCV_02
             # https://medium.com/@venali/conventional-guide-to-supervised-learning-with-scikit-learn-logistic-regression-generalized-e9783c414588
-            C.LRC  : LogisticRegression(C= 1000, fit_intercept= False, max_iter= 1000, penalty= 'l2', solver= 'saga'),
+            C.LRC_SMOTEEN  : LogisticRegression(C= 1000, fit_intercept= False, max_iter= 1000, penalty='l2', solver='saga'),
             # C.LRC  : LogisticRegression(C= 1000, fit_intercept= False, max_iter= 1000, penalty= 'l2', solver= 'lbfgs'),
 
             # https://medium.com/analytics-vidhya/hyperparameter-tuning-an-svm-a-demonstration-using-hyperparameter-tuning-cross-validation-on-96b05db54e5b
@@ -299,23 +299,23 @@ class ValeoModeler :
             # C.SVC  : SVC(kernel="rbf",  gamma='scale', C=0.025, probability=True, random_state=42),
             # In problems where it is desired to give more importance to certain classes or certain individual samples, the parameters class_weight and sample_weight can be used.
             # C1=50 better(may be overfit) than C=25(still small overfit) better thant C=15(choui overfit) better than C1=10 better than C=1 better than C=0.025   / class_weight={1: 10}
-            C.SVC  : SVC(kernel="rbf",  gamma='scale', C=10, probability=True, random_state=42) , #, class_weight={1: 10}) il se peut que le class_weight rajoute de l overfit,
+            C.SVC_SMOTEEN  : SVC(kernel="rbf", gamma='scale', C=10, probability=True, random_state=42) , #, class_weight={1: 10}) il se peut que le class_weight rajoute de l overfit,
 
             #  The higher the gamma value it tries to exactly fit the training data set
             # https://medium.com/@mohtedibf/in-depth-parameter-tuning-for-knn-4c0de485baf6
             # https://ashokharnal.wordpress.com/tag/kneighborsclassifier-explained/
             # https://ashokharnal.wordpress.com/2015/01/20/a-working-example-of-k-d-tree-formation-and-k-nearest-neighbor-algorithms/
             # n_neighbors=7 better than 5
-            C.KNN : KNeighborsClassifier(n_neighbors=7, weights='uniform'),
+            C.KNN_SMOTEEN : KNeighborsClassifier(n_neighbors=7, weights='uniform'),
 
-            C.GNB: GaussianNB(),
+            C.GNB_SMOTENN: GaussianNB(),
 
 
 
 
             # cls.RUSBoost : RUSBoostClassifier( n_estimators = 50 , algorithm='SAMME.R', random_state=42),
             # C.RUSBoost : RUSBoostClassifier(base_estimator = AdaBoostClassifier(n_estimators=10), n_estimators = 50 , algorithm='SAMME.R', random_state=42),
-            C.RUSBoost : RUSBoostClassifier(base_estimator = AdaBoostClassifier(), n_estimators = 50 , algorithm='SAMME.R', random_state=42),
+            C.RUSBoost_ADABoost : RUSBoostClassifier(base_estimator = AdaBoostClassifier(), n_estimators = 50, algorithm='SAMME.R', random_state=42),
             C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
 
 
@@ -377,12 +377,12 @@ class ValeoModeler :
         return pl
 
     def compute_first_level_classifier(self, clfTypes:[str]) -> [(str, BaseEstimator)]:
-        if clfTypes[0] in { C.RFC, C.HGBC} :
+        if clfTypes[0] in {C.RFC_BLINESMT_RUS, C.HGBC} :
             return  [('over_sampler', BorderlineSMOTE(sampling_strategy=0.1, m_neighbors=5)),
                      ('under_sampler', RandomUnderSampler(sampling_strategy=0.5))]
         else :
             return [('combined_over_and_under_sampler',
-                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTEEN, C.LRC, C.SVC, C.KNN, C.GNB} else
+                     SMOTEENN(sampling_strategy='auto')  if clfTypes[0] in {C.RFC_SMOTEEN, C.LRC_SMOTEEN, C.SVC_SMOTEEN, C.KNN_SMOTEEN, C.GNB_SMOTENN} else
                      SMOTETomek(sampling_strategy='auto')  if clfTypes[0] in { C.RFC_SMOTETOMEK} else
                      pp.EmtpyTransformer() )]
 

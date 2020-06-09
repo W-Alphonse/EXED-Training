@@ -47,7 +47,7 @@ class ClassifierParam :
         #                           'classifier__min_samples_leaf' : [5]
         #  }
         # ========================   LogisticRegression(max_iter=500)
-        self.g_param[C.LRC]  = { #Search_02
+        self.g_param[C.LRC_SMOTEEN]  = { #Search_02
             'classifier__penalty': ['l2'],
             'classifier__C': [1, 10, 100, 1000],
             'classifier__fit_intercept' : [True, False],
@@ -55,7 +55,7 @@ class ClassifierParam :
             'classifier__max_iter' : [500]
             # 'classifier__l1_ratio' : uniform(0, 1)
         }
-        self.d_param[C.LRC]  = [ { #Search_01
+        self.d_param[C.LRC_SMOTEEN]  = [ { #Search_01
                 'classifier__penalty': ['l2', 'elasticnet'],
                 'classifier__C': [1, 10, 100, 1000],
                 'classifier__fit_intercept' : [True, False],
