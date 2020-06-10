@@ -234,7 +234,7 @@ class ValeoModeler :
 
             # Search_3 - Retained
             # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
-            C.GBC  : GradientBoostingClassifier(learning_rate= 0.05, n_estimators= 100, subsample= 0.7, max_depth= 10, max_features= 'log2', min_samples_split= 18, loss= 'exponential'),
+            # C.GBC  : GradientBoostingClassifier(learning_rate= 0.05, n_estimators= 100, subsample= 0.7, max_depth= 10, max_features= 'log2', min_samples_split= 18, loss= 'exponential'),
 
 # https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/ensemble/plot_comparison_ensemble_classifier.html
 # Ensembling classifiers have shown to improve classification performance compare to single learner. However, they will be affected by class imbalance.
@@ -265,11 +265,13 @@ class ValeoModeler :
             # Best Generalized - SearchCV_02 - 0.67207 ENS
             # A balanced random forest randomly under-samples each boostrap sample to balance it. sqrt
             C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 18, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
+            #C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 11, max_features= 'sqrt', min_samples_split= 14, n_estimators= 125, oob_score= False, sampling_strategy= 0.1708) ,
+            # OrderedDict([('classifier__criterion', 'entropy'), ('classifier__max_depth', 11), ('classifier__max_features', 'sqrt'), ('classifier__min_samples_split', 14), ('classifier__n_estimators', 125), ('classifier__oob_score', False), ('classifier__sampling_strategy', 0.17085445052485143)])
 
             # https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/ensemble/plot_comparison_ensemble_classifier.html
             # This implementation of Bagging is similar to the scikit-learn implementation. It includes an additional step to balance the training set at fit time using a RandomUnderSampler
             # C.BBC  : BalancedBaggingClassifier(n_estimators= 300, max_samples=0.9, max_features= 12,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
-            C.BBC  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 300, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+            # C.BBC  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 300, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
 
             C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
             C.BBC_GBC : BalancedBaggingClassifier(
@@ -321,14 +323,14 @@ class ValeoModeler :
 
             # C.ADABoost : AdaBoostClassifier(n_estimators = 500, learning_rate= 0.05, algorithm='SAMME.R', random_state=42),
 
-            cls.XGBC :  xgb.
-                XGBClassifier(base_score=0.5, booster='gbtree', colsample_bylevel=1,
-                              colsample_bynode=1, colsample_bytree=1, gamma=0,
-                              learning_rate=0.1, max_delta_step=0, max_depth=10, #max_depth=3,
-                              min_child_weight=1, missing=None, n_estimators=100, n_jobs=1,
-                              nthread=None, objective='binary:logistic', random_state=0,
-                              reg_alpha=0, reg_lambda=1, scale_pos_weight=100, seed=42,
-                              silent=None, subsample=1, verbosity=1)
+            # cls.XGBC :  xgb.
+            #     XGBClassifier(base_score=0.5, booster='gbtree', colsample_bylevel=1,
+            #                   colsample_bynode=1, colsample_bytree=1, gamma=0,
+            #                   learning_rate=0.1, max_delta_step=0, max_depth=10, #max_depth=3,
+            #                   min_child_weight=1, missing=None, n_estimators=100, n_jobs=1,
+            #                   nthread=None, objective='binary:logistic', random_state=0,
+            #                   reg_alpha=0, reg_lambda=1, scale_pos_weight=100, seed=42,
+            #                   silent=None, subsample=1, verbosity=1)
         }
         rand_state = 48
         dbg = DebugPipeline()
@@ -432,3 +434,13 @@ class ValeoModeler :
 #     pipe.fit(X_train, y_train)
 #     print(classifier)
 #     print("model score: %.3f" % pipe.score(X_test, y_test))
+
+
+# ---------------------------------
+# Exemple Type : PipeLine entier
+# ---------------------------------
+# >>> pca = PCA()
+# >>> smt = SMOTE(random_state=42)
+# >>> knn = KNN()
+# >>> pipeline = Pipeline([('smt', smt), ('pca', pca), ('knn', knn)])
+

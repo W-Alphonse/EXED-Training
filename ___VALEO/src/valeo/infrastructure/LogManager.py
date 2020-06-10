@@ -17,8 +17,6 @@ class LogManager():
 
     @classmethod
     def logger(cls,logname):
-         # l = logging.getLogger(logname)
-         # l.
         return logging.getLogger(logname)
 
 

@@ -10,7 +10,7 @@ class ClassifierParam :
     def __init__(self):
         self.g_param = {}    # grid param used with GridSearchCV
         self.d_param = {}    # dist param used with RandomizedSearchParam
-        self.o_param = {}  # space param used with BayesSearchCV and scikit-optimize
+        self.o_param = {}    # space param used with BayesSearchCV and scikit-optimize
         self._initialize_param()
 
     def grid_param(self, clf_type:str) -> dict:
@@ -102,10 +102,10 @@ class ClassifierParam :
             }
         ]
         # =======================  HGBC : HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5),
-        self.g_param[C.HGBC]  = {
-        }
-        self.d_param[C.HGBC]  = {
-        }
+        # self.g_param[C.HGBC]  = {
+        # }
+        # self.d_param[C.HGBC]  = {
+        # }
 # Build a machine-learning pipeline using a HistGradientBoostingClassifier and fine tune your model on the Titanic dataset using a RandomizedSearchCV.
 #
 # You may want to set the parameter distributions is the following manner:
@@ -126,26 +126,28 @@ class ClassifierParam :
         #      'classifier__max_depth'   : [10, 15, 20],
         #     'classifier__max_features' : ['sqrt', 'log2'],
         # }
-        self.g_param[C.GBC]  = {  #Search_03 - Retained
-            # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
-            'classifier__loss' : ['deviance', 'exponential'],  #https://stackoverflow.com/questions/53533942/loss-parameter-explanation-for-sklearn-ensemble-gradientboostingclassifier
-            'classifier__learning_rate'   : [0.05, 0.1, 0.2],
-            'classifier__n_estimators' : [100, 200,300],
-            'classifier__min_samples_split' : [12, 18],
-            'classifier__subsample' : [0.6, 0.7, 0.8, 0.9],
-            'classifier__min_samples_split' :  [12, 18],
-            'classifier__max_depth'   : [10, 15],
-            'classifier__max_features' : ['log2'],
-        }
-        self.d_param[C.GBC]  = { # didn't try
-            'classifier__learning_rate'   : uniform(0.001, 0.2),
-            'classifier__n_estimators' : [60, 80],
-            # 'classifier__l2_regularization' :  random.uniform(0.0, 0.5),
-            'classifier__subsample' : [0.6,0.7,0.75,0.8,0.85,0.9],
-            'classifier__min_samples_split' : range(5,18,2),
-            'classifier__max_depth'   : range(5,16,2),
-            'classifier__max_features' : ['log2'],
-        }
+
+        # self.g_param[C.GBC]  = {  #Search_03 - Retained
+        #     # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
+        #     'classifier__loss' : ['deviance', 'exponential'],  #https://stackoverflow.com/questions/53533942/loss-parameter-explanation-for-sklearn-ensemble-gradientboostingclassifier
+        #     'classifier__learning_rate'   : [0.05, 0.1, 0.2],
+        #     'classifier__n_estimators' : [100, 200,300],
+        #     'classifier__min_samples_split' : [12, 18],
+        #     'classifier__subsample' : [0.6, 0.7, 0.8, 0.9],
+        #     'classifier__min_samples_split' :  [12, 18],
+        #     'classifier__max_depth'   : [10, 15],
+        #     'classifier__max_features' : ['log2'],
+        # }
+        # self.d_param[C.GBC]  = { # didn't try
+        #     'classifier__learning_rate'   : uniform(0.001, 0.2),
+        #     'classifier__n_estimators' : [60, 80],
+        #     # 'classifier__l2_regularization' :  random.uniform(0.0, 0.5),
+        #     'classifier__subsample' : [0.6,0.7,0.75,0.8,0.85,0.9],
+        #     'classifier__min_samples_split' : range(5,18,2),
+        #     'classifier__max_depth'   : range(5,16,2),
+        #     'classifier__max_features' : ['log2'],
+        # }
+
         # self.d_param[C.GBC]  = {  #Search_01 - Not Retained
         #     'classifier__loss' : ['deviance', 'exponential'],
         #     'classifier__learning_rate'   : uniform(0.001, 0.5),

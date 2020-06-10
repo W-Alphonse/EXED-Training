@@ -24,10 +24,6 @@ class XY_Loader:
     def load_XY_df(self, mt: XY_metadata, delete_XY_join_cols=True) -> ():
         # X_df = pd.read_csv(mt.X_pathname, na_values='')  # NaN
         X_df = pd.read_csv(mt.X_pathname)  # NaN
-        # X_df = X_df.fillna(0)
-        # print(X_df[Const.OP100_Capuchon_insertion_mesure].head(20))
-        # X_df[[Const.OP100_Capuchon_insertion_mesure]] = X_df[[Const.OP100_Capuchon_insertion_mesure]].fillna(0.0)
-        # print(X_df[Const.OP100_Capuchon_insertion_mesure].head(20))
 
         # 1 - Check whether Y is in separate file or in the same as X
         if mt.is_XY_in_separate_file() :
@@ -50,10 +46,6 @@ class XY_Loader:
             except :
                 pass
 
-        #
-        # XY_Loader.logger.debug(f'X_df.columns: {X_df.columns}')
-        # if Y_df is not None :
-        #     XY_Loader.logger.debug(f'type(Y_df):{type(Y_df)}\nY_df: {Y_df}')
         return X_df, Y_df
 
     def load_XY_values(self, mt: XY_metadata, delete_XY_join_cols=True) -> ():

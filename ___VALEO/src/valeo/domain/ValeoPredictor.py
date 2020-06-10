@@ -1,21 +1,12 @@
-# from random import randint
-from datetime import datetime
-
-import sklearn
-from scipy.stats import randint
+import pandas as pd
+import numpy as np
 
 from imblearn.metrics._classification import classification_report_imbalanced
-# https://imbalanced-learn.readthedocs.io/en/stable/api.html#module-imblearn.pipeline
 from sklearn.base import BaseEstimator
 from sklearn.metrics import f1_score, auc, roc_auc_score, confusion_matrix, classification_report, \
     precision_recall_curve, precision_recall_fscore_support, roc_curve, plot_precision_recall_curve, \
     average_precision_score, precision_score, recall_score, accuracy_score, balanced_accuracy_score
-# from sklearn.impute import SimpleImputer
 from sklearn.model_selection import cross_validate, StratifiedKFold, GridSearchCV, RandomizedSearchCV
-
-
-import pandas as pd
-import numpy as np
 from sklearn.model_selection._search import BaseSearchCV
 from skopt import BayesSearchCV
 
@@ -25,9 +16,6 @@ from valeo.domain.ClassifierParam import ClassifierParam
 from valeo.infrastructure.tools.DfUtil import DfUtil
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
-
-import xgboost as xgb
-
 
 class ValeoPredictor :
     logger = None
@@ -108,7 +96,7 @@ class ValeoPredictor :
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         if classifier_params != None :
             model = classifier_params
-        CV = StratifiedKFold(n_splits=n_splits) #   n_splits    , random_state=48, shuffle=True
+        CV = StratifiedKFold(n_splits=n_splits)
 
         # The cross_validate function differs from cross_val_score in two ways:
         # It allows specifying multiple metrics for evaluation + It returns a dict containing fit-times, score-times ...
@@ -422,46 +410,10 @@ class ValeoPredictor :
 
         # return fitted_model  , None
 
-# https://medium.com/towards-artificial-intelligence/application-of-synthetic-minority-over-sampling-technique-smote-for-imbalanced-data-sets-509ab55cfdaf
-# from sklearn.ensemble import GradientBoostingClassifier
-# from sklearn.model_selection import GridSearchCV
-# parameters = {'n_estimators':[100,150,200,250,300,350,400,450,500],
-#               'max_depth':[3,4,5]}
-# clf= GradientBoostingClassifier()
-# grid_search = GridSearchCV(param_grid = parameters, estimator = clf,
-#                            verbose = 3)
-# grid_search_2 = grid_search.fit(X_train,y_train)
 
-# GOOGLE ON: classifier over sampled imbalanced dataset
-# https://sci2s.ugr.es/imbalanced  : Tres interessant****
-# https://www.datacamp.com/community/tutorials/diving-deep-imbalanced-data  : Tres interessant****
-#---
-# https://journalofbigdata.springeropen.com/articles/10.1186/s40537-017-0108-1  : Tres interessant****
-# xperimental evaluation
-# The projected technique works on binary-class/multi-class imbalanced Big Data sets in the organization to recommended LVH. Four basic classifiers viz. Random Forest (-P 100-I 100-num-slots 1-K 0-M 1.0-V 0.001-S 1), Naïve Bayes, AdaBoostM1 (-P 100-S 1-I 10-W weka.classifiers.trees.DecisionStump) and MultiLayer Perceptron (-L 0.3-M 0.2-N 500-V 0-S 0-E 20-H a) are applied to over_sampled data sets using dissimilar values of cross-validation and KNN. Lastly the results, based on the F-measure and AUC values are used to compare between benchmarking (SMOTE/Borderline-SMOTE/ADASYN/SPIDER2/SMOTEBoost/MWMOTE) and planned technique (UCPMOT). Tables 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 and 13 describe the results in detail. The analysis of results validates the superiority of UCPMOT for enhancing the classification.
-
-# GOOGLE ON: scikit learn imbalanced dataset resampling type cross validation shuffle
-# https://www.kaggle.com/rafjaa/resampling-strategies-for-imbalanced-datasets
-# https://machinelearningmastery.com/cross-validation-for-imbalanced-classification/
-# CV = ShuffleSplit(n_splits=10, test_size=0.25, random_state=48)
-# https://www.alfredo.motta.name/cross-validation-done-wrong/
-
-# https://www.dataschool.io/simple-guide-to-confusion-matrix-terminology/
-#     https://towardsdatascience.com/train-test-split-and-cross-validation-in-python-80b61beca4b6
-
-# http://www.cs.nthu.edu.tw/~shwu/courses/ml/labs/08_CV_Ensembling/08_CV_Ensembling.html
-# https://github.com/arrayslayer/ML-Project
-
-# https://www.kaggle.com/shiqbal/first-data-exploration/notebook  applied on Porto Seguro's
 
 
 ''' TODO :
-
 -> Faire Ressortir l'importance et la contribution de chaque feature:
    https://scikit-learn.org/stable/auto_examples/inspection/plot_permutation_importance.html
-
--> Essayer ces scénarios de modélisation:
-   scen1: Oversampling + LogisticR
-   scen2: BaggingClassifier + Histo
-   
 '''

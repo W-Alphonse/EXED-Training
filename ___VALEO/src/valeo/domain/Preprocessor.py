@@ -122,17 +122,12 @@ class ProcDatePcaTransformer(ProcDateTransformer):
         #
         # X_new = pd.concat([X_new, month_pca, week_pca, weekday_pca], axis = 1)
         date_pca = pd.DataFrame.from_records([month_pca, week_pca, weekday_pca])
-        print(date_pca.head())
-        print(date_pca.info())
-        print(date_pca.describe())
+        # print(date_pca.head())
+        # print(date_pca.info())
+        # print(date_pca.describe())
         X_new = pd.concat([X_new, date_pca], axis = 1)
         return X_new
 
-# Générer un nombre de jour à partir du numéro de série
-# z = pd.merge(data, Y_data, on=Const.PROC_TRACEINFO, suffixes=('','_right'))
-# zz = z[z['Binar OP130_Resultat_Global_v'] == 1][['PROC_TRACEINFO', 'OP100_Capuchon_insertion_mesure', 'proc_date', 'proc_index']].sort_values(by='proc_index')
-# zzz = zz['proc_index'].diff()
-# pd.concat([zz, zzz], axis=1)
 
 class OP100CapuchonInsertionMesureTransformer(BaseEstimator, TransformerMixin):
     def fit(self, X, y=None):
