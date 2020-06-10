@@ -40,32 +40,23 @@ LRC_SMOTEEN  = "LRC_SMOTEEN"
 KNN_SMOTEEN  = "KNN_SMOTEEN"
 SVC_SMOTEEN  = "SVC_SMOTEEN"
 GNB_SMOTENN  = "GNB_SMOTENN"
+#
 HGBC         = "HGBC" # (RFC, BorderLineSmote, RandomUnderSample): pas retenu - Split_Test : ROC_AUC: 0.6168
-
 # BBC  = "BBC"
 # NuSVC = "NuSVC"       # NuSVC(probability=True),
 # GBC  = "GBC"          # GradientBoostingClassifier()
 # XGBC = "XGBC"         # xgb.XGBClassifier()
-#  ('classification', GaussianNB())  # 0.5881085402220386
-#  ('classification', ComplementNB())  # 0.523696690978335
-#  ('classification', MultinomialNB())  # 0.523696690978335
-# Imbl_Resampler =  "Imbl_Resampler"
-
-# Imbalanced resampling type
-# random_over_sampler = 'random_over_sampler' # The most naive strategy is to generate new samples by randomly sampling with replacement the current available samples.
-# adasyn_over_sampling = 'adasyn_over_sampling' # Adaptive Synthetic: focuses on generating samples next to the original samples which are wrongly classified using a k-Nearest Neighbors classifier
-# smote_over_sampling  = 'smote_over_sampling'  # Synth Minority Oversampling Techn: will not make any distinction between easy and hard samples to be classified using the nearest neighbors rule
-# smote_nc_over_sampling   = 'smote_nc_over_sampling'
-# smote_svm_over_sampling  = 'smote_svm_over_sampling'
-# smote_kmeans_over_sampling  = 'smote_kmeans_over_sampling'
-# smote_bline_over_sampling   = 'smote_bline_over_sampling'
-
 #
 bg_rank = "best_generalized_rank"
 bg_params = "best_generalized_params"
 bg_score_diff = "best_generalized_score_difference_with_1st"
 bg_score_test_set = "best_generalized_score_test_set"
 bg_score_train_set  = "best_generalized_score_train_set"
+
+
+cv_search_grid = "cv_search_grid"
+cv_search_rand = "cv_search_random"
+cv_search_opt = "cv_search_grid"
 
 
 import os

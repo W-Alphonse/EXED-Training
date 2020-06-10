@@ -275,8 +275,8 @@ class ValeoPredictor :
         if n_iter == 0 or None => Grid Search Else RandomSearch 
         ========================================
     '''
-    def fit_cv_grid_or_random_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_random_iter=None, n_splits=8) -> BaseEstimator:
-        is_grid = (n_random_iter == None) or (n_random_iter == 0)
+    def fit_cv_grid_or_random_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_iter=None, n_splits=8) -> BaseEstimator:
+        is_grid = (n_iter == None) or (n_iter == 0)
         grid_or_random = "grid" if is_grid else "random"
         #
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
@@ -288,7 +288,7 @@ class ValeoPredictor :
         #      that would be used to find the best parameters for refitting the estimator at the end.
         #  3 - The refitted estimator is made available at the best_estimator_ attribute and permits using predict directly on this SearchCV instance.
         search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
-                 if is_grid else  RandomizedSearchCV(model, param_distributions=self.param.distrib_param(clfTypes[0]), n_iter=n_random_iter,
+                 if is_grid else  RandomizedSearchCV(model, param_distributions=self.param.distrib_param(clfTypes[0]), n_iter=n_iter,
                                                      scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)
         search.fit(X, y)
         # print(search)
@@ -334,7 +334,7 @@ class ValeoPredictor :
         # search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
         #     if is_grid else  RandomizedSearchCV(model, param_distributions=self.param.opt_param(clfTypes[0]), n_iter=n_random_iter,
         #                                         scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)
-        search = opt = BayesSearchCV(model, search_spaces= self.param.optimize_param(clfTypes[0]),
+        search = BayesSearchCV(model, search_spaces= self.param.optimize_param(clfTypes[0]),
             refit=True,
             scoring='roc_auc',
             cv=CV,

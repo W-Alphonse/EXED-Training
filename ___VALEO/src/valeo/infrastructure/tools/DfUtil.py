@@ -42,7 +42,7 @@ class DfUtil() :
                            'Date'       : [ datetime.now().strftime('%m%d-%H:%M')],
                            'Score Test' : [ float( '%.4f' % base_search_cv.best_score_) ],
                            'Score Train': [ float( '%.4f' % df_cv_result.iloc[base_search_cv.best_index_]['mean_train_score']
-                                                                              if 'mean_train_score' in df_cv_result.columns.tolist() else 0.0 ) ],
+                                                          if 'mean_train_score' in df_cv_result.columns.tolist() else 0.0 ) ],
                            'Params'    :  [ base_search_cv.best_params_ ],
                            # 'Estimator' :  [ base_search_cv.best_estimator_]
                            })
