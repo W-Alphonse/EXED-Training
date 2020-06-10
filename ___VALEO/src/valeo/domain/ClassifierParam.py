@@ -1,4 +1,5 @@
 from scipy.stats import randint, uniform
+from skopt.space import Integer, Real
 
 from valeo.infrastructure.LogManager import LogManager
 from valeo.infrastructure import Const as C
@@ -7,8 +8,9 @@ class ClassifierParam :
     logger = LogManager.logger(__name__)
 
     def __init__(self):
-        self.g_param = {}  # grid param used with GridSearchCV
-        self.d_param = {}  # dist param used with RandomizedSearchParam
+        self.g_param = {}    # grid param used with GridSearchCV
+        self.d_param = {}    # dist param used with RandomizedSearchParam
+        self.o_param = {}  # space param used with BayesSearchCV and scikit-optimize
         self._initialize_param()
 
     def grid_param(self, clf_type:str) -> dict:
@@ -16,10 +18,26 @@ class ClassifierParam :
 
     def distrib_param(self, clf_type:str) -> dict:
         return self.d_param[clf_type]
-    
+
+    def optimize_param(self, clf_type:str) -> dict:
+        return self.o_param[clf_type]
+
     # https://stackoverflow.com/questions/49036853/scipy-randint-vs-numpy-randint
     #  {'classifier__max_depth': 10, 'classifier__min_samples_split': 12, 'classifier__n_estimators': 200, 'classifier__oob_score': True, 'classifier__sampling_strategy': 'auto'}
     def _initialize_param(self):
+
+        self.o_param[C.BRFC] =  { #Search_02
+            'classifier__n_estimators': Integer(100, 300),
+            'classifier__max_depth': Integer(5, 20),
+            'classifier__max_features' : ['sqrt', 'log2'],
+            'classifier__min_samples_split' : Integer(5, 20),
+            # 'classifier__min_samples_leaf' : [9,13, 15],
+            'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
+            # 'classifier__class_weight' : [None],
+            'classifier__criterion' : ['entropy', 'gini'], # default: gini
+            'classifier__sampling_strategy' : Real(0.15, 0.25)  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
+         }
+
         # BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0) , # sampling_strategy=0.5),
         self.g_param[C.BRFC] =  { #Search_02
             'classifier__n_estimators': [ 200],

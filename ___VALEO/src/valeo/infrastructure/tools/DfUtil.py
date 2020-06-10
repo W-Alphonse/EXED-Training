@@ -41,7 +41,8 @@ class DfUtil() :
         df = pd.DataFrame({'Type'       : [ search_type],
                            'Date'       : [ datetime.now().strftime('%m%d-%H:%M')],
                            'Score Test' : [ float( '%.4f' % base_search_cv.best_score_) ],
-                           'Score Train': [ float( '%.4f' % df_cv_result.iloc[base_search_cv.best_index_]['mean_train_score'] ) ],   # df_cv_result['mean_train_score'].mean()
+                           'Score Train': [ float( '%.4f' % df_cv_result.iloc[base_search_cv.best_index_]['mean_train_score']
+                                                                              if 'mean_train_score' in df_cv_result.columns.tolist() else 0.0 ) ],
                            'Params'    :  [ base_search_cv.best_params_ ],
                            # 'Estimator' :  [ base_search_cv.best_estimator_]
                            })
@@ -49,18 +50,28 @@ class DfUtil() :
 
     @classmethod
     def cv_best_generalized_score_and_param(cls, df_cv_result:pd.DataFrame) -> dict :
-        df = pd.concat([ df_cv_result['rank_test_score'],
-                         df_cv_result['mean_train_score'] - df_cv_result['mean_test_score'],
-                         df_cv_result['mean_train_score'] , df_cv_result['mean_test_score'],
-                         df_cv_result['params'] ],
-                         axis = 1)
-        sorted_df = df.sort_values(by=0) # sort by 'rank_test_score'
-        # print(sorted_df.info())
-        return  { C.bg_score_test_set : sorted_df.iloc[0]['mean_test_score'],   # --> best_generalized_score_test_set
-                  C.bg_score_train_set: sorted_df.iloc[0]['mean_train_score'],  # --> best_generalized_score_train_set
-                  C.bg_rank: sorted_df.iloc[0]['rank_test_score'],              # --> best_generalized_rank NB: 'rank_test_score' correspond to the index of the best TestScore in the ResultSet
-                  C.bg_score_diff: sorted_df.iloc[0][0],                        # --> best_generalized_score_difference_with_1st # sorted_df.iloc[0][0]
-                  C.bg_params: sorted_df.iloc[0]['params']  }                   # --> best_generalized_params
+        if 'mean_train_score' in df_cv_result.columns.tolist() :
+            df = pd.concat([ df_cv_result['rank_test_score'],
+                             df_cv_result['mean_train_score'] - df_cv_result['mean_test_score'],
+                             df_cv_result['mean_train_score'] ,
+                             df_cv_result['mean_test_score'],
+                             df_cv_result['params'] ],
+                             axis = 1)
+            sorted_df = df.sort_values(by=0) # sort by 'rank_test_score'
+            return  { C.bg_score_test_set : sorted_df.iloc[0]['mean_test_score'],   # --> best_generalized_score_test_set
+                      C.bg_score_train_set: sorted_df.iloc[0]['mean_train_score'],  # --> best_generalized_score_train_set
+                      C.bg_rank: sorted_df.iloc[0]['rank_test_score'],              # --> best_generalized_rank NB: 'rank_test_score' correspond to the index of the best TestScore in the ResultSet
+                      C.bg_score_diff: sorted_df.iloc[0][0],                        # --> best_generalized_score_difference_with_1st # sorted_df.iloc[0][0]
+                      C.bg_params: sorted_df.iloc[0]['params']  }                   # --> best_generalized_params
+        else :
+            df = pd.concat([ df_cv_result['rank_test_score'],
+                             df_cv_result['mean_test_score'],
+                             df_cv_result['params'] ],
+                           axis = 1)
+            sorted_df = df.sort_values(by='rank_test_score') # sort by 'rank_test_score'
+            return  { C.bg_score_test_set : sorted_df.iloc[0]['mean_test_score'],   # --> best_generalized_score_test_set
+                      C.bg_rank: sorted_df.iloc[0]['rank_test_score'],              # --> best_generalized_rank NB: 'rank_test_score' correspond to the index of the best TestScore in the ResultSet
+                      C.bg_params: sorted_df.iloc[0]['params']  }                   # --> best_generalized_params
 
 
     @classmethod

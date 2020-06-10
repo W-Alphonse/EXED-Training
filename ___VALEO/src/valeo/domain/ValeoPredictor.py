@@ -16,6 +16,8 @@ from sklearn.model_selection import cross_validate, StratifiedKFold, GridSearchC
 
 import pandas as pd
 import numpy as np
+from sklearn.model_selection._search import BaseSearchCV
+from skopt import BayesSearchCV
 
 from valeo.domain.MetricPlotter   import MetricPlotter
 from valeo.domain.ValeoModeler    import ValeoModeler
@@ -331,6 +333,56 @@ class ValeoPredictor :
         else :
             return [ f"{f_format % f}" for f in float_to_format]
 
+    def _fit_cv_grid_or_random_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_random_iter=None, n_splits=8) ->  BaseSearchCV :  # BaseEstimator:
+        model = self.modeler.build_predictor_pipeline(X, clfTypes)
+        # model.score
+        CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
+
+        #  NB:
+        #  1 - refit=True => Refit an estimator using the best found parameters on the whole dataset
+        #  2 - For multiple metric evaluation, 'scoring' needs to be an str denoting the scorer
+        #      that would be used to find the best parameters for refitting the estimator at the end.
+        #  3 - The refitted estimator is made available at the best_estimator_ attribute and permits using predict directly on this SearchCV instance.
+        # search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
+        #     if is_grid else  RandomizedSearchCV(model, param_distributions=self.param.opt_param(clfTypes[0]), n_iter=n_random_iter,
+        #                                         scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)
+        search = opt = BayesSearchCV(model, search_spaces= self.param.optimize_param(clfTypes[0]),
+            refit=True,
+            scoring='roc_auc',
+            cv=CV,
+            n_iter=5,
+            random_state=48,
+            verbose=0
+        )
+        search.fit(X, y)
+        print(search)
+        grid_or_random = 'opt'
+
+        # 1 - Write down the SearchCV result into a CSV file sorting by 'rank_test_score' asc
+        #     and append 'scores' and 'params' to the search_history
+        df_cv_results = pd.DataFrame(search.cv_results_)
+        DfUtil.write_df_csv( df_cv_results, [C.rootReports(), f'{grid_or_random}_search_cv-notsorted-{clfTypes[0]}.csv'] )
+        DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'{grid_or_random}_search_cv-{clfTypes[0]}.csv'] )
+        DfUtil.write_cv_search_history_result(clfTypes + [grid_or_random], df_cv_results, search)
+
+        # search attributes: best_score_,  best_params_ (short), best_estimator_ (long), best_index_ /*c'est lindex du meilleur rang, purement informatif*/ ; sklearn.metrics.SCORERS.keys()
+        has_train_score = True if 'mean_train_score' in df_cv_results.columns.tolist() else False
+        if has_train_score :
+            ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_}")
+        else :
+            ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} - Best Params: {search.best_params_}")
+
+
+        # 2 - Check whether there is a difference between the best_classifier score (the classifier whose rank is equal to 1)
+        #     and the best_classifier that can generalize (the classifier whose test_score is the highest)
+        bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
+
+        # 3 - (bg: best generalized) - bg_score_test_set, bg_score_train_set, bg_rank, bg_score_difference_with_1st, bg_params
+        # ValeoPredictor.logger.info(f"- Best mean score(Test, rank {'%d' %  search.best_index_} | {'%d' %  bg_dict[C.bg_rank]}): {'%.4f' % bg_dict[C.bg_score_test_set]} "
+        #                            f"(mean Train {'%.4f' %  bg_dict[C.bg_score_train_set]}) - "
+        #                            f"Train-Test {'%.4f' % bg_dict[C.bg_score_diff]} - "
+        #                            f"Best Generalized Params: {bg_dict[C.bg_params]}")
+        return search # search.best_estimator_
 
         # HGBC
         # param_grid = {

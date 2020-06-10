@@ -192,24 +192,24 @@ class ValeoModeler :
 
 # https://scikit-learn.org/stable/auto_examples/classification/plot_classifier_comparison.html
                           # ENS(0.61) without explicit overSampling / test_roc_auc : [0.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
-    BBC  = "BBC"          # BalancedBaggingClassifier(base_estimator=HGBR,  sampling_strategy=1.0, replacement=False, random_state=48)
-    HGBC = "HGBR"         # HistGradientBoostingClassifier(max_iter = 8 , max_depth=8,learning_rate=0.35, l2_regularization=500)
-
-    BRFC = "BRFC"         # BalancedRandomForestClassifier(n_estimators = 50 , max_depth=20)
-    RUSBoost = "RUSBoost" # RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
-    KNN = "KNN"           # KNeighborsClassifier(3),
-    SVC = "SVC"           # SVC(kernel="rbf", C=0.025, probability=True)
-    NuSVC = "NuSVC"       # NuSVC(probability=True),
-    RFC = "RFC"           # RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
-    DTC = "DTC"           # DecisionTreeClassifier())  # so bad
-    ADABoost = "ADABoost" # AdaBoostClassifier()
-    GBC  = "GBC"          # GradientBoostingClassifier()
-    LRC  = "LRC"          # LogisticRegression(max_iter=500))  # Best for Recall 1
-    XGBC = "XGBC"         # xgb.XGBClassifier()
+    # BBC  = "BBC"          # BalancedBaggingClassifier(base_estimator=HGBR,  sampling_strategy=1.0, replacement=False, random_state=48)
+    # HGBC = "HGBR"         # HistGradientBoostingClassifier(max_iter = 8 , max_depth=8,learning_rate=0.35, l2_regularization=500)
+    #
+    # BRFC = "BRFC"         # BalancedRandomForestClassifier(n_estimators = 50 , max_depth=20)
+    # RUSBoost = "RUSBoost" # RUSBoostClassifier(n_estimators = 8 , algorithm='SAMME.R', random_state=42)
+    # KNN = "KNN"           # KNeighborsClassifier(3),
+    # SVC = "SVC"           # SVC(kernel="rbf", C=0.025, probability=True)
+    # NuSVC = "NuSVC"       # NuSVC(probability=True),
+    # RFC = "RFC"           # RandomForestClassifier(n_estimators=10, max_depth=10, max_features=10, n_jobs=4))
+    # DTC = "DTC"           # DecisionTreeClassifier())  # so bad
+    # ADABoost = "ADABoost" # AdaBoostClassifier()
+    # GBC  = "GBC"          # GradientBoostingClassifier()
+    # LRC  = "LRC"          # LogisticRegression(max_iter=500))  # Best for Recall 1
+    # XGBC = "XGBC"         # xgb.XGBClassifier()
     #  ('classification', GaussianNB())  # 0.5881085402220386
     #  ('classification', ComplementNB())  # 0.523696690978335
     #  ('classification', MultinomialNB())  # 0.523696690978335
-    Imbl_Resampler =  "Imbl_Resampler"  # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='not majority'))
+    # Imbl_Resampler =  "Imbl_Resampler"  # ('imbalancer_resampler', self.build_resampler(sampler_type,sampling_strategy='not majority'))
 
     # def build_predictor_pipeline(self, features_dtypes:pd.Series, clfTypes:[str]) -> Pipeline:
     # def build_predictor_pipeline(self, columns_of_type_number: list, clfTypes:[str]) -> Pipeline:
