@@ -18,30 +18,42 @@ class ClassifierParam :
         return self.d_param[clf_type]
     
     # https://stackoverflow.com/questions/49036853/scipy-randint-vs-numpy-randint
+    #  {'classifier__max_depth': 10, 'classifier__min_samples_split': 12, 'classifier__n_estimators': 200, 'classifier__oob_score': True, 'classifier__sampling_strategy': 'auto'}
     def _initialize_param(self):
         # BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0) , # sampling_strategy=0.5),
         self.g_param[C.BRFC] =  { #Search_02
-            'classifier__n_estimators': [100, 200, 300],
-            'classifier__max_depth': [10, 15, 20],
-            'classifier__max_features' : ['sqrt', 'log2'],
-            'classifier__min_samples_split' : [8, 12, 18],
+            'classifier__n_estimators': [ 200],
+            'classifier__max_depth': [10],
+            'classifier__min_samples_split' : [12, 18],
             # 'classifier__min_samples_leaf' : [9,13, 15],
             'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
             # 'classifier__class_weight' : [None],
-            'classifier__criterion' : ['entropy', 'gini'], # default: gini
-            'classifier__sampling_strategy' : [ 0.15, 0.2, 0.25, 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
-         }
-        self.d_param[C.BRFC]  =  { #Search_01
-            'classifier__n_estimators': randint(50,500),
-            'classifier__max_depth': randint(6, 20),
-            'classifier__max_features' : ['sqrt', 'log2', None, 12, 15],
-            'classifier__min_samples_split' : randint(5,18),
-            # 'classifier__min_samples_leaf' : [9,13, 15],
-            'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
-            # 'classifier__class_weight' : [None],
-            'classifier__criterion' : ['entropy', 'gini'],
-            'classifier__sampling_strategy' : [ 0.15, 0.2, 0.25, 0.3, 'auto']
+            'classifier__sampling_strategy' : ['auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
         }
+
+        # self.g_param[C.BRFC] =  { #Search_02
+        #     'classifier__n_estimators': [100, 200, 300],
+        #     'classifier__max_depth': [10, 15, 20],
+        #     'classifier__max_features' : ['sqrt', 'log2'],
+        #     'classifier__min_samples_split' : [8, 12, 18],
+        #     # 'classifier__min_samples_leaf' : [9,13, 15],
+        #     'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
+        #     # 'classifier__class_weight' : [None],
+        #     'classifier__criterion' : ['entropy', 'gini'], # default: gini
+        #     'classifier__sampling_strategy' : [ 0.15, 0.2, 0.25, 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
+        #  }
+        # self.d_param[C.BRFC]  =  { #Search_01
+        #     'classifier__n_estimators': randint(50,500),
+        #     'classifier__max_depth': randint(6, 20),
+        #     'classifier__max_features' : ['sqrt', 'log2', None, 12, 15],
+        #     'classifier__min_samples_split' : randint(5,18),
+        #     # 'classifier__min_samples_leaf' : [9,13, 15],
+        #     'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
+        #     # 'classifier__class_weight' : [None],
+        #     'classifier__criterion' : ['entropy', 'gini'],
+        #     'classifier__sampling_strategy' : [ 0.15, 0.2, 0.25, 0.3, 'auto']
+        # }
+
         # self.d_param[C.BRFC]  = { 'classifier__n_estimators': [260],
         #                           'classifier__max_depth': [15],
         #                           'classifier__min_samples_leaf' : [5]

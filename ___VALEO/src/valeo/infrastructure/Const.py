@@ -23,8 +23,8 @@ OP120_Rodage_I_mesure_value   = 'OP120_Rodage_I_mesure_value'
 OP120_Rodage_U_mesure_value   = 'OP120_Rodage_U_mesure_value'
 Binar_OP130_Resultat_Global_v = 'Binar OP130_Resultat_Global_v'
 # F_Manuf_day_count = 'F_Manuf_day_count'
-proc_month = 'proc_month'
-proc_week  = 'proc_week'
+proc_month   = 'proc_month'
+proc_week    = 'proc_week'
 proc_weekday = 'proc_weekday'
 #
 # 4 - Algorithm Classifiers keys
@@ -66,7 +66,7 @@ bg_params = "best_generalized_params"
 # bg_estimator = "best_generalized_estimator"
 bg_score_diff = "best_generalized_score_difference_with_1st"
 bg_score_test_set = "best_generalized_score_test_set"
-bg_score_train_set = "bg_score_train_set"
+bg_score_train_set  = "best_generalized_score_train_set"
 
 
 import os

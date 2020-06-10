@@ -37,7 +37,7 @@ class DfUtil() :
             cls.logger.exception(f"Error while writing 'df' to CSV '{pathAsStrList}'")
 
     @classmethod
-    def write_cv_search_result(cls, search_type:[str], df_cv_result:pd.DataFrame, base_search_cv: BaseSearchCV) :
+    def write_cv_search_history_result(cls, search_type:[str], df_cv_result:pd.DataFrame, base_search_cv: BaseSearchCV) :
         df = pd.DataFrame({'Type'       : [ search_type],
                            'Date'       : [ datetime.now().strftime('%m%d-%H:%M')],
                            'Score Test' : [ float( '%.4f' % base_search_cv.best_score_) ],
@@ -45,24 +45,22 @@ class DfUtil() :
                            'Params'    :  [ base_search_cv.best_params_ ],
                            # 'Estimator' :  [ base_search_cv.best_estimator_]
                            })
-        df.to_csv( C.ts_pathanme([C.rootReports(), '__cv_search.csv'], ts_type=C.ts_none) , mode = 'a',  header=False)
+        df.to_csv( C.ts_pathanme([C.rootReports(), '__cv_search_history.csv'], ts_type=C.ts_none) , mode = 'a',  header=False)
 
     @classmethod
-    def cv_best_generalized_score_and_param(cls, df_cv_result:pd.DataFrame) -> (int, int, dict) :
-        # (int, int, dict) -> (rank_of_the_best_generalized_score, score_difference_between_this_rank_and_the_1st_one, classifier_params)
+    def cv_best_generalized_score_and_param(cls, df_cv_result:pd.DataFrame) -> dict :
         df = pd.concat([ df_cv_result['rank_test_score'],
                          df_cv_result['mean_train_score'] - df_cv_result['mean_test_score'],
                          df_cv_result['mean_train_score'] , df_cv_result['mean_test_score'],
                          df_cv_result['params'] ],
                          axis = 1)
-        sorted_df = df.sort_values(by=0) # sort by the newly created column = mean_train_score - mean_test_score
-        # return sorted_df.iloc[0]['rank_test_score'], sorted_df.iloc[0][0], sorted_df.iloc[0]['params']
-        return  { C.bg_score_test_set : sorted_df.iloc[0]['mean_test_score'],
-                  C.bg_score_train_set: sorted_df.iloc[0]['mean_train_score'],
-                  C.bg_rank: sorted_df.iloc[0]['rank_test_score'],
-                  C.bg_score_diff: sorted_df.iloc[0][0],
-                  # C.bg_estimator : sorted_df.iloc[0]['params'],
-                  C.bg_params: sorted_df.iloc[0]['params']  }
+        sorted_df = df.sort_values(by=0) # sort by 'rank_test_score'
+        # print(sorted_df.info())
+        return  { C.bg_score_test_set : sorted_df.iloc[0]['mean_test_score'],   # --> best_generalized_score_test_set
+                  C.bg_score_train_set: sorted_df.iloc[0]['mean_train_score'],  # --> best_generalized_score_train_set
+                  C.bg_rank: sorted_df.iloc[0]['rank_test_score'],              # --> best_generalized_rank NB: 'rank_test_score' correspond to the index of the best TestScore in the ResultSet
+                  C.bg_score_diff: sorted_df.iloc[0][0],                        # --> best_generalized_score_difference_with_1st # sorted_df.iloc[0][0]
+                  C.bg_params: sorted_df.iloc[0]['params']  }                   # --> best_generalized_params
 
 
     @classmethod

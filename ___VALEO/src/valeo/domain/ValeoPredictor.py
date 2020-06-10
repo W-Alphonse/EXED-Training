@@ -36,10 +36,6 @@ class ValeoPredictor :
         self.metricPlt = MetricPlotter()
         self.param = ClassifierParam()
 
-    # Cette fct doit etre supprimer car obsolete
-    # def prepare_X_for_test(self, X_df: pd.DataFrame, add_flds_to_drop : list) -> pd.DataFrame:
-    #     return self.modeler.prepare_X_for_test(X_df, add_flds_to_drop)
-
     ''' ==========================================
         1/ Train / Test split : Fit and then Plot
         ==========================================
@@ -124,7 +120,7 @@ class ValeoPredictor :
         mesures = []
         d = { 0: 'Temps consommé', 1: 'ROC_AUC', 2:'Recall', 3:'Precision', 4:'F1' }
         #
-        for key in list(cv_results.keys()) : # it seems that cv_results.keys() was filled according to the request order: ('roc_auc', 'recall', 'precision', 'f1')
+        for key in list(cv_results.keys()) : # cv_results.keys() is filled according to the request order: ('roc_auc', 'recall', 'precision', 'f1')
             if str(key) !=  "estimator" :
                 # ValeoPredictor.logger.debug(f"{key} : min/mean/max/std -> {cv_results[key].min()} / {cv_results[key].mean()} / {cv_results[key].max()}  / {cv_results[key].std()}")
                 ValeoPredictor.logger.debug(f"- {key} moyen :{self.fmt(cv_results[key].mean())}")
@@ -165,13 +161,13 @@ class ValeoPredictor :
         m = confusion_matrix(y_test, y_pred)
         print(f"- Matrice de confusion:\n{confusion_matrix(y_test, y_pred)}")
         if fmt_html :
-            ValeoPredictor.logger.debug('<table><tr><th colspan="2">Résultat de la prédiction sur Test Set</th> </tr>')
+            ValeoPredictor.logger.debug('<table><tr>Valeur<th></th><th>Mesure</th> </tr>')
             ValeoPredictor.logger.debug((f'\t<tr><td>ROC_AUC</td><td>{self.fmt(roc_auc_score(y_test, y_pred))}</td></tr>'))
             ValeoPredictor.logger.debug((f'\t<tr><td>Recall</td><td>{self.fmt(recall_score(y_test, y_pred))}</td></tr>'))
             ValeoPredictor.logger.debug((f'\t<tr><td>Precision</td><td>{self.fmt(precision_score(y_test, y_pred))}</td></tr>'))
             ValeoPredictor.logger.debug((f'\t<tr><td>F1</td><td>{self.fmt(f1_score(y_test, y_pred))}</td></tr>'))
-            ValeoPredictor.logger.debug((f'\t<tr><td rowspan="2">Matrice de confusion</td><td>{confusion_matrix(y_test, y_pred)[0,:]}</td></tr>'))
-            ValeoPredictor.logger.debug((f'\t<tr><td>{confusion_matrix(y_test, y_pred)[1,:]}</td></tr>'))
+            ValeoPredictor.logger.debug((f'\t<tr><td>Matrice de confusion</td><td>{confusion_matrix(y_test, y_pred)[0,:]}</td></tr>'))
+            ValeoPredictor.logger.debug((f'\t<tr><td></td><td>{confusion_matrix(y_test, y_pred)[1,:]}</td></tr>'))
             ValeoPredictor.logger.debug('</table>')
 
         # print("*** Predict and Plot on Test DataSet ***")
@@ -194,6 +190,7 @@ class ValeoPredictor :
     ''' ========================================
         3/ fit_cv_grid_search
         ========================================
+    '''
     '''
     def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
         # HGBC
@@ -281,7 +278,7 @@ class ValeoPredictor :
         # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
         # df_results = df_results[columns_to_keep]
         DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), f'grid_search_cv-{clfTypes[0]}.csv']) )
-
+    '''
 
     ''' ========================================
         4/ fit_cv_randomized_search
@@ -295,28 +292,37 @@ class ValeoPredictor :
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
 
-        #  refit=True => Refit an estimator using the best found parameters on the whole dataset
-        #  NB: For multiple metric evaluation, this needs to be a str denoting the scorer that would be used to find the best parameters
-        #      for refitting the estimator at the end.
-        # The refitted estimator is made available at the best_estimator_ attribute and permits using predict directly on this RandomizedSearchCV instance.
+        #  NB:
+        #  1 - refit=True => Refit an estimator using the best found parameters on the whole dataset
+        #  2 - For multiple metric evaluation, 'scoring' needs to be an str denoting the scorer
+        #      that would be used to find the best parameters for refitting the estimator at the end.
+        #  3 - The refitted estimator is made available at the best_estimator_ attribute and permits using predict directly on this SearchCV instance.
         search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
                  if is_grid else  RandomizedSearchCV(model, param_distributions=self.param.distrib_param(clfTypes[0]), n_iter=n_random_iter,
                                                      scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)
         search.fit(X, y)
-        # 1 - Write down the SearchCV result
+        # print(search)
+
+        # 1 - Write down the SearchCV result into a CSV file sorting by 'rank_test_score' asc
+        #     and append 'scores' and 'params' to the search_history
         df_cv_results = pd.DataFrame(search.cv_results_)
+        DfUtil.write_df_csv( df_cv_results, [C.rootReports(), f'{grid_or_random}_search_cv-notsorted-{clfTypes[0]}.csv'] )
         DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'{grid_or_random}_search_cv-{clfTypes[0]}.csv'] )
-        DfUtil.write_cv_search_result( clfTypes + [grid_or_random] , df_cv_results, search)
+        DfUtil.write_cv_search_history_result(clfTypes + [grid_or_random], df_cv_results, search)
 
-        # 2 - Check whether there is a difference between the best_classifier (rank=1) and the best_classifier that can generalize
-        # randomized : best_score_,  best_params_ (short), best_estimator_ (long), best_index_ ; sklearn.metrics.SCORERS.keys()
-        ValeoPredictor.logger.info(f"- Best Score: {'%.4f' % search.best_score_} (Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) / Best Params: {search.best_params_}")
+        # search attributes: best_score_,  best_params_ (short), best_estimator_ (long), best_index_ /*c'est lindex du meilleur rang, purement informatif*/ ; sklearn.metrics.SCORERS.keys()
+        ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_}")
+
+        # 2 - Check whether there is a difference between the best_classifier score (the classifier whose rank is equal to 1)
+        #     and the best_classifier that can generalize (the classifier whose test_score is the highest)
         bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
-        ValeoPredictor.logger.info(f"- Generalized Score: {'%.4f' % bg_dict[C.bg_score_test_set]} (Train {'%.4f' %  bg_dict[C.bg_score_train_set]}, rank {'%.4f' %  bg_dict[C.bg_rank]}) / Best Generalized Params: {bg_dict[C.bg_params]}")
 
-        # return  self.fit_cv_best_score(X, y, clfTypes, n_splits=8, classifier_params = search.best_estimator_)
+        # 3 - (bg: best generalized) - bg_score_test_set, bg_score_train_set, bg_rank, bg_score_difference_with_1st, bg_params
+        # ValeoPredictor.logger.info(f"- Best mean score(Test, rank {'%d' %  search.best_index_} | {'%d' %  bg_dict[C.bg_rank]}): {'%.4f' % bg_dict[C.bg_score_test_set]} "
+        #                            f"(mean Train {'%.4f' %  bg_dict[C.bg_score_train_set]}) - "
+        #                            f"Train-Test {'%.4f' % bg_dict[C.bg_score_diff]} - "
+        #                            f"Best Generalized Params: {bg_dict[C.bg_params]}")
         return search.best_estimator_
-        # return search
 
     def fmt(self, float_to_format:float, format=4 ) -> str:
         f_format = '%.' + str(format) + 'f'

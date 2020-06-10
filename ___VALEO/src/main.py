@@ -28,10 +28,11 @@ def generate_y_ens(fitted_model : BaseEstimator,  clfTypes) :
     DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , f"testoutput_{clfTypes[0]}.csv"])
 
 if __name__ == "__main__" :
-    clfTypes = [C.BBC_GBC] # BRFC BBC_ADABoost BBC_GBC BBC_HGBC RUSBoost(ADABoost) /  RFC_SMOTEENN RFC_SMOTETOMEK RFC( BorderLineSmote, RandomUnderSample)
-                        # BBC  GBC HGBC  #NotRetained
-                        # SVC KNN / LR
-    logger.info(f"Début ***{clfTypes[0]}*** .....")
+    clfTypes = [C.BRFC]  # BRFC, BBC_ADABoost, BBC_GBC, BBC_HGBC,
+                            # RFC_SMOTEEN, RFC_SMOTETOMEK, RFC_BLINESMT_RUS, RUSBoost_ADABoost,
+                            # LRC_SMOTEEN, KNN_SMOTEEN, SVC_SMOTEEN, GNB_SMOTENN
+
+    logger.info(f"Starting ***{clfTypes[0]}*** .....")
 
     # 1 - Load the data
     mt_train = XY_metadata([C.rootDataTrain(), 'traininginputs.csv'], [C.rootDataTrain(), 'trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
@@ -48,15 +49,15 @@ if __name__ == "__main__" :
     # fitted_model = pred.fit_predict_and_plot(X_train, y_train, X_test, y_test, [ValeoModeler.BRFC])
 
     # 2.b - Fit using CV
-    fitted_model = pred.fit_cv_best_score(X_df, y_df, clfTypes, n_splits=8)  #XGBC  BRFC LRC  criterion:string
+    # fitted_model = pred.fit_cv_best_score(X_df, y_df, clfTypes, n_splits=8)  #XGBC  BRFC LRC  criterion:string
 
-    # # Extract feature importances
-    # import pandas as pd
-    # fi = pd.DataFrame({'feature': list(X_train.columns), 'importance': fitted_model.feature_importances_}).sort_values('importance', ascending = False)
-    # print(fi.head())
+            # # Extract feature importances
+            # import pandas as pd
+            # fi = pd.DataFrame({'feature': list(X_train.columns), 'importance': fitted_model.feature_importances_}).sort_values('importance', ascending = False)
+            # print(fi.head())
 
     # 2.c - Fit using GridSearchCV or RandomizedSearchCV
-    # fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.BRFC], n_random_iter=None, n_splits=8)
+    fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.BRFC], n_random_iter=None, n_splits=8)
     # fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.LRC], n_random_iter=None, n_splits=8)
     # fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.GBC], n_random_iter=None, n_splits=8)
 
