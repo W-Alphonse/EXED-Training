@@ -52,11 +52,10 @@ bg_params = "best_generalized_params"
 bg_score_diff = "best_generalized_score_difference_with_1st"
 bg_score_test_set = "best_generalized_score_test_set"
 bg_score_train_set  = "best_generalized_score_train_set"
-
-
-cv_search_grid = "cv_search_grid"
-cv_search_rand = "cv_search_random"
-cv_search_opt = "cv_search_grid"
+#
+grid = "grid"
+rand = "random"
+opt  = "opt"
 
 
 import os
