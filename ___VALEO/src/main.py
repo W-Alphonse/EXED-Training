@@ -19,7 +19,7 @@ def generate_y_ens(fitted_model : BaseEstimator,  clfTypes) :
     DfUtil.write_y_csv(X_ens[C.PROC_TRACEINFO], y_ens, C.Binar_OP130_Resultat_Global_v, [C.rootDataTest() , f"testoutput_{clfTypes[0]}.csv"])
 
 if __name__ == "__main__" :
-    clfTypes = [C.BRFC]  # BRFC, BBC_ADABoost, BBC_GBC, BBC_HGBC,
+    clfTypes = [C.LRC_SMOTEEN]  # BRFC, BBC_ADABoost, BBC_GBC, BBC_HGBC,
                             # RFC_SMOTEEN, RFC_SMOTETOMEK, RFC_BLINESMT_RUS, RUSBoost_ADABoost,
                             # LRC_SMOTEEN, KNN_SMOTEEN, SVC_SMOTEEN, GNB_SMOTENN
 
@@ -45,9 +45,10 @@ if __name__ == "__main__" :
             # print(fi.head())
 
     # 2.c - Fit using GridSearchCV or RandomizedSearchCV
-    # fitted_model = pred._fit_cv_grid_or_random_search(X_train, y_train, [C.BRFC], n_random_iter=None, n_splits=8)
-    # fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.LRC], n_random_iter=None, n_splits=8)
-    # fitted_model = pred.fit_cv_grid_or_random_search(X_train, y_train, [C.GBC], n_random_iter=None, n_splits=8)
+    # fitted_model = pred.fit_cv_grid_or_random_or_opt_search(X_train, y_train, clfTypes, cv_type= C.grid,  n_splits=8)
+    # fitted_model = pred.fit_cv_grid_or_random_or_opt_search(X_train, y_train, clfTypes, cv_type= C.rand, n_iter=20, n_splits=8)
+    # fitted_model = pred.fit_cv_grid_or_random_or_opt_search(X_train, y_train, clfTypes, cv_type= C.opt, n_iter=20, n_splits=8)
+    #
 
     # 3 - Predit and Plot For ALL using the TestSet
     if isinstance(fitted_model, BaseSearchCV) :
@@ -58,4 +59,4 @@ if __name__ == "__main__" :
         # 4 - Fit on all available DATA and THEN Test using ENS dataset. https://machinelearningmastery.com/train-final-machine-learning-model/
         generate_y_ens(pred.fit(X_df, y_df, clfTypes),  clfTypes)
 
-
+    logger.info(f'Ending ***{clfTypes[0]}*** at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} .....')

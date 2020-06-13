@@ -101,40 +101,20 @@ class ValeoModeler :
 
     def build_predictor_pipeline(self, X_df: pd.DataFrame, clfTypes:[str]) -> Pipeline:
         clfs = {
+            # The 1st one is the official one
+            # C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 18, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
 
-            # emble.HistGradientBoostingClassifier(loss='auto', *, learning_rate=0.1, max_iter=100, max_leaf_nodes=31, max_depth=None, min_samples_leaf=20,
-            # l2_regularization=0.0, max_bins=255, monotonic_cst=None, warm_start=False, early_stopping='auto', scoring='loss', validation_fraction=0.1,
-            # n_iter_no_change=10, tol=1e-07, verbose=0, random_state=None)
+            # ***grid*** / rank_1 : roc_auc sur test_train is equal to '0.5164' - NB: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples.
+            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 10, max_features= 'sqrt', min_samples_split= 18, n_estimators= 200, oob_score= True, sampling_strategy= 0.13) ,
+            # grid / rank_7 related to min(trainScore - testScore) 1 : roc_auc sur test_train is equal to '0.7140' / ENS: O.65
+            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 8, max_features= 'log2', min_samples_split= 18, n_estimators= 200, oob_score= False, sampling_strategy= 'auto') ,
+            # ***random*** / rank_1 :roc_auc sur test_train is equal to '0.7548' / ENS:  0.6672(refit sur la totalité des donnée) vs 0.6691(use the best fit sur la totalité des données)
+            # {'classifier__criterion': 'entropy', 'classifier__max_depth': 11, 'classifier__max_features': 'log2', 'classifier__min_samples_split': 16, 'classifier__n_estimators': 200, 'classifier__oob_score': False, 'classifier__sampling_strategy': 'auto'}
+            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 11, max_features= 'log2', min_samples_split= 16, n_estimators= 200, oob_score= False, sampling_strategy='auto') ,
+            # ***opt*** / rank1: roc_auc sur test_train is equal to '0.6770' / ENS: 0.5982
+            # OrderedDict([('classifier__criterion', 'entropy'), ('classifier__max_depth', 10), ('classifier__max_features', 'log2'), ('classifier__min_samples_split', 25), ('classifier__n_estimators', 100), ('classifier__oob_score', False), ('classifier__sampling_strategy', 0.35)])
+            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 10, max_features= 'log2', min_samples_split= 25, n_estimators= 100, oob_score= False, sampling_strategy= 0.35) ,
 
-            # Search_3 - Retained
-            # https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
-            # C.GBC  : GradientBoostingClassifier(learning_rate= 0.05, n_estimators= 100, subsample= 0.7, max_depth= 10, max_features= 'log2', min_samples_split= 18, loss= 'exponential'),
-
-            # Cette config a été selectionné en se basant sur RandomizedSearchCV, mais elle genere lerreur:
-            # UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples
-            # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 61 , max_depth=8, min_samples_split=8, min_samples_leaf=9,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
-            # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 102 , max_depth=6, min_samples_split=18, min_samples_leaf=13,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
-            #
-            # Cette config a obtenue 0.6536 ENS
-            # C.BRFC : BalancedRandomForestClassifier(max_depth=15, min_samples_leaf=5, n_estimators=260, random_state=0) , # sampling_strategy=0.5),
-            # - Best Score: 0.7124 (Train 0.8869) / Best Params: {'classifier__max_depth': 11, 'classifier__min_samples_leaf': 5, 'classifier__n_estimators': 113, 'classifier__sampling_strategy': 0.4}
-            # - Generalized Score: 0.7086 (Train 0.8143, rank 11.0000) / Best Generalized Params: {'classifier__max_depth': 5, 'classifier__min_samples_leaf': 5, 'classifier__n_estimators': 260, 'classifier__sampling_strategy': 0.4}
-            # ENS:  0.6676
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 15, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
-            # Best Score - SearchCV_02 -  Did not generalize well on local Test
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 8, max_features= None, min_samples_split= 15, n_estimators= 152, oob_score= True, sampling_strategy= 0.15),
-            #
-            # Best Generalized - SearchCV_02 - 0.67207 ENS
-            # A balanced random forest randomly under-samples each boostrap sample to balance it. sqrt
-
-            # https://imbalanced-learn.readthedocs.io/en/stable/auto_examples/ensemble/plot_comparison_ensemble_classifier.html
-            # This implementation of Bagging is similar to the scikit-learn implementation. It includes an additional step to balance the training set at fit time using a RandomUnderSampler
-            # C.BBC  : BalancedBaggingClassifier(n_estimators= 300, max_samples=0.9, max_features= 12,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
-            # C.BBC  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 300, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
-
-            C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 18, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 11, max_features= 'sqrt', min_samples_split= 14, n_estimators= 125, oob_score= False, sampling_strategy= 0.1708) ,
-            # OrderedDict([('classifier__criterion', 'entropy'), ('classifier__max_depth', 11), ('classifier__max_features', 'sqrt'), ('classifier__min_samples_split', 14), ('classifier__n_estimators', 125), ('classifier__oob_score', False), ('classifier__sampling_strategy', 0.17085445052485143)])
             C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
             C.BBC_GBC : BalancedBaggingClassifier(base_estimator=GradientBoostingClassifier(learning_rate= 0.1,  max_depth= 10, max_features= 'log2', min_samples_split= 18),
                                                   n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
@@ -146,7 +126,16 @@ class ValeoModeler :
             C.RFC_SMOTETOMEK : RandomForestClassifier(criterion= 'gini', max_depth= 8, max_features= 'log2', min_samples_split= 25, n_estimators=100,  oob_score= True, n_jobs=-1),
             C.RFC_BLINESMT_RUS : RandomForestClassifier(criterion='gini', max_depth= 8, max_features='log2', min_samples_split= 25, n_estimators=100, oob_score= True, n_jobs=-1),
             #
+            # Resultat officiel occupant actuellment la premiere place
             C.LRC_SMOTEEN  : LogisticRegression(C= 1000, fit_intercept= False, max_iter= 1000, penalty='l2', solver='saga'),
+
+            # ***grid*** / rank_1 : roc_auc sur test_train is equal to '0.6659' / ENS : 0.6545
+            # C.LRC_SMOTEEN  : LogisticRegression(C= 10, fit_intercept= True, max_iter= 600, penalty='l2', solver='lbfgs'),
+            # ***random*** / rank_1 : roc_auc sur test_train is equal to '0.' / ENS : 0.6545  / 0.6481 best split
+            # {'classifier__solver': 'lbfgs', 'classifier__penalty': 'l2', 'classifier__max_iter': 600, 'classifier__fit_intercept': True, 'classifier__C': 100}
+            # C.LRC_SMOTEEN  : LogisticRegression(C= 100, fit_intercept= True, max_iter= 600, penalty='l2', solver='lbfgs'),
+
+
             C.SVC_SMOTEEN  : SVC(kernel="rbf", gamma='scale', C=10, probability=True, random_state=42) , #, class_weight={1: 10}) il se peut que le class_weight rajoute de l overfit,
             C.KNN_SMOTEEN : KNeighborsClassifier(n_neighbors=7, weights='uniform'),
             C.GNB_SMOTENN: GaussianNB(),
