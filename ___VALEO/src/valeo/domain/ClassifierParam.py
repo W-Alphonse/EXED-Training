@@ -85,7 +85,7 @@ class ClassifierParam :
             'classifier__base_estimator__min_samples_split' : [25, 30],
             'classifier__n_estimators' : [200, 250],
             'classifier__max_samples'  : [0.7, 0.8],
-            'classifier__max_features' : Integer(30,40),
+            'classifier__max_features' : [30,40],
             'classifier__oob_score' : [True]
         }
         self.d_param[C.BBC_GBC] =  {}

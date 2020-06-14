@@ -53,7 +53,7 @@ if __name__ == "__main__" :
     #                   C.LRC_SMOTEEN, C.SVC_SMOTEEN, C.KNN_SMOTEEN, C.GNB_SMOTENN
     clfTypes = [C.BBC_GBC]
     clfSelection =  C.grid_cv           # 1.b - clfSelection : Union[C.simple_train_test, C.cross_validation, C.grid_cv, C.rand_cv, C.optim_cv, C.view_hyp]
-    rand_or_optim_iteration_count = 30   # 1.c - Number of iteration while performing RandomizedSearchCV or BayesSearchCV. It's useless for other model seelction
+    rand_or_optim_iteration_count = 30  # 1.c - Number of iteration while performing RandomizedSearchCV or BayesSearchCV. It's useless for other model seelction
 
     # 2 - Perform the prediction
     logger.info(f'Starting *** {clfTypes[0]} - {clfSelection} *** at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} .....')
