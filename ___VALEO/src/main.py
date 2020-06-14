@@ -16,35 +16,6 @@ logger = lm().logger(__name__)
 from valeo.infrastructure import Const as C
 from valeo.infrastructure.XY_metadata import XY_metadata as XY_metadata
 
-# class BasePredictor(metaclass=ABCMeta) :
-#
-#     def __init__(self):
-#         self.pred = ValeoPredictor()
-#
-#     def fit(self, clfTypes:[str], test_size:float, n_split:int):
-#         logger.info(f'Starting ***{clfTypes[0]}*** at {datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")} .....')
-#
-#         # 1 - Load the data
-#         mt_train = XY_metadata([C.rootDataTrain(), 'traininginputs.csv'], [C.rootDataTrain(), 'trainingoutput.csv'], [C.PROC_TRACEINFO], [C.PROC_TRACEINFO], C.Binar_OP130_Resultat_Global_v)
-#         xy_loader = XY_Loader();
-#         X_df, y_df = xy_loader.load_XY_df(mt_train, delete_XY_join_cols=False)
-#
-#         # 2 - Instantiate ValeoPredictor
-#         # pred = ValeoPredictor()
-#
-#         # 2.a - Fit and predict on X_train, X_test
-#         X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=test_size, random_state=48, stratify=y_df)
-#
-#         # 2.b - Fit using CV
-#         fitted_model = self._do_fit(X_df, y_df, clfTypes, n_splits=n_split)
-#
-#     @abstractmethod
-#     def _do_fit(self, clfTypes:[str], X_train, X_test, y_train, y_test, n_split:int )  -> BaseEstimator:
-#         pass
-#
-#     def get_predictor(self) -> ValeoPredictor:
-#         return pred
-
 
 def generate_ens_prediction(clfTypes:[str],
                             clfSelection:Union[C.simple_train_test, C.cross_validation,  C.grid_cv, C.rand_cv, C.optim_cv],
@@ -58,12 +29,16 @@ def generate_ens_prediction(clfTypes:[str],
     pred = ValeoPredictor()
 
     # 2.a - Fit and predict on X_train, X_test
-    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2, random_state=48) #, stratify=y_df)
+    X_train, X_test, y_train, y_test = train_test_split(X_df, y_df, test_size=0.2, random_state=48)
     fitted_model =  pred.fit(X_train, y_train, clfTypes) if clfSelection == C.simple_train_test else \
                     pred.fit_cv_best_score(X_train, y_train, clfTypes, n_splits=8) if clfSelection == C.cross_validation else \
                     pred.fit_cv_grid_or_random_or_opt_search(X_train, y_train, clfTypes, cv_type= C.rand_cv, n_iter=rand_or_optim_iteration_count, n_splits=8)
 
     # 3 - Predit and Plot For ALL using the TestSet
+    pred.predict_and_plot(fitted_model, X_test, y_test, clfTypes)
+    generate_y_ens(fitted_model.fit(X_df, y_df),  f'{clfTypes[0]}_{clfSelection}')
+
+    '''
     if isinstance(fitted_model, BaseSearchCV) :
         # pred.predict_and_plot(fitted_model.best_estimator_, X_test, y_test, clfTypes)
         # generate_y_ens(fitted_model.best_estimator_ ,  f'{clfTypes[0]}_{clfSelection}')
@@ -74,7 +49,7 @@ def generate_ens_prediction(clfTypes:[str],
         # 4 - Fit on all available DATA and THEN Test using ENS dataset. https://machinelearningmastery.com/train-final-machine-learning-model/
         # generate_y_ens(pred.fit(X_df, y_df, clfTypes),  clfTypes) // C est ce qui a servie pour les resultats envoyé à l'ENS
         generate_y_ens(fitted_model.fit(X_df, y_df),  f'{clfTypes[0]}_{clfSelection}')
-
+    '''
 
 def generate_y_ens(fitted_model:BaseEstimator, clf_type_and_mselection:str) :
     X_ens = DfUtil.read_csv([C.rootDataTest() , "testinputs.csv"])
