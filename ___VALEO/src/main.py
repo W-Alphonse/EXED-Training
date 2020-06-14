@@ -62,7 +62,7 @@ if __name__ == "__main__" :
 
 
 
-#             # # Extract feature importances
-#             # import pandas as pd
-#             # fi = pd.DataFrame({'feature': list(X_train.columns), 'importance': fitted_model.feature_importances_}).sort_values('importance', ascending = False)
-#             # print(fi.head())
+# # Extract feature importances
+# import pandas as pd
+# fi = pd.DataFrame({'feature': list(X_train.columns), 'importance': fitted_model.feature_importances_}).sort_values('importance', ascending = False)
+# print(fi.head())

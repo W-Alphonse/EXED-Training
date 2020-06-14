@@ -42,16 +42,12 @@ SVC_SMOTEEN  = "SVC_SMOTEEN"
 GNB_SMOTENN  = "GNB_SMOTENN"
 #
 HGBC         = "HGBC" # (RFC, BorderLineSmote, RandomUnderSample): pas retenu - Split_Test : ROC_AUC: 0.6168
-# BBC  = "BBC"
-# NuSVC = "NuSVC"       # NuSVC(probability=True),
-# GBC  = "GBC"          # GradientBoostingClassifier()
-# XGBC = "XGBC"         # xgb.XGBClassifier()
 #
-bg_rank = "best_generalized_rank"
+bg_rank   = "best_generalized_rank"
 bg_params = "best_generalized_params"
-bg_score_diff = "best_generalized_score_difference_with_1st"
-bg_score_test_set = "best_generalized_score_test_set"
-bg_score_train_set  = "best_generalized_score_train_set"
+bg_score_diff      = "best_generalized_score_difference_with_1st"
+bg_score_test_set  = "best_generalized_score_test_set"
+bg_score_train_set = "best_generalized_score_train_set"
 #
 # Model selection
 simple_train_test = "stt"

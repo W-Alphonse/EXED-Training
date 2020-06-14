@@ -9,10 +9,7 @@ from sklearn.metrics import f1_score, auc, roc_auc_score, confusion_matrix, clas
     precision_recall_curve, precision_recall_fscore_support, roc_curve, plot_precision_recall_curve, \
     average_precision_score, precision_score, recall_score, accuracy_score, balanced_accuracy_score
 from sklearn.model_selection import cross_validate, StratifiedKFold, GridSearchCV, RandomizedSearchCV
-from sklearn.model_selection._search import BaseSearchCV
 from skopt import BayesSearchCV
-from skopt.space import Integer, Real
-import skopt
 
 from valeo.domain.MetricPlotter   import MetricPlotter
 from valeo.domain.ValeoModeler    import ValeoModeler

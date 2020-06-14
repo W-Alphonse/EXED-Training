@@ -99,20 +99,7 @@ class ValeoModeler :
 
     def build_predictor_pipeline(self, X_df: pd.DataFrame, clfTypes:[str]) -> Pipeline:
         clfs = {
-            # The 1st one is the official one
             C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 18, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
-
-            # ***grid*** / rank_1 : roc_auc sur test_train is equal to '0.5164' - NB: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples.
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 10, max_features= 'sqrt', min_samples_split= 18, n_estimators= 200, oob_score= True, sampling_strategy= 0.13) ,
-            # grid / rank_7 related to min(trainScore - testScore) 1 : roc_auc sur test_train is equal to '0.7140' / ENS: O.65
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 8, max_features= 'log2', min_samples_split= 18, n_estimators= 200, oob_score= False, sampling_strategy= 'auto') ,
-            # ***random*** / rank_1 :roc_auc sur test_train is equal to '0.7548' / ENS:  0.6672(refit sur la totalité des donnée) vs 0.6691(use the best fit sur la totalité des données)
-            # {'classifier__criterion': 'entropy', 'classifier__max_depth': 11, 'classifier__max_features': 'log2', 'classifier__min_samples_split': 16, 'classifier__n_estimators': 200, 'classifier__oob_score': False, 'classifier__sampling_strategy': 'auto'}
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 11, max_features= 'log2', min_samples_split= 16, n_estimators= 200, oob_score= False, sampling_strategy='auto') ,
-            # ***opt*** / rank1: roc_auc sur test_train is equal to '0.6770' / ENS: 0.5982
-            # OrderedDict([('classifier__criterion', 'entropy'), ('classifier__max_depth', 10), ('classifier__max_features', 'log2'), ('classifier__min_samples_split', 25), ('classifier__n_estimators', 100), ('classifier__oob_score', False), ('classifier__sampling_strategy', 0.35)])
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 10, max_features= 'log2', min_samples_split= 25, n_estimators= 100, oob_score= False, sampling_strategy= 0.35) ,
-
             C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
             C.BBC_GBC : BalancedBaggingClassifier(base_estimator=GradientBoostingClassifier(learning_rate= 0.1,  max_depth= 10, max_features= 'log2', min_samples_split= 18),
                                                   n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
@@ -126,28 +113,10 @@ class ValeoModeler :
             #
             # Resultat officiel occupant actuellment la premiere place
             C.LRC_SMOTEEN  : LogisticRegression(C= 1000, fit_intercept= False, max_iter= 1000, penalty='l2', solver='saga'),
-
-            # ***grid*** / rank_1 : roc_auc sur test_train is equal to '0.6659' / ENS : 0.6545
-            # C.LRC_SMOTEEN  : LogisticRegression(C= 10, fit_intercept= True, max_iter= 600, penalty='l2', solver='lbfgs'),
-            # ***random*** / rank_1 : roc_auc sur test_train is equal to '0.' / ENS : 0.6545  / 0.6481 best split
-            # {'classifier__solver': 'lbfgs', 'classifier__penalty': 'l2', 'classifier__max_iter': 600, 'classifier__fit_intercept': True, 'classifier__C': 100}
-            # C.LRC_SMOTEEN  : LogisticRegression(C= 100, fit_intercept= True, max_iter= 600, penalty='l2', solver='lbfgs'),
-
-
             C.SVC_SMOTEEN  : SVC(kernel="rbf", gamma='scale', C=10, probability=True, random_state=42) , #, class_weight={1: 10}) il se peut que le class_weight rajoute de l overfit,
             C.KNN_SMOTEEN : KNeighborsClassifier(n_neighbors=7, weights='uniform'),
             C.GNB_SMOTENN: GaussianNB(),
-
-            # SVM --> https://medium.com/analytics-vidhya/hyperparameter-tuning-an-svm-a-demonstration-using-hyperparameter-tuning-cross-validation-on-96b05db54e5b
-            # The fit time scales at least quadratically with the number of samples and may be impractical beyond tens of thousands of sample
-            # With the Radial Basis Function (RBF) kernel, two parameters must be considered: C and gamma / https://scikit-learn.org/stable/modules/svm.html#svm-kernels
-            # A support vector machine constructs a hyper-plane or set of hyper-planes in a high or infinite dimensional space, which can be used for classification,
-            # regression or other tasks. Intuitively, a good separation is achieved by the hyper-plane that has the largest distance to the nearest training data points
-            # of any class (so-called functional margin), since in general the larger the margin the lower the generalization error of the classifier.
-            # C.SVC  : SVC(kernel="rbf",  gamma='scale', C=0.025, probability=True, random_state=42),
-            # In problems where it is desired to give more importance to certain classes or certain individual samples, the parameters class_weight and sample_weight can be used.
-            # C1=50 better(may be overfit) than C=25(still small overfit) better thant C=15(choui overfit) better than C1=10 better than C=1 better than C=0.025   / class_weight={1: 10}
-
+            #
             # local test roc = 0.6
             C.HGBC : HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=15, scoring='roc_auc'),
         }
