@@ -100,7 +100,7 @@ class ValeoPredictor :
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         if classifier_params != None :
             model = classifier_params
-        CV = StratifiedKFold(n_splits=n_splits)
+        CV = StratifiedKFold(n_splits=n_splits, random_state=48)
 
         # The cross_validate function differs from cross_val_score in two ways:
         # It allows specifying multiple metrics for evaluation + It returns a dict containing fit-times, score-times ...
@@ -155,7 +155,7 @@ class ValeoPredictor :
         m = confusion_matrix(y_test, y_pred)
         print(f"- Matrice de confusion:\n{confusion_matrix(y_test, y_pred)}")
         if fmt_html :
-            ValeoPredictor.logger.debug('<table><tr>Valeur<th></th><th>Mesure</th> </tr>')
+            ValeoPredictor.logger.debug('<table><tr><th>Valeur</th><th>Mesure</th> </tr>')
             ValeoPredictor.logger.debug((f'\t<tr><td>ROC_AUC</td><td>{self.fmt(roc_auc_score(y_test, y_pred))}</td></tr>'))
             ValeoPredictor.logger.debug((f'\t<tr><td>Recall</td><td>{self.fmt(recall_score(y_test, y_pred))}</td></tr>'))
             ValeoPredictor.logger.debug((f'\t<tr><td>Precision</td><td>{self.fmt(precision_score(y_test, y_pred))}</td></tr>'))
@@ -184,94 +184,6 @@ class ValeoPredictor :
     ''' ========================================
         3/ fit_cv_grid_search
         ========================================
-    '''
-    '''
-    def fit_cv_grid_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str] , n_splits=8) -> ([BaseEstimator], dict): # (estimator, cv_results)
-        # HGBC
-        # param_grid = {
-        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
-        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
-        #     'classifier__base_estimator__max_iter' : [100],
-        #     'classifier__base_estimator__max_depth' : [10,50,10]
-        # }
-        # for BRFC read this link: https://machinelearningmastery.com/bagging-and-random-forest-for-imbalanced-classification/
-        # BRFC : BalancedRandomForestClassifier(n_estimators = 300 , max_depth=20, random_state=0)
-        # param_grid_0 = {                                                #param_grid_0
-        #     'classifier__n_estimators': [250,300],    # 300
-        #     'classifier__max_depth': [15,20,25],      # 20
-        #     'classifier__max_features' : ['auto',13], # auto C'est le nombre de features selectionnées
-        #     'classifier__min_samples_split' : [5, 8], # 8
-        #     'classifier__min_samples_leaf' : [3, 5],  # 5
-        #     'classifier__oob_score': [True, False],   # False
-        #     'classifier__class_weight' : ['balanced', None] # None
-        # }
-        # param_grid_1 = {                                                  #param_grid=1  better than param_grid_0
-        #     'classifier__n_estimators': [250,300],     # 300
-        #     'classifier__max_depth': [20],             # 20
-        #     'classifier__max_features' : ['auto'],     # auto C'est le nombre de features selectionnées
-        #     'classifier__min_samples_split' : [8, 12], # 8 ou 12
-        #     'classifier__min_samples_leaf' : [5, 10],  # 10
-        #     'classifier__oob_score': [False],          # False
-        #     'classifier__class_weight' : [None]        # None
-        # } NB: test_roc_auc  : [0.65268942 0.71165229 0.65813965 0.73303875 0.74815986 0.69392817 0.70467358 0.69323889]  / Split 8
-        #       train_roc_auc : [0.78869075 0.78907625 0.78553331 0.78299062 0.78295546 0.78258473  0.78412007 0.78626762]
-        # param_grid_2 = {                                                  #param_grid=2   better than param_grid_1
-        #     'classifier__n_estimators': [250, 300, 350],   # 300
-        #     'classifier__max_depth': [20],                 # 20
-        #     'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
-        #     'classifier__min_samples_split' : [8, 12],     # 8 ou 12
-        #     'classifier__min_samples_leaf' : [10, 15],     # 15
-        #     'classifier__oob_score': [False],  # False
-        #     'classifier__class_weight' : [None]            # None
-        # } # NB: test_roc_auc  : [0.65268942 0.71165229 0.65813965 0.73303875 0.74815986 0.69392817 0.70467358 0.69323889]  / Split 8
-        #       train_roc_auc : [0.78869075 0.78907625 0.78553331 0.78299062 0.78295546 0.78258473  0.78412007 0.78626762]
-        #       test_roc_auc  : [0.65268942 0.71165229 0.65813965 0.73303875 0.74815986 0.69392817  0.70467358 0.69323889]  / Split 12
-        #       train_roc_auc : [0.78869075 0.78907625 0.78553331 0.78299062 0.78295546 0.78258473  0.78412007 0.78626762]
-        # param_grid_3 = {                                  #param_grid_3
-        #     'classifier__n_estimators': [300],             # 300
-        #     'classifier__max_depth': [20],                 # 20
-        #     'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
-        #     'classifier__min_samples_split' : [8, 12],     # 8 ou 12. Ils sont tjrs execau
-        #     'classifier__min_samples_leaf' : [15],         # 15
-        #     'classifier__oob_score': [False],              # False
-        #     'classifier__class_weight' : [None],           # None
-        #     'classifier__sampling_strategy' : [0.1 , 0.25, 0.5]  # 0.1 le meilleur ds la liste
-        # }
-        param_grid = {                                                  #param_grid_4
-            'classifier__n_estimators': [300],             # 300
-            'classifier__max_depth': [20],                 # 20
-            'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
-            'classifier__min_samples_split' : [8, 12],     # 8 ou 12. Ils sont tjrs execau
-            'classifier__min_samples_leaf' : [15],         # 15
-            'classifier__oob_score': [False],              # False
-            'classifier__class_weight' : [None],           # None
-            'classifier__criterion' : ['entropy', 'gini'],
-            'classifier__sampling_strategy' : [ 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
-        }
-
-        # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 61 , max_depth=8, min_samples_split=8, min_samples_leaf=9,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
-        # cls.BRFC : BalancedRandomForestClassifier(n_estimators = 102 , max_depth=6, min_samples_split=18, min_samples_leaf=13,  sampling_strategy=0.15, random_state=0, criterion='gini') , # sampling_strategy=0.5),
-        param_grid = {                                                  #param_grid_4
-            'classifier__n_estimators': [61,102, 300],             # 300
-            'classifier__max_depth': [6,8, 15, 20],                 # 20
-            'classifier__max_features' : ['auto'],         # auto C'est le nombre de features selectionnées
-            'classifier__min_samples_split' : [8, 12, 18],     # 8 ou 12. Ils sont tjrs execau
-            'classifier__min_samples_leaf' : [9,13, 15],         # 15
-            # 'classifier__oob_score': [False],              # False
-            # 'classifier__class_weight' : [None],           # None
-            # 'classifier__criterion' : ['entropy', 'gini'],
-            'classifier__sampling_strategy' : [ 0.15, 'auto']  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
-        }
-
-        model = self.modeler.build_predictor_pipeline(X, clfTypes)
-        CV = StratifiedKFold(n_splits=n_splits, random_state=48)   # shuffle=True
-        grid = GridSearchCV(model, param_grid=param_grid, n_jobs=-1, cv=CV)
-        grid.fit(X, y)
-        print(f"Best Estimator: {grid.best_estimator_}")
-        df_results = pd.DataFrame(grid.cv_results_)
-        # columns_to_keep = ['param_clf__max_depth', 'param_clf__n_estimators', 'mean_test_score', 'std_test_score',]
-        # df_results = df_results[columns_to_keep]
-        DfUtil.write_df_csv( df_results.sort_values(by='mean_test_score', ascending=False), C.ts_pathanme([C.rootReports(), f'grid_search_cv-{clfTypes[0]}.csv']) )
     '''
 
     def __fit_cv_grid_or_random_or_opt_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], cv_type:str, n_iter=None, n_splits=8) -> BaseEstimator:
@@ -305,16 +217,13 @@ class ValeoPredictor :
 
         "Best score=%.4f" % res_gp.fun
 
-    ''' ========================================
-        4/ fit_cv_randomized_search
-        if n_iter == 0 or None => Grid Search Else RandomSearch 
-        ========================================
+    ''' =================================================
+        4/ fit_cv_grid_or_random_or_opt_search
+           In case of Grid Search then n_iter is useless 
+        =================================================
     '''
 
-    def fit_cv_grid_or_random_or_opt_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], cv_type:Union[C.grid, C.rand, C.opt], n_iter=None, n_splits=8) -> BaseEstimator:
-        # is_grid = (n_iter == None) or (n_iter == 0)
-        # grid_or_random = "grid" if is_grid else "random"
-        #
+    def fit_cv_grid_or_random_or_opt_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], cv_type:Union[C.grid_cv, C.rand_cv, C.optim_cv], n_iter=None, n_splits=8) -> BaseEstimator:
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
 
@@ -324,10 +233,8 @@ class ValeoPredictor :
         #      that would be used to find the best parameters for refitting the estimator at the end.
         #  3 - The refitted estimator is made available at the best_estimator_ attribute and permits using predict directly on this SearchCV instance.
 
-        search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
-                                     if cv_type == C.grid else \
-                 RandomizedSearchCV(model, param_distributions=self.param.distrib_param(clfTypes[0]), n_iter=n_iter, scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
-                                     if cv_type == C.rand else \
+        search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) if cv_type == C.grid_cv else \
+                 RandomizedSearchCV(model, param_distributions=self.param.distrib_param(clfTypes[0]), n_iter=n_iter, scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)  if cv_type == C.rand_cv else \
                  BayesSearchCV(model, search_spaces= self.param.optimize_param(clfTypes[0]), refit=True, scoring='roc_auc', cv=CV, n_iter=n_iter, random_state=48, verbose=0)
         search.fit(X, y)
         # print(search)
@@ -339,18 +246,17 @@ class ValeoPredictor :
         DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'{cv_type}_search_cv-{clfTypes[0]}.csv'] )
         DfUtil.write_cv_search_history_result(clfTypes + [cv_type], df_cv_results, search)
 
-        # search attributes: best_score_,  best_params_ (short), best_estimator_ (long), best_index_ /*c'est lindex du meilleur rang, purement informatif*/ ; sklearn.metrics.SCORERS.keys()
-        #   ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_}")
+        # search attributes: best_score_,  best_params_ (short), best_estimator_ (long), best_index_ /*c'est lindex du meilleur rang*/ ; sklearn.metrics.SCORERS.keys()
         has_train_score = True if 'mean_train_score' in df_cv_results.columns.tolist() else False
         if has_train_score :
-            ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_}")
+            ValeoPredictor.logger.info(f"- Mean best score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_}")
         else :
-            ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} - Best Params: {search.best_params_}")
+            ValeoPredictor.logger.info(f"- Mean best score(Test): {'%.4f' % search.best_score_} - Best Params: {search.best_params_}")
 
 
         # 2 - Check whether there is a difference between the best_classifier score (the classifier whose rank is equal to 1)
         #     and the best_classifier that can generalize (the classifier whose test_score is the highest)
-        bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
+        # bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
 
         # 3 - (bg: best generalized) - bg_score_test_set, bg_score_train_set, bg_rank, bg_score_difference_with_1st, bg_params
         # ValeoPredictor.logger.info(f"- Best mean score(Test, rank {'%d' %  search.best_index_} | {'%d' %  bg_dict[C.bg_rank]}): {'%.4f' % bg_dict[C.bg_score_test_set]} "
@@ -365,99 +271,6 @@ class ValeoPredictor :
             return f"{f_format % float_to_format}"
         else :
             return [ f"{f_format % f}" for f in float_to_format]
-
-    '''
-    def _fit_cv_grid_or_random_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], n_random_iter=None, n_splits=8) ->  BaseSearchCV :  # BaseEstimator:
-        model = self.modeler.build_predictor_pipeline(X, clfTypes)
-        # model.score
-        CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
-
-        #  NB:
-        #  1 - refit=True => Refit an estimator using the best found parameters on the whole dataset
-        #  2 - For multiple metric evaluation, 'scoring' needs to be an str denoting the scorer
-        #      that would be used to find the best parameters for refitting the estimator at the end.
-        #  3 - The refitted estimator is made available at the best_estimator_ attribute and permits using predict directly on this SearchCV instance.
-        # search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) \
-        #     if is_grid else  RandomizedSearchCV(model, param_distributions=self.param.opt_param(clfTypes[0]), n_iter=n_random_iter,
-        #                                         scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)
-        search = BayesSearchCV(model, search_spaces= self.param.optimize_param(clfTypes[0]),
-            refit=True,
-            scoring='roc_auc',
-            cv=CV,
-            n_iter=5,
-            random_state=48,
-            verbose=0
-        )
-        search.fit(X, y)
-        print(search)
-        grid_or_random = 'opt'
-
-        # 1 - Write down the SearchCV result into a CSV file sorting by 'rank_test_score' asc
-        #     and append 'scores' and 'params' to the search_history
-        df_cv_results = pd.DataFrame(search.cv_results_)
-        DfUtil.write_df_csv( df_cv_results, [C.rootReports(), f'{grid_or_random}_search_cv-notsorted-{clfTypes[0]}.csv'] )
-        DfUtil.write_df_csv( df_cv_results.sort_values(by='rank_test_score', ascending=True), [C.rootReports(), f'{grid_or_random}_search_cv-{clfTypes[0]}.csv'] )
-        DfUtil.write_cv_search_history_result(clfTypes + [grid_or_random], df_cv_results, search)
-
-        # search attributes: best_score_,  best_params_ (short), best_estimator_ (long), best_index_ /*c'est lindex du meilleur rang, purement informatif*/ ; sklearn.metrics.SCORERS.keys()
-        has_train_score = True if 'mean_train_score' in df_cv_results.columns.tolist() else False
-        if has_train_score :
-            ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_}")
-        else :
-            ValeoPredictor.logger.info(f"- Best mean score(Test): {'%.4f' % search.best_score_} - Best Params: {search.best_params_}")
-
-
-        # 2 - Check whether there is a difference between the best_classifier score (the classifier whose rank is equal to 1)
-        #     and the best_classifier that can generalize (the classifier whose test_score is the highest)
-        bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
-
-        # 3 - (bg: best generalized) - bg_score_test_set, bg_score_train_set, bg_rank, bg_score_difference_with_1st, bg_params
-        # ValeoPredictor.logger.info(f"- Best mean score(Test, rank {'%d' %  search.best_index_} | {'%d' %  bg_dict[C.bg_rank]}): {'%.4f' % bg_dict[C.bg_score_test_set]} "
-        #                            f"(mean Train {'%.4f' %  bg_dict[C.bg_score_train_set]}) - "
-        #                            f"Train-Test {'%.4f' % bg_dict[C.bg_score_diff]} - "
-        #                            f"Best Generalized Params: {bg_dict[C.bg_params]}")
-        return search # search.best_estimator_
-        '''
-
-        # HGBC
-        # param_grid = {
-        #     'classifier__n_estimators': [3, 5, 10, 20, 50],
-        #     'classifier__base_estimator__l2_regularization': [5, 50, 100, 50],
-        #     'classifier__base_estimator__max_iter' : [100],
-        #     'classifier__base_estimator__max_depth' : [10,50,10]
-        # }
-
-        # random_search_cv-BRFC_2020_05_12-14.18.33_2020_05_12-14.18.33.csv
-        # param_distributions = { # n_iter=20
-        #     'classifier__n_estimators': randint(10, 300),         # 38
-        #     'classifier__max_depth': randint(5, 20),              # 7
-        #     'classifier__min_samples_split' : randint(5, 20),     # 13
-        #     'classifier__min_samples_leaf' : randint(5, 20),      # 15
-        #     'classifier__criterion' : ['entropy', 'gini'],        # gin
-        #     # 'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 'auto']
-        #     'classifier__sampling_strategy' : [ 0.3, 0.25, 0.2, 'auto']  # 0.2
-        # }
-        #
-        # #
-        # param_distributions = { # n_iter=10
-        #     'classifier__n_estimators': randint(30, 50),         # 38
-        #     'classifier__max_depth': randint(5, 15),              # 7
-        #     'classifier__min_samples_split' : randint(10, 20),     # 13
-        #     'classifier__min_samples_leaf' : randint(10, 20),      # 15
-        #     'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2]  # 0.2
-        # }
-        #
-        # param_distributions = { # n_iter=10
-        #     'classifier__n_estimators': randint(30, 300),         # 38
-        #     'classifier__max_depth': randint(5, 25),              # 7
-        #     # 'classifier__min_samples_split' : randint(10, 20),     # 13
-        #     'classifier__min_samples_leaf' : randint(5, 15),      # 15
-        #     'classifier__sampling_strategy' : [ 0.1, 0.15, 0.2, 0.3, 0.4, 0.5]  # 0.2
-        # }
-
-        # return fitted_model  , None
-
-
 
 
 ''' TODO :

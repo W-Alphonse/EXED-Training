@@ -53,9 +53,12 @@ bg_score_diff = "best_generalized_score_difference_with_1st"
 bg_score_test_set = "best_generalized_score_test_set"
 bg_score_train_set  = "best_generalized_score_train_set"
 #
-grid = "grid"
-rand = "random"
-opt  = "opt"
+# Model selection
+simple_train_test = "stt"
+cross_validation = "cv"
+grid_cv   = "grid_cv"
+rand_cv   = "rand_cv"
+optim_cv  = "opt_cv"
 
 
 import os

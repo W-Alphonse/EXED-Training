@@ -102,7 +102,7 @@ class ValeoModeler :
     def build_predictor_pipeline(self, X_df: pd.DataFrame, clfTypes:[str]) -> Pipeline:
         clfs = {
             # The 1st one is the official one
-            # C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 18, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
+            C.BRFC : BalancedRandomForestClassifier(criterion= 'gini', max_depth= 10, max_features= 'log2', min_samples_split= 18, n_estimators= 300, oob_score= True, sampling_strategy= 'auto') ,
 
             # ***grid*** / rank_1 : roc_auc sur test_train is equal to '0.5164' - NB: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples.
             # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 10, max_features= 'sqrt', min_samples_split= 18, n_estimators= 200, oob_score= True, sampling_strategy= 0.13) ,
@@ -116,6 +116,9 @@ class ValeoModeler :
             # C.BRFC : BalancedRandomForestClassifier(criterion= 'entropy', max_depth= 10, max_features= 'log2', min_samples_split= 25, n_estimators= 100, oob_score= False, sampling_strategy= 0.35) ,
 
             C.BBC_ADABoost  : BalancedBaggingClassifier(base_estimator=AdaBoostClassifier(), n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+
+            # C.GBC  : GradientBoostingClassifier(learning_rate= 0.05, n_estimators= 100, subsample= 0.7, max_depth= 10, max_features= 'log2', min_samples_split= 18, loss= 'exponential'),
+
             C.BBC_GBC : BalancedBaggingClassifier(base_estimator=GradientBoostingClassifier(learning_rate= 0.1,  max_depth= 10, max_features= 'log2', min_samples_split= 18),
                                                   n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
             C.BBC_HGBC : BalancedBaggingClassifier(base_estimator=HistGradientBoostingClassifier(max_iter = 100, max_depth=5,learning_rate=0.10, l2_regularization=15, scoring='roc_auc'),

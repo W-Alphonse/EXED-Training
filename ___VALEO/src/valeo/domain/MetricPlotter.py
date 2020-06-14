@@ -27,7 +27,7 @@ class MetricPlotter :
         plt.ylabel('True Positive Rate')
         plt.title('Receiver operating characteristic')
         plt.legend(loc="lower right")
-        ImgUtil.save_fig(f"{clfTypes[0]}_ROC_curve")
+        ImgUtil.save_fig(f"{clfTypes[0]}_ROC_curve", ts_type=C.ts_none)
         plt.show()
 
     def plot_precision_recall(self, y_test, y_pred, clfTypes:[str]):
@@ -43,7 +43,7 @@ class MetricPlotter :
         plt.ylabel('Precision')
         plt.title('Precision Recall curve')
         plt.legend(loc="upper right")
-        ImgUtil.save_fig(f"{clfTypes[0]}_PR_curve")
+        ImgUtil.save_fig(f"{clfTypes[0]}_PR_curve", ts_type=C.ts_none)
         plt.show()
         #
         # for i in range(0, len(pr[0]) ) :
