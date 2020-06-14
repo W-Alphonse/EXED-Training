@@ -105,6 +105,7 @@ class DfUtil() :
     # https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.select_dtypes.html
     @classmethod
     def numerical_cols(cls, df:pd.DataFrame) -> list :
+        # columns_of_type_number = (columns_of_type_number == 'int64') | (columns_of_type_number == 'float64')
         return df.select_dtypes('number').columns.to_list()
 
     @classmethod

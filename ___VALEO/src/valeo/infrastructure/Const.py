@@ -59,6 +59,7 @@ cross_validation = "cv"
 grid_cv   = "grid_cv"
 rand_cv   = "rand_cv"
 optim_cv  = "opt_cv"
+view_hyp  = "view_hyp"  # This is a hack to only the model hyperparameter without any execution
 
 
 import os

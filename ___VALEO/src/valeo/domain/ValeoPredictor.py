@@ -37,7 +37,6 @@ class ValeoPredictor :
     def fit_predict_and_plot(self, X_train:pd.DataFrame, y_train:pd.DataFrame,  X_test:pd.DataFrame, y_test:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
         model = self.fit(X_train, y_train, clfTypes)
         self.predict_and_plot(model, X_test, y_test, clfTypes)
-        self.print_model_params_keys(model)
         return model
 
     def fit(self, X_train:pd.DataFrame, y_train:pd.DataFrame, clfTypes:[str]) -> BaseEstimator:
@@ -45,10 +44,9 @@ class ValeoPredictor :
         model.fit(X_train, y_train)
         return model
 
-    def print_model_params_keys(self, model:BaseEstimator):
-        pass
-    #     for param in model.get_params().keys():
-    #         ValeoPredictor.logger.info(param)
+    def view_model_params_keys(self, X_df:pd.DataFrame, clfTypes:[str]):
+        self.modeler.view_model_params_keys( X_df, clfTypes)
+        return None
 
     ''' =================================
         2/ Fit with Cross Validation
@@ -163,7 +161,6 @@ class ValeoPredictor :
             ValeoPredictor.logger.debug((f'\t<tr><td>Matrice de confusion</td><td>{confusion_matrix(y_test, y_pred)[0,:]}</td></tr>'))
             ValeoPredictor.logger.debug((f'\t<tr><td></td><td>{confusion_matrix(y_test, y_pred)[1,:]}</td></tr>'))
             ValeoPredictor.logger.debug('</table>')
-
         # print("*** Predict and Plot on Test DataSet ***")
         # print(f"- Model score: {fitted_model.score(X_test, y_test)}")
         # print(f"- Accuracy score: {accuracy_score(y_test, y_pred)}")
@@ -181,48 +178,27 @@ class ValeoPredictor :
         self.metricPlt.plot_precision_recall(y_test, y_pred, clfTypes)
 
 
-    ''' ========================================
-        3/ fit_cv_grid_search
-        ========================================
-    '''
-
-    def __fit_cv_grid_or_random_or_opt_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], cv_type:str, n_iter=None, n_splits=8) -> BaseEstimator:
-        # self.o_param[C.BRFC] =  { #Search_02
-        #     'classifier__n_estimators': Integer(100, 300),
-        #     'classifier__max_depth': Integer(5, 20),
-        #     'classifier__max_features' : ['sqrt', 'log2'],
-        #     'classifier__min_samples_split' : Integer(5, 20),
-        #     # 'classifier__min_samples_leaf' : [9,13, 15],
-        #     'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
-        #     # 'classifier__class_weight' : [None],
-        #     'classifier__criterion' : ['entropy', 'gini'], # default: gini
-        #     'classifier__sampling_strategy' : Real(0.15, 0.25)  # 0.1 better than 'auto' Cependant l'overfitting est plus petit avec 'auto'. NB: # 0.1, 0.15 ou 0.2 sont tjrs execau
-        # }
-        # from that dimension (`'log-uniform'` for the learning rate)
-        model = self.modeler.build_predictor_pipeline(X, clfTypes)
-        CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
-        space  = [Integer(100, 300, name='n_estimators'),
-                  Integer(5, 20, name='max_depth'),
-                  skopt.space.Categorical( ['sqrt', 'log2'], name='max_features'),
-                  Integer(5, 20, name='min_samples_split'),
-                  Integer(9, 15, name='min_samples_leaf'),
-                  skopt.space.Categorical( [True, False], name='oob_score'),
-                  skopt.space.Categorical( ['entropy', 'gini'], name='criterion'),
-                  Real(0.15, 0.25, name='ampling_strategy', prior='uniform')]
-
-        import valeo.domain.Optimizer as opt
-        opt.initialize (self, X, y, space, model, CV)
-        from skopt import gp_minimize
-        res_gp = gp_minimize(opt.initialize.objective, space, n_calls=50, random_state=0)
-
-        "Best score=%.4f" % res_gp.fun
+        # model = self.modeler.build_predictor_pipeline(X, clfTypes)
+        # CV = StratifiedKFold(n_splits=n_splits)
+        # space  = [Integer(100, 300, name='n_estimators'),
+        #           Integer(5, 20, name='max_depth'),
+        #           skopt.space.Categorical( ['sqrt', 'log2'], name='max_features'),
+        #           Integer(5, 20, name='min_samples_split'),
+        #           Integer(9, 15, name='min_samples_leaf'),
+        #           skopt.space.Categorical( [True, False], name='oob_score'),
+        #           skopt.space.Categorical( ['entropy', 'gini'], name='criterion'),
+        #           Real(0.15, 0.25, name='ampling_strategy', prior='uniform')]
+        # import valeo.domain.Optimizer as opt
+        # opt.initialize (self, X, y, space, model, CV)
+        # from skopt import gp_minimize
+        # res_gp = gp_minimize(opt.initialize.objective, space, n_calls=50, random_state=0)
+        # "Best score=%.4f" % res_gp.fun
 
     ''' =================================================
-        4/ fit_cv_grid_or_random_or_opt_search
+        3/ fit_cv_grid_or_random_or_opt_search
            In case of Grid Search then n_iter is useless 
         =================================================
     '''
-
     def fit_cv_grid_or_random_or_opt_search(self, X:pd.DataFrame, y:pd.DataFrame, clfTypes:[str], cv_type:Union[C.grid_cv, C.rand_cv, C.optim_cv], n_iter=None, n_splits=8) -> BaseEstimator:
         model = self.modeler.build_predictor_pipeline(X, clfTypes)
         CV = StratifiedKFold(n_splits=n_splits) #  andom_state=48, shuffle=True
@@ -235,9 +211,9 @@ class ValeoPredictor :
 
         search = GridSearchCV(model, param_grid=self.param.grid_param(clfTypes[0]), scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True) if cv_type == C.grid_cv else \
                  RandomizedSearchCV(model, param_distributions=self.param.distrib_param(clfTypes[0]), n_iter=n_iter, scoring='roc_auc', n_jobs=-1, refit=True, cv=CV, verbose=0, return_train_score=True)  if cv_type == C.rand_cv else \
-                 BayesSearchCV(model, search_spaces= self.param.optimize_param(clfTypes[0]), refit=True, scoring='roc_auc', cv=CV, n_iter=n_iter, random_state=48, verbose=0)
+                 BayesSearchCV(model, search_spaces= self.param.optimize_param(clfTypes[0]), refit=True, scoring='roc_auc', cv=CV, n_iter=n_iter, random_state=48, verbose=0, return_train_score=True)
         search.fit(X, y)
-        # print(search)
+        print(search)
 
         # 1 - Write down the SearchCV result into a CSV file sorting by 'rank_test_score' asc
         #     and append 'scores' and 'params' to the search_history
@@ -249,15 +225,13 @@ class ValeoPredictor :
         # search attributes: best_score_,  best_params_ (short), best_estimator_ (long), best_index_ /*c'est lindex du meilleur rang*/ ; sklearn.metrics.SCORERS.keys()
         has_train_score = True if 'mean_train_score' in df_cv_results.columns.tolist() else False
         if has_train_score :
-            ValeoPredictor.logger.info(f"- Mean best score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_}")
+            ValeoPredictor.logger.info(f"- Mean best score(Test): {'%.4f' % search.best_score_} (mean Train {'%.4f' %  df_cv_results.iloc[search.best_index_] ['mean_train_score']}) - Best Params: {search.best_params_} - Best Estimator: {search.best_estimator_}")
         else :
-            ValeoPredictor.logger.info(f"- Mean best score(Test): {'%.4f' % search.best_score_} - Best Params: {search.best_params_}")
-
+            ValeoPredictor.logger.info(f"- Mean best score(Test): {'%.4f' % search.best_score_} - Best Params: {search.best_params_} - Best Estimator: {search.best_estimator_}")
 
         # 2 - Check whether there is a difference between the best_classifier score (the classifier whose rank is equal to 1)
         #     and the best_classifier that can generalize (the classifier whose test_score is the highest)
         # bg_dict = DfUtil.cv_best_generalized_score_and_param(df_cv_results)
-
         # 3 - (bg: best generalized) - bg_score_test_set, bg_score_train_set, bg_rank, bg_score_difference_with_1st, bg_params
         # ValeoPredictor.logger.info(f"- Best mean score(Test, rank {'%d' %  search.best_index_} | {'%d' %  bg_dict[C.bg_rank]}): {'%.4f' % bg_dict[C.bg_score_test_set]} "
         #                            f"(mean Train {'%.4f' %  bg_dict[C.bg_score_train_set]}) - "

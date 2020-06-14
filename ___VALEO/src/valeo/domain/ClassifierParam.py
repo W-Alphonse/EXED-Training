@@ -24,12 +24,13 @@ class ClassifierParam :
 
     # https://stackoverflow.com/questions/49036853/scipy-randint-vs-numpy-randint
     def _initialize_param(self):
+        # ======================== Balanced RandomForest ========================
         self.g_param[C.BRFC] =  {
             'classifier__n_estimators': [200, 300],
             'classifier__max_depth': [8, 10],
             'classifier__max_features' : ['sqrt', 'log2'],
             'classifier__min_samples_split' : [12, 18],
-            'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
+            'classifier__oob_score': [True, False], # default:False => Whether to use out-of-bag samples to estimate the generalization accuracy
             'classifier__criterion' : ['entropy', 'gini'],
             'classifier__sampling_strategy' : [ 0.2, 0.3, 'auto']
          }
@@ -38,7 +39,7 @@ class ClassifierParam :
             'classifier__max_depth': randint(8, 12),
             'classifier__max_features' : ['sqrt', 'log2'],
             'classifier__min_samples_split' : randint(12,25),
-            'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
+            'classifier__oob_score': [True, False], # default:False => Whether to use out-of-bag samples to estimate the generalization accuracy
             'classifier__criterion' : ['entropy', 'gini'],
             'classifier__sampling_strategy' : [ 0.2, 0.3, 'auto']
         }
@@ -47,57 +48,61 @@ class ClassifierParam :
             'classifier__max_depth': Integer(5, 10),
             'classifier__max_features' : ['sqrt', 'log2'],
             'classifier__min_samples_split' : Integer(12, 25),
-            'classifier__oob_score': [True, False], # default:False -> Whether to use out-of-bag samples to estimate the generalization accuracy
+            'classifier__oob_score': [True, False], # default:False => Whether to use out-of-bag samples to estimate the generalization accuracy
             'classifier__criterion' : ['entropy', 'gini'],
             'classifier__sampling_strategy' : Real(0.15, 0.35)
         }
-        # self.d_param[C.BRFC]  = { 'classifier__n_estimators': [260],
-        #                           'classifier__max_depth': [15],
-        #                           'classifier__min_samples_leaf' : [5]
-        #  }
-        # ========================   LogisticRegression(max_iter=500)
-        # C.LRC_SMOTEEN  : LogisticRegression(C= 1000, fit_intercept= False, max_iter= 1000, penalty='l2', solver='saga'),
-        # SMOTEENN(sampling_strategy='auto')
-
+        # ======================== LogisticRegression ========================
         self.g_param[C.LRC_SMOTEEN]  = {
             'classifier__penalty': ['l2'],
             'classifier__C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
             'classifier__fit_intercept' : [True, False],
             'classifier__solver' : ['lbfgs', 'saga'],
             'classifier__max_iter' : [1000]
-            # 'classifier__l1_ratio' : uniform(0, 1)
         }
         self.d_param[C.LRC_SMOTEEN]  ={
-                'classifier__penalty': ['l2'],   # , 'elasticnet'
+                'classifier__penalty': ['l2'],
                 'classifier__C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
                 'classifier__fit_intercept' : [True, False],
                 'classifier__solver' : ['lbfgs', 'saga'],
                 'classifier__max_iter' : [1000]
-                #'classifier__l1_ratio' : uniform(0, 1)
         }
         self.o_param[C.LRC_SMOTEEN] =  {
-            'classifier__penalty': ['l2'],  # , 'elasticnet'
+            'classifier__penalty': ['l2'],
             'classifier__C': Real(0.0001, 1000),
             'classifier__fit_intercept' : [True, False],
             'classifier__solver' : ['lbfgs', 'saga'],
             'classifier__max_iter' : [1000]
          }
-            # ,
-            # {
-            #     'classifier__penalty': ['l2'],
-            #     'classifier__C': [1, 10, 100, 1000],
-            #     'classifier__fit_intercept' : [True, False],
-            #     'classifier__solver' : ['newton-cg', 'lbfgs', 'sag', 'saga'],
-            #     'classifier__max_iter' : randint(100, 500)
-            # }
+        # ======================== Balanced Bag Classifier + Gradient Boost ========================
+        # C.BBC_GBC : BalancedBaggingClassifier(base_estimator=GradientBoostingClassifier(learning_rate= 0.1,  max_depth= 10, max_features= 'log2', min_samples_split= 18),
+        #                                       n_estimators= 200, max_samples=0.7, max_features= 8,   oob_score= True, replacement=True , sampling_strategy= 'auto', n_jobs=-1),
+        self.g_param[C.BBC_GBC] =  {
+            'classifier__base_estimator__learning_rate': [0.05, 0.1],
+            'classifier__base_estimator__n_estimators':  [35, 150],
+            'classifier__base_estimator__max_depth' : [3,5],
+            'classifier__base_estimator__max_features' : ['log2'],
+            'classifier__base_estimator__min_samples_split' : [25, 30],
+            'classifier__n_estimators' : [200, 250],
+            'classifier__max_samples'  : [0.7, 0.8],
+            'classifier__max_features' : Integer(30,40),
+            'classifier__oob_score' : [True]
+        }
+        self.d_param[C.BBC_GBC] =  {}
+        self.o_param[C.BBC_GBC] =  {
+            'classifier__base_estimator__learning_rate': Real(0.1, 10),
+            'classifier__base_estimator__n_estimators': Integer(50,100),
+            'classifier__base_estimator__max_depth' : Integer(5,10),
+            'classifier__base_estimator__max_features' : ['sqrt', 'log2'],
+            'classifier__base_estimator__min_samples_split' :Integer(15, 25),
+            'classifier__n_estimators' : Integer(10,200),
+            'classifier__max_samples'  : Real(0.5, 0.7),
+            'classifier__max_features' : Integer(5,30),
+            'classifier__oob_score' : [True, False]
+        }
 
 
 
-        # =======================  HGBC : HistGradientBoostingClassifier(max_iter = 100 , max_depth=10,learning_rate=0.10, l2_regularization=5),
-        # self.g_param[C.HGBC]  = {
-        # }
-        # self.d_param[C.HGBC]  = {
-        # }
 # Build a machine-learning pipeline using a HistGradientBoostingClassifier and fine tune your model on the Titanic dataset using a RandomizedSearchCV.
 #
 # You may want to set the parameter distributions is the following manner:
