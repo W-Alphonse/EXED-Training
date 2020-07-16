@@ -69,11 +69,18 @@ class SqrtTransformer(BaseEstimator, TransformerMixin):
 
 
 class DropUnecessaryFeatures(BaseEstimator, TransformerMixin):
+    def __init__(self, unretainedFeatures:list):
+        self.unretainedFeatures = unretainedFeatures
+
     def fit(self, X, y=None):
         return self
 
     def transform(self, X):
-        return X.drop(X.columns.to_list(), axis=1)
+        # return X.drop(X.columns.to_list(), axis=1)
+        # X =  X.drop([C.OP100_Capuchon_insertion_mesure], axis=1)
+        # return X
+        existing_columns_to_drop = [col for col in self.unretainedFeatures if col in X.columns.to_list()]
+        return X.drop(existing_columns_to_drop, axis=1)
 
 
 class ProcDateTransformer(BaseEstimator, TransformerMixin):

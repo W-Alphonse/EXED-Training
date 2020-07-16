@@ -22,6 +22,8 @@ OP110_Vissage_M8_torque_value = 'OP110_Vissage_M8_torque_value'
 OP120_Rodage_I_mesure_value   = 'OP120_Rodage_I_mesure_value'
 OP120_Rodage_U_mesure_value   = 'OP120_Rodage_U_mesure_value'
 Binar_OP130_Resultat_Global_v = 'Binar OP130_Resultat_Global_v'
+#
+UNRETAINED_FEATURES=[OP100_Capuchon_insertion_mesure]
 # F_Manuf_day_count = 'F_Manuf_day_count'
 proc_month   = 'proc_month'
 proc_week    = 'proc_week'

@@ -5,6 +5,7 @@ from imblearn.pipeline import Pipeline
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.combine import SMOTETomek, SMOTEENN
 from sklearn.base import BaseEstimator
+from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier, AdaBoostClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.compose import ColumnTransformer
@@ -46,15 +47,20 @@ class ValeoModeler :
 
     def build_transformers_pipeline(self, X_df: pd.DataFrame) -> ColumnTransformer:
         rand_state = 48
+        X_df =  X_df.drop(C.UNRETAINED_FEATURES, axis=1)
         numerical_features = DfUtil.numerical_cols(X_df)
-        nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
-        zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=True, random_state=rand_state)
+        nan_imputer    = IterativeImputer(estimator=BayesianRidge(), missing_values=np.nan,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
+        zeroes_imputer = IterativeImputer(estimator=BayesianRidge(), missing_values=0,  max_iter=10, initial_strategy = 'median',  add_indicator=False, random_state=rand_state)
         scaler         =  RobustScaler(with_centering=True, with_scaling=True, quantile_range=(5.0, 95.0))  # Normalizer()  # RobustScaler() #StandardScaler() # RobustScaler(with_centering=True, with_scaling=False)  # MinMaxScaler()
         # NB: When using log tranformer: Adopt this transformation -> log(-2) = -1×(log(abs(-2)+1))
         num_transformers_pipeline = Pipeline([ ('nan_imputer', nan_imputer),
                                                ('zeroes_imputer', zeroes_imputer),
                                                ('scaler', scaler) ])
+
+        cat_transformers_pipeline = Pipeline([ ('cat_proc_date', pp.ProcDateTransformer()),
+                                               ('hotencoder_transformer', OneHotEncoder()) ])
         return ColumnTransformer([
+                                  # ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP100_Capuchon_insertion_mesure]),  # 	0.6919
                                   ('num_transformers_pipeline',num_transformers_pipeline, numerical_features),
                                   #
                                   # ('num_imputer_pipeline',num_imputer_pipeline, numerical_features),
@@ -66,14 +72,17 @@ class ValeoModeler :
                                   # ('num_left_skewed_dist', pp.SqrtTransformer(), [C.OP090_SnapRingMidPointForce_val]),
                                   # ('num_scaler',nan_imputer, numerical_features),
                                   #
-                                  ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
+                                  # A REMETTRE JULY 2020 - ('cat_proc_date', pp.ProcDateTransformer(), [C.PROC_TRACEINFO]),
+                                  ('cat_transformers_pipeline',cat_transformers_pipeline, [C.PROC_TRACEINFO]),
                                   # ('ht', OneHotEncoder(), [C.proc_weekday, C.proc_week, C.proc_month]),
                                   # ('cat_OP100', pp.OP100CapuchonInsertionMesureTransformer(), [C.OP100_Capuchon_insertion_mesure]),
                                   # ('OP120U', pp.BucketTransformer((C.OP120_Rodage_U_mesure_value,[-np.inf, 11.975, np.inf],[1,2])), [C.OP120_Rodage_U_mesure_value]),
                                   # ('V1_Value', pp.BucketTransformer((C.OP070_V_1_torque_value,[-np.inf, 6.5, np.inf],[1,2])), [C.OP070_V_1_torque_value]),
                                   # ('V2_Value', pp.BucketTransformer((C.OP070_V_2_torque_value,[-np.inf, 6.5, np.inf],[1,2])), [C.OP070_V_2_torque_value]),
                                   #
-                                  ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value]),
+                                  # REMETTRE ??? ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP100_Capuchon_insertion_mesure]),  # 	0.6919
+                                  # ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP100_Capuchon_insertion_mesure, C.OP070_V_1_torque_value]),
+                                  # ('drop_unecessary_features', pp.DropUnecessaryFeatures(), [C.OP120_Rodage_U_mesure_value, C.OP100_Capuchon_insertion_mesure]),
                                   # ('num_scaler',scaler, numerical_features),
                                   ], remainder='passthrough')
 
@@ -132,12 +141,14 @@ class ValeoModeler :
         #
         pl= Pipeline([ # ('preprocessor', self.build_transformers_pipeline(features_dtypes)) ,
                         # ('feats',feats),
+                        ('drop_unecessary_features', pp.DropUnecessaryFeatures(C.UNRETAINED_FEATURES) ) ,
                         ('preprocessor', self.build_transformers_pipeline(X_df) ) ,
+
 
                         # ('pp_delete',dt),
                         # ('pp_cat_OP100',ct),
                         # ('hotencoder_transformer', ht),
-                        ('hotencoder_transformer', OneHotEncoder()),
+                        # A REMETTRE JULY ('hotencoder_transformer', OneHotEncoder()),
                         # ('pca_transformer', PCA(n_components=0.9)),
                         *self.compute_first_level_classifier(clfTypes) ,
 
@@ -150,7 +161,7 @@ class ValeoModeler :
                         # ('drop_unecessary_features', pp.DropUnecessaryFeatures([C.PROC_TRACEINFO])),
                        ########################
 
-                      ('classifier', clfs[clfTypes[0]])  # ex: bbc : ENS(0.61) without explicit overSampling / test_roc_auc : [0,.6719306  0.58851217 0.58250362 0.6094371  0.55757417]
+                      ('classifier', clfs[clfTypes[0]])
                       ])
         # for i, s in enumerate(pl.steps) :
         #     print(f"{i} -> {s[0]} / {str(s[1])[:70]}")
