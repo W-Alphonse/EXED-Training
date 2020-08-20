@@ -1,0 +1,237 @@
+_1 https://mail.google.com/mail/u/0/#inbox/FMfcgxwHMPkCNFdVZGndkbPXfMlwBvKh : 17/03 suite de votre parcours / Réponse d'Erwan
+_2 https://mail.google.com/mail/u/0/#inbox/FMfcgxwHMjqkvfTrMhCCWPxBCXLCVbzn : 10/04 la suite - Mémoire intermédaire
+_3 https://mail.google.com/mail/u/0/#inbox/FMfcgxwHMsSvqRGtbhPXCKRVQWVWbhXt : 21/04 dépot du mémoire sur le moodel
+
+
+***GitHub pour Plot***
+https://github.com/BigDataRepublic/bdr-analytics-py/blob/master/bdranalytics/plot/classification.py
+
+By convention, the class with less number of examples is called minority or positive samples.
+We focused on the monority class, we want a high prediction for the minority class.
+SMOTE: Combine undersampming and oversampling.
+
+https://realpython.com/
+
+
+--------------------------
+  Jupyter Notebook Notes
+--------------------------  
+_Markdown cheat sheet: https://www.markdownguide.org/cheat-sheet/
+_Convert Jupyter Notebook to Word:  http://www.staycurious.me/misc/jupyter-to-word/
+_Using Jupyter Notebooks For Assessment – Export as Word (.docx):  https://blog.ouseful.info/2017/06/13/using-jupyter-notebooks-for-assessment-export-as-word-docx-extension/
+_Using Jupyter Notebooks For Assessment – Export as Word (.docx):  jupyter nbconvert --to html my_notebook.ipynb
+_Using Jupyter Notebooks For Assessment – Export as Word (.docx):  pandoc -s my_notebook.html -o my_notebook.docx
+    Gestion des erreurs de conversion:
+	a - Remplacer <th colspan="2">  PAR  <th></th><th>
+          <td rowspan="2">  PAR  <td></td><td>
+	b - les graphes : reduire à 50%
+
+_ https://learnbyexample.github.io/tutorial/ebook-generation/customizing-pandoc/
+_http://www.staycurious.me/data-science-learning/learning-track/#introduction-to-probability--statistics
+
+__   - Analyze and explore the tabular data		OK
+__   - Visualize graphically the data			OK
+__   - Find out the correlation between features and the output + correlations among features	OK
+__   - Train / Cross Validate and Test a few estimators adapted for imbalanced data
+__   - Compute the appropriate metric for each, comment and analyse the metric results.
+__   - Identify the features that most impact the metric results, analyze and comment
+
+__ Markdown:
+
+
+--> One key advantage is obtained by breaking the entire code into different modules 
+- one file for config variables, 
+- one code for building pipelines for each preprocessing step, 
+- once code to data import/export & saving/loading models, 
+- and one main code for calling and running a pipeline to train and save the model, 
+- and one code for running prediction on any data.
+
+filefile:///C:/Users/E241482/Downloads/StatisticsMachineLearningPythonDraft.pdf
+http://danielhnyk.cz/creating-your-own-estimator-scikit-learn/
+http://jonathansoma.com/lede/algorithms-2017/classes/fuzziness-matplotlib/how-pandas-uses-matplotlib-plus-figures-axes-and-subplots/  # Tres Impt
+http://pageperso.lif.univ-mrs.fr/~francois.denis/IAAM1/scikit-learn-docs.pdf
+http://www.cs.nthu.edu.tw/~shwu/courses/ml/labs/08_CV_Ensembling/08_CV_Ensembling.html
+http://www.erogol.com/fighting-class-unbalance-supervised-ml-problem/
+http://www.statstutor.ac.uk/resources/uploaded/tutorsquickguidetostatisticsprint2uppamphlet.pdf
+
+https://amueller.github.io/
+https://arxiv.org/pdf/2002.04592.pdf
+https://ashokharnal.wordpress.com/tag/kneighborsclassifier-explained/
+https://ashokharnal.wordpress.com/2015/01/20/a-working-example-of-k-d-tree-formation-and-k-nearest-neighbor-algorithms/
+https://blog.statsbot.co/ensemble-learning-d1dcd548e936
+https://blog.prepscholar.com/skewed-right
+https://towardsdatascience.com/top-3-methods-for-handling-skewed-data-1334e0debf45
+https://campus.datacamp.com/courses/dealing-with-missing-data-in-python/imputation-techniques?ex=2
+https://datasciblog.github.io/2016/12/27/a-kagglers-guide-to-model-stacking-in-practice/
+https://discuss.analyticsvidhya.com/t/how-to-handle-missing-values-of-categorical-variables/310/7
+https://gist.github.com/endolith/2719900
+
+https://github.com/arrayslayer/ML-Project
+https://github.com/scikit-learn-contrib/sklearn-pandas
+https://github.com/wmlba/Fraud_Detection_Techniques
+https://heartbeat.fritz.ai/hands-on-with-feature-selection-techniques-an-introduction-1d8dc6d86c16      # Serie de 8 articles
+https://journalofbigdata.springeropen.com/articles/10.1186/s40537-017-0108-1
+https://kiwidamien.github.io/how-to-do-cross-validation-when-upsampling-data.html
+https://machinelearningmastery.com/combine-oversampling-and-undersampling-for-imbalanced-classification/
+https://machinelearningmastery.com/cross-validation-for-imbalanced-classification/
+https://machinelearningmastery.com/handle-missing-data-python/
+https://machinelearningmastery.com/k-fold-cross-validation/
+https://machinelearningmastery.com/smote-oversampling-for-imbalanced-classification/
+https://machinelearningmastery.com/sparse-matrices-for-machine-learning/
+https://machinelearningmastery.com/tour-of-evaluation-metrics-for-imbalanced-classification/
+https://machinelearningmastery.com/roc-curves-and-precision-recall-curves-for-imbalanced-classification/
+
+https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html
+https://matplotlib.org/gallery/images_contours_and_fields/image_annotated_heatmap.html#sphx-glr-gallery-images-contours-and-fields-image-annotated-heatmap-py
+https://matplotlib.org/gallery/index.html
+https://medium.com/@contactsunny/handle-missing-data-in-your-training-dataset-with-scikit-imputer-f4bbf005fc5e
+https://medium.com/@diaohe/resampling-for-imbalanced-data-a7762b46380d
+https://medium.com/@ian.dzindo01/feature-scaling-in-python-a59cc72147c1
+https://medium.com/@jonathan_hui/machine-learning-singular-value-decomposition-svd-principal-component-analysis-pca-1d45e885e491
+https://medium.com/@lily_su/confusion-matrix-roc-auc-and-imbalanced-classes-in-logistic-regression-5c7ead3deefc
+https://medium.com/@mqofori/a-first-look-at-sklearns-histgradientboostingclassifier-9f5bea611c6a
+https://medium.com/@outside2SDs/an-overview-of-correlation-measures-between-categorical-and-continuous-variables-4c7f85610365   #CORREL_CAT
+https://medium.com/@vincent.kr18/hyper-parameter-tuning-using-bayesian-optimisation-code-b50e0e8abe20
+https://medium.com/@xzz201920/stratifiedkfold-v-s-kfold-v-s-stratifiedshufflesplit-ffcae5bfdf
+
+https://medium.com/analytics-vidhya/machine-learning-models-to-production-72280c3cb479
+https://medium.com/analytics-vidhya/re-sampling-imbalanced-training-corpus-for-sentiment-analysis-c9dc97f9eae1
+https://medium.com/analytics-vidhya/using-scikit-learns-iterative-imputer-694c3cca34de
+https://medium.com/better-programming/handling-missing-data-in-python-using-scikit-imputer-7607c8957740
+
+https://medium.com/comet-ml/part-i-conducting-exploratory-data-analysis-eda-for-the-kaggle-home-credit-default-competition-776950733a59
+https://medium.com/datadriveninvestor/finding-outliers-in-dataset-using-python-efc3fce6ce32
+https://medium.com/dunder-data/selecting-subsets-of-data-in-pandas-6fcd0170be9c
+https://medium.com/hugo-ferreiras-blog/dealing-with-categorical-features-in-machine-learning-1bb70f07262d
+https://medium.com/mindorks/what-is-feature-engineering-for-machine-learning-d8ba3158d97a
+https://medium.com/swlh/boosting-and-bagging-explained-with-examples-5353a36eb78d
+https://medium.com/swlh/difference-between-bagging-and-boosting-f996253acd22
+https://medium.com/towards-artificial-intelligence/application-of-synthetic-minority-over-sampling-technique-smote-for-imbalanced-data-sets-509ab55cfdaf
+https://medium.com/urbint-engineering/using-smoteboost-and-rusboost-to-deal-with-class-imbalance-c18f8bf5b805
+
+https://neptune.ai/blog/scikit-optimize
+https://pythonhealthcare.org/
+
+https://sci2s.ugr.es/imbalanced
+https://scikit-optimize.github.io/0.7//_downloads/scikit-optimize-docs.pdf
+https://scipy-lectures.org/packages/scikit-learn/index.html
+https://stackoverflow.com/questions/45969390/difference-between-stratifiedkfold-and-stratifiedshufflesplit-in-sklearn
+https://stats.stackexchange.com/questions/107610/what-is-the-reason-the-log-transformation-is-used-with-right-skewed-distribution
+https://stats.stackexchange.com/questions/93082/if-x-is-normally-distributed-can-logx-also-be-normally-distributed/93097#93097
+https://stats.stackexchange.com/questions/103475/classifier-vs-model-vs-estimator
+https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/supporting-topics/basics/a-comparison-of-the-pearson-and-spearman-correlation-methods/
+https://support.minitab.com/en-us/minitab-express/1/help-and-how-to/modeling-statistics/regression/supporting-topics/basics/linear-nonlinear-and-monotonic-relationships/    
+https://towardsdatascience.com/4-tips-for-advanced-feature-engineering-and-preprocessing-ec11575c09ea   # Also explain how to reduce the impact of outliers
+https://towardsdatascience.com/all-about-missing-data-handling-b94b8b5d2184   # Très important
+https://towardsdatascience.com/an-easier-way-to-encode-categorical-features-d840ff6b3900
+https://towardsdatascience.com/an-introduction-to-t-sne-with-python-example-5a3a293108d1
+https://towardsdatascience.com/classification-an-important-concept-in-machine-learning-af6ff4cb2cfd
+
+https://towardsdatascience.com/dealing-with-class-imbalanced-datasets-for-classification-2cc6fad99fd9
+https://towardsdatascience.com/dealing-with-imbalanced-classes-in-machine-learning-d43d6fa19d2
+https://towardsdatascience.com/ensemble-learning-using-scikit-learn-85c4531ff86a
+https://towardsdatascience.com/everything-you-need-to-know-about-automl-and-neural-architecture-search-8db1863682bf
+https://towardsdatascience.com/exploratory-data-analysis-eda-a-practical-guide-and-template-for-structured-data-abfbf3ee3bd9
+https://towardsdatascience.com/exploratory-data-analysis-eda-a-practical-guide-and-template-for-structured-data-abfbf3ee3bd9
+https://towardsdatascience.com/feature-engineering-for-machine-learning-3a5e293a5114
+https://towardsdatascience.com/fit-vs-transform-in-scikit-libraries-for-machine-learning-3c70e6300ded
+https://towardsdatascience.com/handling-imbalanced-datasets-in-machine-learning-7a0e84220f28
+https://towardsdatascience.com/having-an-imbalanced-dataset-here-is-how-you-can-solve-it-1640568947eb
+https://towardsdatascience.com/class-imbalance-a-classification-headache-1939297ff4a4
+https://towardsdatascience.com/how-to-calibrate-undersampled-model-scores-8f3319c1ea5b
+https://towardsdatascience.com/imbalanced-data-in-classification-general-solution-case-study-169f2e18b017
+https://towardsdatascience.com/interactive-controls-for-jupyter-notebooks-f5c94829aee6
+https://towardsdatascience.com/introduction-to-bayesian-linear-regression-e66e60791ea7
+https://towardsdatascience.com/jupyter-notebooks-in-the-ide-visual-studio-code-versus-pycharm-5e72218eb3e8
+https://towardsdatascience.com/kendall-rank-correlation-explained-dee01d99c535
+https://towardsdatascience.com/methods-for-dealing-with-imbalanced-data-5b761be45a18
+https://towardsdatascience.com/neural-networks-overview-c3e6ab3e366b
+https://towardsdatascience.com/preprocessing-regression-imputation-of-missing-continuous-values-f612179bafb4
+https://towardsdatascience.com/probability-concepts-explained-bayesian-inference-for-parameter-estimation-90e8930e5348
+https://towardsdatascience.com/probability-concepts-explained-maximum-likelihood-estimation-c7b4342fdbb1
+https://towardsdatascience.com/probability-concepts-explained-marginalisation-2296846344fc
+https://towardsdatascience.com/probability-concepts-explained-probability-distributions-introduction-part-3-4a5db81858dc
+https://towardsdatascience.com/springer-has-released-65-machine-learning-and-data-books-for-free-961f8181f189
+https://towardsdatascience.com/the-search-for-categorical-correlation-a1cf7f1888c9   #CORREL_CAT
+https://towardsdatascience.com/the-tale-of-missing-values-in-python-c96beb0e8a9d
+https://towardsdatascience.com/ways-to-detect-and-remove-the-outliers-404d16608dba
+https://towardsdatascience.com/why-feature-correlation-matters-a-lot-847e8ba439c4
+https://www.alfredo.motta.name/cross-validation-done-wrong/
+https://www.analyticsvidhya.com/blog/2013/11/simple-manipulations-extract-data/
+https://www.analyticsvidhya.com/blog/2016/01/guide-data-exploration/
+https://www.analyticsvidhya.com/blog/2016/03/complete-guide-parameter-tuning-xgboost-with-codes-python/
+https://www.analyticsvidhya.com/blog/2017/03/imbalanced-data-classification/
+https://www.analyticsvidhya.com/blog/2018/05/improve-model-performance-cross-validation-in-python-r/
+https://www.datacamp.com/community/tutorials/diving-deep-imbalanced-data
+https://www.datacamp.com/community/tutorials/exploratory-data-analysis-python
+https://www.datacamp.com/community/tutorials/introduction-t-sne
+https://www.dataquest.io/blog/jupyter-notebook-tips-tricks-shortcuts/
+https://www.ethanrosenthal.com/2018/01/28/time-series-for-scikit-learn-people-part1/
+https://www.ethanrosenthal.com/2018/03/22/time-series-for-scikit-learn-people-part2/
+https://www.ethanrosenthal.com/2019/02/18/time-series-for-scikit-learn-people-part3/
+https://www.geeksforgeeks.org/how-to-use-google-colab/
+https://www.kaggle.com/general/45429
+https://www.kaggle.com/kailex/talkingdata-eda-and-class-imbalance
+https://www.kaggle.com/kshitijyad/eda-and-class-imbalance-explained-novice-level
+https://www.kaggle.com/mlg-ulb/creditcardfraud
+https://www.kaggle.com/rafjaa/resampling-strategies-for-imbalanced-datasets
+https://www.kaggle.com/shiqbal/first-data-exploration/notebook
+https://www.kdnuggets.com/2017/06/7-techniques-handle-imbalanced-data.html
+https://www.notion.so/ML-from-End-to-End-1-EDA-2016c5bab01f4f8f887a8323c26392d3
+https://www.pluralsight.com/guides/validating-machine-learning-models-scikit-learn
+https://www.stat.cmu.edu/~cshalizi/462/lectures/04/nonlinear-predictors.pdf
+https://www.svds.com/learning-imbalanced-classes/
+https://realpython.com/
+https://sebastianraschka.com/Articles/2014_about_feature_scaling.html
+
+->  Composition du jury :
+- Erwan Scornet (Professeur Assistant au CMAP de l'Ecole polytechnique)
+- Karim Lounici (Professeur au CMAP de l'Ecole Polytechnique)
+
+https://www.theses.fr/fr/?q=imbalanced  : These FR pour imbalanced
+
+-> ** Pipeline **
+https://ramhiser.com/post/2018-04-16-building-scikit-learn-pipeline-with-pandas-dataframe/
+https://medium.com/bigdatarepublic/integrating-pandas-and-scikit-learn-with-pipelines-f70eb6183696
+
+https://medium.com/vickdata/a-simple-guide-to-scikit-learn-pipelines-4ac0d974bdcf     # Pipeline_1 using Transformer associated implicitely to columns / Rebecca
+https://towardsdatascience.com/custom-transformers-and-ml-data-pipelines-with-python-20ea2a7adb65      # Pipeline_2 using Custom-Generic-Transformer / SamT
+https://towardsdatascience.com/a-simple-example-of-pipeline-in-machine-learning-with-scikit-learn-e726ffbb6976
+https://medium.com/analytics-vidhya/machine-learning-models-to-production-part-1-build-your-own-sklearn-pipeline-e7aa7c06152a # Pipeline_3 Custom-Very-Generic-Transformer / Kumar 
+http://www.xavierdupre.fr/app/mlinsights/helpsphinx/notebooks/visualize_pipeline.html   # Pipeline_4 # Pipeline_1 using Transformer associated implicitely to columns + Visualize graphically a scikit-learn pipeline
+https://www.youtube.com/watch?v=BFaadIqWlAg  # Pandas, Pipelines, and Custom Transformers
+https://medium.com/analytics-vidhya/machine-learning-models-to-production-part-1-build-your-own-sklearn-pipeline-e7aa7c06152a
+https://medium.com/analytics-vidhya/machine-learning-models-to-production-72280c3cb479
+
+-> ** Feature Scaling **
+
+-> ** Grid Search **
+https://datascience.stackexchange.com/questions/21877/how-to-use-the-output-of-gridsearch
+https://medium.com/criteo-labs/hyper-parameter-optimization-algorithms-2fe447525903
+https://towardsdatascience.com/hyperparameters-optimization-526348bb8e2d
+https://medium.com/@ODSC/optimizing-hyperparameters-for-random-forest-algorithms-in-scikit-learn-d60b7aa07ead
+
+
+-> ** Tuning Parameters **
+https://www.analyticsvidhya.com/blog/2016/02/complete-guide-parameter-tuning-gradient-boosting-gbm-python/
+https://courses.analyticsvidhya.com/courses/ensemble-learning-and-ensemble-learning-techniques
+https://medium.com/@venali/conventional-guide-to-supervised-learning-with-scikit-learn-logistic-regression-generalized-e9783c414588
+https://medium.com/analytics-vidhya/hyperparameter-tuning-an-svm-a-demonstration-using-hyperparameter-tuning-cross-validation-on-96b05db54e5b
+
+
+--> ** MachineLearningMastery **
+https://machinelearningmastery.com/save-load-machine-learning-models-python-scikit-learn/
+https://machinelearningmastery.com/make-predictions-scikit-learn/
+
+
+https://towardsdatascience.com/the-essential-skills-most-data-science-courses-wont-teach-you-5ceb0c4d17ce
+
+
+-> ** Encoders **
+http://www.xavierdupre.fr/app/papierstat/helpsphinx/notebooks/artificiel_category_2.html
+
+--> Column Transformer does not respect the column order; But Pipeline does !!
+https://towardsdatascience.com/using-columntransformer-to-combine-data-processing-steps-af383f7d5260
+
+
+https://www.kausalvikash.in/python-interview-questions-and-answers-for-freshers/

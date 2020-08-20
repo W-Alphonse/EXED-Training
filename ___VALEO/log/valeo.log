@@ -1,12 +1,10 @@
-2020-04-09 15:25:30,165 - DEBUG - valeo.infrastructure.generic.ImgUtil - Generating 'hist' plot: bins=50 - figsize=(20, 15)
-2020-04-09 15:25:30,626 - DEBUG - valeo.infrastructure.generic.ImgUtil - Saving figure 'X_data_transformed_histogram_20x15'
-2020-04-09 15:25:34,241 - INFO - numexpr.utils - NumExpr defaulting to 8 threads.
-2020-04-09 15:25:35,072 - DEBUG - valeo.infrastructure.generic.ImgUtil - Generating 'hist' plot: bins=50 - figsize=(20, 15)
-2020-04-09 15:25:35,535 - DEBUG - valeo.infrastructure.generic.ImgUtil - Saving figure 'X_data_transformed_log10_histogram_20x15'
-2020-04-09 15:25:39,581 - DEBUG - valeo.infrastructure.generic.ImgUtil - Generating 'scatter matrix' plot: figsize:(20, 15)
-2020-04-09 15:25:40,623 - DEBUG - valeo.infrastructure.generic.ImgUtil - Saving figure 'XY_data_transformed_corr_1_scatter_matrix_20x15'
-2020-04-09 15:25:49,179 - DEBUG - valeo.infrastructure.generic.ImgUtil - Generating 'scatter matrix' plot: figsize:(20, 15)
-2020-04-09 15:25:50,152 - DEBUG - valeo.infrastructure.generic.ImgUtil - Saving figure 'XY_data_transformed_corr_2_scatter_matrix_20x15'
-2020-04-09 15:25:59,092 - DEBUG - valeo.infrastructure.generic.ImgUtil - Saving figure 'Result_vs_OP100_Capuchon_insertion_mesure_20x5'
-2020-04-09 15:26:01,840 - DEBUG - valeo.infrastructure.generic.ImgUtil - Saving figure 'Result_vs_OP070_V2_torque_value_20x5'
-2020-04-09 15:26:04,655 - DEBUG - valeo.infrastructure.generic.ImgUtil - Saving figure 'Result_vs_OP070_V1_torque_value_20x5'
+Starting *** LRC_SMOTEEN - stt *** at 2020-07-08 12:51:30 .....
+<table><tr><th>Valeur</th><th>Mesure</th> </tr>
+	<tr><td>ROC_AUC</td><td>0.6488</td></tr>
+	<tr><td>Recall</td><td>0.6400</td></tr>
+	<tr><td>Precision</td><td>0.0135</td></tr>
+	<tr><td>F1</td><td>0.0264</td></tr>
+	<tr><td>Matrice de confusion</td><td>[4507 2346]</td></tr>
+	<tr><td></td><td>[18 32]</td></tr>
+</table>
+Ending *** LRC_SMOTEEN - stt *** at 2020-07-08 12:53:57 .....

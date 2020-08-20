@@ -12,6 +12,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Jupyter Notebook" />
+        <option value="Class" />
         <option value="Python Script" />
       </list>
     </option>
@@ -20,17 +21,20 @@
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="last_opened_file_path" value="C:/envdev/Anaconda3/envs/foodcast" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
-    <property name="project.structure.side.proportion" value="0.23297872" />
-    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.notebooks.jupyter.connections.configuration.JupyterServerConfigurable" />
+    <property name="project.structure.side.proportion" value="0.35177866" />
+    <property name="settings.editor.selected.configurable" value="http.proxy" />
   </component>
   <component name="PyConsoleOptionsProvider">
     <option name="myUseExistingConsole" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\EXED\Training\___VALEO\src\valeo\infrastructure" />
+      <recent name="C:\EXED\Training\___VALEO\src\valeo\domain" />
       <recent name="C:\EXED\Training\___VALEO\src" />
       <recent name="C:\EXED\Training\___VALEO\src\valeo" />
     </key>
@@ -74,6 +78,9 @@
       <module name="Valeo" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="C:/envdev/Anaconda3/python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/src" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -102,10 +109,11 @@
     </recent_temporary>
   </component>
   <component name="StructureViewFactory">
-    <option name="ACTIVE_ACTIONS" value=",ALPHA_COMPARATOR" />
+    <option name="AUTOSCROLL_FROM_SOURCE" value="true" />
+    <option name="ACTIVE_ACTIONS" value=",ALPHA_COMPARATOR,SHOW_INHERITED" />
   </component>
   <component name="SvnConfiguration">
-    <configuration />
+    <configuration>C:\Users\E241482\AppData\Roaming\Subversion</configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -121,7 +129,50 @@
       <workItem from="1584371562773" duration="5233000" />
       <workItem from="1584952970143" duration="1854000" />
       <workItem from="1585153737954" duration="2411000" />
-      <workItem from="1586121749253" duration="69444000" />
+      <workItem from="1586121749253" duration="258100000" />
+      <workItem from="1587070735467" duration="96465000" />
+      <workItem from="1587391853875" duration="93660000" />
+      <workItem from="1587892851252" duration="45092000" />
+      <workItem from="1588374875783" duration="19474000" />
+      <workItem from="1588506495123" duration="15062000" />
+      <workItem from="1588535148410" duration="38457000" />
+      <workItem from="1588671055993" duration="10537000" />
+      <workItem from="1588688529010" duration="92156000" />
+      <workItem from="1589023540277" duration="94854000" />
+      <workItem from="1589319214114" duration="626000" />
+      <workItem from="1589321126303" duration="116429000" />
+      <workItem from="1589784789275" duration="1344000" />
+      <workItem from="1589829914578" duration="13591000" />
+      <workItem from="1590008699385" duration="3188000" />
+      <workItem from="1590015100954" duration="616000" />
+      <workItem from="1590081752042" duration="6703000" />
+      <workItem from="1590408679106" duration="253000" />
+      <workItem from="1590409929565" duration="334000" />
+      <workItem from="1590410463946" duration="604000" />
+      <workItem from="1590414483813" duration="1041000" />
+      <workItem from="1590445696565" duration="9116000" />
+      <workItem from="1590614028019" duration="42614000" />
+      <workItem from="1590829842321" duration="15591000" />
+      <workItem from="1590869040623" duration="274000" />
+      <workItem from="1590875374333" duration="9877000" />
+      <workItem from="1590913347594" duration="28472000" />
+      <workItem from="1590990816626" duration="1001000" />
+      <workItem from="1591024181058" duration="7073000" />
+      <workItem from="1591095111960" duration="628000" />
+      <workItem from="1591174042882" duration="777000" />
+      <workItem from="1591556251062" duration="1631000" />
+      <workItem from="1591639844077" duration="2982000" />
+      <workItem from="1591727192650" duration="21366000" />
+      <workItem from="1591794672913" duration="129461000" />
+      <workItem from="1592247272781" duration="3081000" />
+      <workItem from="1592455388937" duration="1958000" />
+      <workItem from="1592662321435" duration="176000" />
+      <workItem from="1592751099056" duration="6201000" />
+      <workItem from="1592833492093" duration="190000" />
+      <workItem from="1592835611746" duration="3000" />
+      <workItem from="1593591796538" duration="22262000" />
+      <workItem from="1593857495506" duration="2062000" />
+      <workItem from="1594074309140" duration="19343000" />
     </task>
     <servers />
   </component>
@@ -131,35 +182,90 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
-          <url>file://$PROJECT_DIR$/src/notebooks/valeo.ipynb</url>
-          <line>176</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="jupyter-line">
-          <url>file://$PROJECT_DIR$/src/notebooks/valeo.ipynb</url>
-          <line>177</line>
-          <option name="timeStamp" value="3" />
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://C:/envdev/Anaconda3/Lib/site-packages/sklearn/utils/validation.py</url>
+          <line>74</line>
+          <option name="timeStamp" value="55" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/valeo/infrastructure/generic/DfUtil.py</url>
-          <line>16</line>
-          <option name="timeStamp" value="10" />
+          <url>file://C:/envdev/Anaconda3/Lib/site-packages/imblearn/base.py</url>
+          <line>47</line>
+          <option name="timeStamp" value="68" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/domain/ValeoModeler.py</url>
+          <line>91</line>
+          <option name="timeStamp" value="112" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://C:/envdev/Anaconda3/Lib/site-packages/sklearn/utils/__init__.py</url>
+          <line>354</line>
+          <option name="timeStamp" value="115" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/infrastructure/tools/DebugPipeline.py</url>
+          <line>20</line>
+          <option name="timeStamp" value="144" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/infrastructure/tools/DebugPipeline.py</url>
+          <line>26</line>
+          <option name="timeStamp" value="145" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/infrastructure/tools/DebugPipeline.py</url>
+          <line>19</line>
+          <option name="timeStamp" value="146" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/domain/Preprocessor.py</url>
+          <line>170</line>
+          <option name="timeStamp" value="158" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/domain/Preprocessor.py</url>
+          <line>169</line>
+          <option name="timeStamp" value="160" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/domain/ValeoPredictor.py</url>
+          <line>200</line>
+          <option name="timeStamp" value="191" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/domain/ValeoPredictor.py</url>
+          <line>211</line>
+          <option name="timeStamp" value="192" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/src/valeo/domain/ClassifierParam.py</url>
+          <line>19</line>
+          <option name="timeStamp" value="193" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://C:/envdev/Anaconda3/Lib/site-packages/sklearn/utils/deprecation.py</url>
+          <line>66</line>
+          <option name="timeStamp" value="194" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/src/main.py</url>
-          <line>21</line>
-          <option name="timeStamp" value="12" />
+          <line>37</line>
+          <option name="timeStamp" value="198" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/valeo/infrastructure/generic/ImgUtil.py</url>
-          <line>7</line>
-          <option name="timeStamp" value="14" />
+          <url>file://$PROJECT_DIR$/src/valeo/domain/Preprocessor.py</url>
+          <line>79</line>
+          <option name="timeStamp" value="200" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/src/valeo/infrastructure/generic/ImgUtil.py</url>
-          <line>23</line>
-          <option name="timeStamp" value="20" />
+          <url>file://C:/envdev/Anaconda3/Lib/site-packages/sklearn/utils/__init__.py</url>
+          <line>453</line>
+          <option name="timeStamp" value="201" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://C:/envdev/Anaconda3/Lib/site-packages/sklearn/compose/_column_transformer.py</url>
+          <line>528</line>
+          <option name="timeStamp" value="202" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -174,6 +280,6 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Valeo$main.coverage" NAME="main Coverage Results" MODIFIED="1583834571640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
     <SUITE FILE_PATH="coverage/Valeo$Jupyter_Notebook.coverage" NAME="Jupyter Notebook Coverage Results" MODIFIED="1586281877152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
-    <SUITE FILE_PATH="coverage/Valeo$main__1_.coverage" NAME="main (1) Coverage Results" MODIFIED="1586362759829" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
+    <SUITE FILE_PATH="coverage/Valeo$main__1_.coverage" NAME="main (1) Coverage Results" MODIFIED="1594205485721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/src" />
   </component>
 </project>
